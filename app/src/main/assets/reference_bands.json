@@ -1,0 +1,88 @@
+{
+  "version": "1.0",
+  "citation": "Farkas, L. G., et al. (1985). Anthropometric facial proportions in healthy North American Caucasians. Plastic and Reconstructive Surgery.",
+  "disclaimer": "Reference bands reflect classical anatomical proportions and morphological variations in anthropometric literature. They describe photographic geometry, not personal worth or health status.",
+  "metrics": {
+    "vertical_thirds_upper": {
+      "name": "Upper Third (Forehead)",
+      "description": "Proportion of facial height from hairline (trichion) to brow (glabella).",
+      "unit": "%",
+      "canonical_value": 33.3,
+      "typical_min": 30.0,
+      "typical_max": 36.6,
+      "noise_floor": 1.5
+    },
+    "vertical_thirds_middle": {
+      "name": "Middle Third (Midface)",
+      "description": "Proportion of facial height from brow (glabella) to nose base (subnasale).",
+      "unit": "%",
+      "canonical_value": 33.3,
+      "typical_min": 30.0,
+      "typical_max": 36.6,
+      "noise_floor": 1.5
+    },
+    "vertical_thirds_lower": {
+      "name": "Lower Third (Lower Face)",
+      "description": "Proportion of facial height from nose base (subnasale) to chin (menton).",
+      "unit": "%",
+      "canonical_value": 33.3,
+      "typical_min": 30.0,
+      "typical_max": 36.6,
+      "noise_floor": 1.5
+    },
+    "horizontal_fifths_intercanthal": {
+      "name": "Intercanthal Width (Fifth)",
+      "description": "Distance between inner eye corners as a proportion of total bizygomatic face width.",
+      "unit": "%",
+      "canonical_value": 20.0,
+      "typical_min": 17.5,
+      "typical_max": 22.5,
+      "noise_floor": 1.2
+    },
+    "facial_index": {
+      "name": "Facial Index (Morphology)",
+      "description": "Ratio of total facial height to bizygomatic width (Nasion-Menton / Zygion-Zygion * 100).",
+      "unit": "ratio",
+      "canonical_value": 86.0,
+      "typical_min": 82.0,
+      "typical_max": 90.0,
+      "noise_floor": 1.8
+    },
+    "nasal_index": {
+      "name": "Nasal Index",
+      "description": "Ratio of nasal width to nasal height (Alare-Alare / Nasion-Subnasale * 100).",
+      "unit": "ratio",
+      "canonical_value": 72.0,
+      "typical_min": 65.0,
+      "typical_max": 80.0,
+      "noise_floor": 2.0
+    },
+    "mouth_to_interpupillary_ratio": {
+      "name": "Mouth to Interpupillary Ratio",
+      "description": "Ratio of cheilion distance to interpupillary distance.",
+      "unit": "ratio",
+      "canonical_value": 1.00,
+      "typical_min": 0.92,
+      "typical_max": 1.08,
+      "noise_floor": 0.03
+    },
+    "facial_symmetry_index": {
+      "name": "Facial Symmetry Index",
+      "description": "Bilateral balance score across paired landmarks relative to mid-sagittal plane.",
+      "unit": "/100",
+      "canonical_value": 100.0,
+      "typical_min": 92.0,
+      "typical_max": 99.0,
+      "noise_floor": 1.5
+    },
+    "jaw_angle": {
+      "name": "Gonial Jaw Angle",
+      "description": "Angle between mandibular ramus and mandibular body.",
+      "unit": "°",
+      "canonical_value": 122.0,
+      "typical_min": 115.0,
+      "typical_max": 130.0,
+      "noise_floor": 2.0
+    }
+  }
+}

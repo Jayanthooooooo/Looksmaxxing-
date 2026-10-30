@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<resources>
+    <string name="firestore_database_id" translatable="false">ai-studio-android-lumora-a7b279f0-f5ac-462b-9fa7-c6c296785485</string>
+    <string name="recaptcha_site_key" translatable="false">6LcG1wcuAAAAAADB8UZIM22teYxHroeJd6oyXaNG</string>
+</resources>

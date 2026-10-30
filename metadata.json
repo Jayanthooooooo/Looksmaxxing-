@@ -1,0 +1,6 @@
+{
+  "name": "Lumora",
+  "description": "Privacy-first face and skin progress journal",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

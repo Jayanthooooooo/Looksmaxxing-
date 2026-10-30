@@ -1,0 +1,71 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "LumoraFirestoreSchema",
+  "description": "Firestore database blueprint schema for Lumora privacy-first face and skin progress journal",
+  "collections": {
+    "users": {
+      "path": "users/{uid}",
+      "description": "Root document for user profile, consents, retention mode, and entitlement",
+      "fields": {
+        "profile": {
+          "type": "map",
+          "description": "User profile with display name, optional birth year, skin type, concerns, reference range preference"
+        },
+        "consent": {
+          "type": "map",
+          "description": "Versioned granular consents: onDevice, cloudAI, photoSync, analytics"
+        },
+        "retention": {
+          "type": "map",
+          "description": "Photo retention settings (mode: DONT_KEEP, KEEP_ON_DEVICE, BACKUP_30, etc.)"
+        },
+        "entitlement": {
+          "type": "map",
+          "description": "Subscription tier, source, expiry, and server-side verification status"
+        },
+        "deletionRequested": {
+          "type": "boolean",
+          "description": "Resumable flag set when account deletion is initiated"
+        },
+        "createdAt": {
+          "type": "timestamp",
+          "description": "Server creation timestamp"
+        },
+        "updatedAt": {
+          "type": "timestamp",
+          "description": "Server modification timestamp"
+        }
+      },
+      "subcollections": {
+        "scans": {
+          "path": "users/{uid}/scans/{scanId}",
+          "description": "Individual scan record with metadata, quality scores, metrics, and indices"
+        },
+        "plan": {
+          "path": "users/{uid}/plan/{doc}",
+          "description": "Current active plan and habits intentions"
+        },
+        "habitLogs": {
+          "path": "users/{uid}/habitLogs/{day}",
+          "description": "Daily habit completion records"
+        },
+        "reports": {
+          "path": "users/{uid}/reports/{id}",
+          "description": "Pro-tier periodic progress reports"
+        },
+        "replyReports": {
+          "path": "users/{uid}/replyReports/{id}",
+          "description": "User reports on AI coach responses for safety compliance"
+        }
+      }
+    },
+    "usage": {
+      "path": "usage/{docId}",
+      "description": "Daily usage counters for soft rate-limiting (aiSkin, coachMsgs)",
+      "fields": {
+        "aiSkin": { "type": "integer" },
+        "coachMsgs": { "type": "integer" }
+      }
+    }
+  }
+}

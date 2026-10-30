@@ -1,0 +1,61 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() { 
+      return request.auth != null; 
+    }
+    
+    function isOwner(uid) { 
+      return signedIn() && request.auth.uid == uid; 
+    }
+    
+    function noEntitlementWrite() {
+      return !request.resource.data.diff(resource.data).affectedKeys().hasAny(['entitlement']);
+    }
+
+    match /users/{uid} {
+      allow read: if isOwner(uid);
+      allow create: if isOwner(uid) && !request.resource.data.keys().hasAny(['entitlement']);
+      allow update: if isOwner(uid) && noEntitlementWrite();
+      allow delete: if isOwner(uid);
+
+      match /scans/{scanId} {
+        allow read, delete: if isOwner(uid);
+        allow create, update: if isOwner(uid)
+          && request.resource.data.keys().hasOnly(['createdAt','updatedAt','kind','engineVersion','qualityScore','metrics','indices','skin','photoPath'])
+          && request.resource.data.kind in ['front','side'];
+      }
+
+      match /plan/{doc} {
+        allow read, write: if isOwner(uid);
+      }
+
+      match /habitLogs/{day} {
+        allow read, write: if isOwner(uid);
+      }
+
+      match /reports/{id} {
+        allow read, write: if isOwner(uid);
+      }
+
+      match /replyReports/{id} {
+        allow create: if isOwner(uid) && request.resource.data.keys().hasOnly(['reason','note','replyText','createdAt']);
+        allow read, delete: if isOwner(uid);
+      }
+    }
+
+    match /usage/{docId} {
+      allow read: if signedIn() && docId.matches(request.auth.uid + '_.*');
+      allow create: if signedIn() && docId.matches(request.auth.uid + '_.*') 
+        && request.resource.data.keys().hasOnly(['aiSkin','coachMsgs']);
+      allow update: if signedIn() && docId.matches(request.auth.uid + '_.*')
+        && request.resource.data.aiSkin >= resource.data.aiSkin && request.resource.data.aiSkin <= resource.data.aiSkin + 1
+        && request.resource.data.coachMsgs >= resource.data.coachMsgs && request.resource.data.coachMsgs <= resource.data.coachMsgs + 1;
+      allow delete: if signedIn() && docId.matches(request.auth.uid + '_.*');
+    }
+
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
