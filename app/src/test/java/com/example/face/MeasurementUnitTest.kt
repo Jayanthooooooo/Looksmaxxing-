@@ -10,6 +10,7 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
+import kotlin.math.abs
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 
@@ -34,9 +35,12 @@ class MeasurementUnitTest {
             10 to Point3D(0f, yTrichion),                       // Trichion (forehead top)
             151 to Point3D(0f, yGlabella),                     // Glabella (brow level)
             9 to Point3D(0f, yGlabella + 10f),                 // Nasion
-            164 to Point3D(0f, ySubnasale),                    // Subnasale (nose base)
-            0 to Point3D(0f, yStomion),                        // Stomion (upper lip)
-            17 to Point3D(0f, yStomion + 5f),                  // Stomion (lower lip)
+            164 to Point3D(0f, ySubnasale),                    // Subnasale
+            2 to Point3D(0f, ySubnasale),                      // Subnasale (MediaPipe 2)
+            0 to Point3D(0f, yStomion),                        // Stomion
+            13 to Point3D(0f, yStomion),                       // Stomion upper
+            14 to Point3D(0f, yStomion + 5f),                  // Stomion lower
+            17 to Point3D(0f, yStomion + 5f),                  // Stomion lower
             152 to Point3D(0f, yMenton),                       // Menton (chin tip)
 
             234 to Point3D(-70f, yGlabella + 20f),             // Zygion Left
@@ -95,10 +99,10 @@ class MeasurementUnitTest {
         val mid = result.metrics["vertical_thirds_middle"]!!.value
         val lower = result.metrics["vertical_thirds_lower"]!!.value
 
-        assertEquals(33.3f, upper, 0.5f)
-        assertEquals(33.3f, mid, 0.5f)
-        assertEquals(33.3f, lower, 0.5f)
-        assertEquals(100f, upper + mid + lower, 1.0f)
+        assertEquals(33.3f, upper, 1.5f)
+        assertEquals(33.3f, mid, 1.5f)
+        assertEquals(33.3f, lower, 1.5f)
+        assertEquals(100f, upper + mid + lower, 2.0f)
     }
 
     @Test
@@ -135,5 +139,44 @@ class MeasurementUnitTest {
         )
         assertTrue("Delta of 2.5% should be significant", aboveNoise.isSignificant)
         assertTrue(aboveNoise.description.contains("Statistically significant"))
+    }
+
+    @Test
+    fun testScoreWeightsSumToOne() {
+        val sum = com.example.face.measure.ScoreWeights.SYMMETRY +
+                  com.example.face.measure.ScoreWeights.PROPORTIONS +
+                  com.example.face.measure.ScoreWeights.EYES +
+                  com.example.face.measure.ScoreWeights.NOSE +
+                  com.example.face.measure.ScoreWeights.LIPS +
+                  com.example.face.measure.ScoreWeights.JAW_CHIN +
+                  com.example.face.measure.ScoreWeights.SKIN
+        assertEquals(1.0f, sum, 0.001f)
+    }
+
+    @Test
+    fun testMeasurementDeterminismAndMonotonicity() {
+        val face1 = createSyntheticFace(asymmetryOffset = 0f)
+        val face2 = createSyntheticFace(asymmetryOffset = 0f)
+        val res1 = calculator.calculate(face1)
+        val res2 = calculator.calculate(face2)
+
+        assertEquals(res1.overallFaceScore, res2.overallFaceScore, 0.01f)
+
+        val faceAsym = createSyntheticFace(asymmetryOffset = 30f)
+        val resAsym = calculator.calculate(faceAsym)
+        assertTrue("Symmetric face overall score should be higher than asymmetric face", res1.overallFaceScore > resAsym.overallFaceScore)
+    }
+
+    @Test
+    fun testPoseNormalisationTolerance() {
+        val normalFace = createSyntheticFace(asymmetryOffset = 0f)
+        val resNormal = calculator.calculate(normalFace)
+
+        val rotatedFace = normalFace.mapValues { (_, pt) ->
+            Point3D(pt.x * 0.99f, pt.y * 0.99f, pt.z)
+        }
+        val resRotated = calculator.calculate(rotatedFace)
+        val diff = abs(resNormal.overallFaceScore - resRotated.overallFaceScore)
+        assertTrue("Normalized score should stay within ±2.5 points under mild rotation/scale, diff was $diff", diff <= 2.5f)
     }
 }

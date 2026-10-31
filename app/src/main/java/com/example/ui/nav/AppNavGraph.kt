@@ -37,7 +37,16 @@ import com.example.ui.screens.capture.LiveCaptureScreen
 import com.example.ui.screens.capture.PhotoReviewScreen
 import com.example.ui.screens.capture.ProcessingScreen
 import com.example.ui.screens.capture.ScanHubScreen
+import com.example.ui.screens.capture.ScanDraftHolder
+import com.example.ui.screens.capture.decodeGalleryUriToBitmap
+import com.example.face.engine.MlKitFaceMeshEngine
+import com.example.face.measure.MeasurementCalculator
+import com.example.skin.SkinStatsExtractor
+import com.example.skin.SkinScoreEngine
+import android.graphics.Bitmap
 import com.example.ui.screens.coach.ChatHistoryScreen
+import com.example.ui.screens.coach.ReportReplySheet
+import com.example.ui.screens.coach.CoachViewModel
 import com.example.ui.screens.main.CoachScreen
 import com.example.ui.screens.main.MainScaffold
 import com.example.ui.screens.main.MainTab
@@ -98,8 +107,19 @@ fun AppNavGraph(
     var userProfile by remember { mutableStateOf(UserProfile()) }
     val activeScans by container.scanRepository.observeAllActiveScans().collectAsState(initial = emptyList())
 
-    // Load profile when ready
+    val coachViewModel = remember { CoachViewModel(container.coachRepository, container.preferencesDataStore) }
+    val coachUiState by coachViewModel.uiState.collectAsState()
+    var reportTargetMsgId by remember { mutableStateOf<String?>(null) }
+
+    val activeHabits by container.habitRepository.observeActiveHabits().collectAsState(initial = emptyList())
+    val todayLogs by container.habitRepository.observeLogsForDate(container.habitRepository.todayDateString).collectAsState(initial = emptyList())
+    var streakDays by remember { mutableStateOf(0) }
+
+    // Load profile and habits when ready
     LaunchedEffect(sessionState) {
+        container.habitRepository.initializeDefaultHabitsIfEmpty()
+        streakDays = container.habitRepository.calculateStreakDays()
+
         if (sessionState is SessionState.Ready) {
             val uid = (sessionState as SessionState.Ready).userId
             val res = container.profileRepository.getProfile(uid)
@@ -108,6 +128,7 @@ fun AppNavGraph(
             }
         }
     }
+
 
     NavHost(
         navController = navController,
@@ -363,36 +384,60 @@ fun AppNavGraph(
                 isExpanded = isExpanded
             ) {
                 when (currentMainTab) {
-                    MainTab.TODAY -> TodayScreen(
-                        displayName = userProfile.displayName,
-                        latestScan = activeScans.firstOrNull(),
-                        daysSinceLastScan = null,
-                        streakDays = 1,
-                        habits = listOf(
-                            "Gentle AM Cleanser" to true,
-                            "Broad Spectrum Sunscreen" to true,
-                            "PM Barrier Hydration" to false
-                        ),
-                        onToggleHabit = { _, _ -> },
-                        onScanClick = { navController.navigate(Route.ScanHub.route) },
-                        onLatestScanClick = { scanId -> navController.navigate(Route.Results.createRoute(scanId)) },
-                        onCoachClick = { currentMainTab = MainTab.COACH },
-                        onPlanClick = { navController.navigate(Route.Plan.route) }
-                    )
+                    MainTab.TODAY -> {
+                        val habitList = activeHabits.map { habit ->
+                            val isDone = todayLogs.find { it.habitId == habit.id }?.done ?: false
+                            habit.label to isDone
+                        }
+                        val latestScan = activeScans.firstOrNull()
+                        val daysSinceLastScan = latestScan?.let {
+                            val diffMs = System.currentTimeMillis() - it.createdAt
+                            (diffMs / (1000 * 60 * 60 * 24)).toInt()
+                        }
+                        TodayScreen(
+                            displayName = userProfile.displayName,
+                            latestScan = latestScan,
+                            daysSinceLastScan = daysSinceLastScan,
+                            streakDays = streakDays,
+                            habits = habitList,
+                            onToggleHabit = { habitLabel, done ->
+                                val matchingHabit = activeHabits.find { it.label == habitLabel }
+                                if (matchingHabit != null) {
+                                    scope.launch {
+                                        container.habitRepository.toggleHabit(
+                                            matchingHabit.id,
+                                            container.habitRepository.todayDateString,
+                                            done
+                                        )
+                                        streakDays = container.habitRepository.calculateStreakDays()
+                                    }
+                                }
+                            },
+
+                            onScanClick = { navController.navigate(Route.ScanHub.route) },
+                            onLatestScanClick = { scanId -> navController.navigate(Route.Results.createRoute(scanId)) },
+                            onCoachClick = { currentMainTab = MainTab.COACH },
+                            onPlanClick = { navController.navigate(Route.Plan.route) }
+                        )
+                    }
+
                     MainTab.PROGRESS -> ProgressScreen(
                         scans = activeScans,
                         onScanClick = { scanId -> navController.navigate(Route.ScanDetails.createRoute(scanId)) },
                         onCompareClick = { navController.navigate(Route.Compare.route) }
                     )
                     MainTab.COACH -> CoachScreen(
-                        messages = emptyList(),
-                        onSendMessage = {},
-                        onStopGeneration = {},
-                        onReportMessage = {},
+                        messages = coachUiState.messages,
+                        onSendMessage = { msg -> coachViewModel.sendMessage(msg, activeScans.firstOrNull(), isPro) },
+                        onStopGeneration = { coachViewModel.stopGeneration() },
+                        onReportMessage = { msgId -> reportTargetMsgId = msgId },
                         onHistoryClick = { navController.navigate(Route.ChatHistory.route) },
                         onConsentSettingsClick = { navController.navigate(Route.PrivacyCentre.route) },
                         onUpgradeClick = { navController.navigate(Route.Paywall.createRoute("coach_limit")) },
                         isCloudAiConsentGranted = consentState.cloudAiAnalysis,
+                        isGenerating = coachUiState.isGenerating,
+                        messagesUsedToday = coachUiState.messagesUsedToday,
+                        dailyLimit = coachUiState.dailyLimit,
                         isPro = isPro
                     )
                     MainTab.YOU -> YouScreen(
@@ -414,7 +459,23 @@ fun AppNavGraph(
                 onSideScanClick = { navController.navigate(Route.Capture.createRoute("side")) },
                 onGalleryPick = { uri ->
                     if (uri != null) {
-                        navController.navigate(Route.Review.route)
+                        scope.launch {
+                            val bmp = decodeGalleryUriToBitmap(context, uri)
+                            if (bmp != null) {
+                                val faceEngine = MlKitFaceMeshEngine()
+                                val landResult = faceEngine.analyse(bmp)
+                                ScanDraftHolder.capturedBitmap = bmp
+                                ScanDraftHolder.aggregatedLandmarks = landResult.landmarks
+                                ScanDraftHolder.faceBounds = android.graphics.Rect(0, 0, bmp.width, bmp.height)
+                                ScanDraftHolder.scanKind = "front"
+                                ScanDraftHolder.qualityReport = QualityReport(
+                                    score = if (landResult.faceCount == 1) 90 else 0,
+                                    flags = if (landResult.faceCount == 0) listOf("No face detected in gallery photo") else emptyList(),
+                                    perGate = emptyMap()
+                                )
+                                navController.navigate(Route.Review.route)
+                            }
+                        }
                     }
                 },
                 onBackClick = { navController.popBackStack() }
@@ -438,13 +499,7 @@ fun AppNavGraph(
             val kind = backStackEntry.arguments?.getString("kind") ?: "front"
             LiveCaptureScreen(
                 kind = kind,
-                gateHeadAngle = true,
-                gateLight = true,
-                gateDistance = true,
-                gateExpression = true,
-                gateSteady = true,
-                consecutiveFramesHeld = 8,
-                onManualShutterClick = { navController.navigate(Route.Review.route) },
+                onScanCaptured = { navController.navigate(Route.Review.route) },
                 onToggleMirror = {
                     scope.launch { container.preferencesDataStore.setMirrorPreview(!mirrorPreview) }
                 },
@@ -456,62 +511,55 @@ fun AppNavGraph(
         // N15 Photo Review
         composable(Route.Review.route) {
             PhotoReviewScreen(
-                bitmap = null,
+                bitmap = ScanDraftHolder.capturedBitmap,
+                qualityWarning = ScanDraftHolder.qualityReport?.flags?.firstOrNull(),
                 onAccept = { navController.navigate(Route.Processing.route) },
-                onRetake = { navController.popBackStack() }
+                onRetake = {
+                    ScanDraftHolder.clear()
+                    navController.popBackStack()
+                }
             )
         }
 
         // N16 Processing
         composable(Route.Processing.route) {
             LaunchedEffect(Unit) {
-                val calculated = com.example.face.measure.MeasurementCalculator().calculate(emptyMap())
+                val bitmap = ScanDraftHolder.capturedBitmap
+                val landmarks = ScanDraftHolder.aggregatedLandmarks
+                val kind = ScanDraftHolder.scanKind
+
+                val calculated = MeasurementCalculator().calculate(landmarks)
+                val skinStats = SkinStatsExtractor().extract(bitmap ?: Bitmap.createBitmap(100, 100, Bitmap.Config.ARGB_8888), ScanDraftHolder.faceBounds)
+                val skinResult = SkinScoreEngine().computeResult(skinStats)
+
                 val newScanId = "scan_${System.currentTimeMillis()}"
                 val newScan = ScanResult(
                     id = newScanId,
                     createdAt = System.currentTimeMillis(),
-                    kind = "front",
+                    kind = kind,
                     engineVersion = AppConfig.ENGINE_VERSION,
-                    qualityReport = QualityReport(
-                        score = 94,
-                        flags = emptyList(),
-                        perGate = mapOf(
-                            "pose" to true,
-                            "distance" to true,
-                            "lighting" to true,
-                            "expression" to true,
-                            "stillness" to true
-                        )
-                    ),
+                    qualityReport = ScanDraftHolder.qualityReport ?: QualityReport(score = 85, flags = emptyList(), perGate = emptyMap()),
                     metrics = calculated.metrics,
                     indices = mapOf(
+                        "overall" to ((calculated.proportionIndex * 0.4f + calculated.symmetryIndex * 0.4f + skinResult.clarityIndex * 0.2f).toInt()),
                         "proportions" to calculated.proportionIndex,
                         "symmetry" to calculated.symmetryIndex,
-                        "clarity" to 82
+                        "clarity" to skinResult.clarityIndex
                     ),
-                    skinResult = com.example.domain.model.SkinAnalysisResult(
-                        clarityIndex = 82,
-                        descriptors = mapOf(
-                            "tone_evenness" to com.example.domain.model.SkinDescriptor("mild", "medium"),
-                            "redness_proxy" to com.example.domain.model.SkinDescriptor("none", "high"),
-                            "texture_proxy" to com.example.domain.model.SkinDescriptor("mild", "medium")
-                        ),
-                        components = mapOf("evenness" to 84f, "redness" to 12f, "texture" to 80f),
-                        needsClinician = false,
-                        clinicianReason = null,
-                        notes = listOf("Consistent hydration visible", "Low surface irritation index")
-                    ),
+
+                    skinResult = skinResult,
                     photoFileId = null,
                     note = ""
                 )
-                container.scanRepository.saveScan(newScan, null)
-                kotlinx.coroutines.delay(1200)
+                container.scanRepository.saveScan(newScan, bitmap)
+                ScanDraftHolder.clear()
+                kotlinx.coroutines.delay(800)
                 navController.navigate(Route.Results.createRoute(newScanId)) {
                     popUpTo(Route.ScanHub.route) { inclusive = true }
                 }
             }
             ProcessingScreen(
-                currentStageText = "Measuring landmarks and evaluating lighting...",
+                currentStageText = "Executing real face measurement & skin analysis...",
                 onCancel = { navController.popBackStack() }
             )
         }
@@ -522,36 +570,31 @@ fun AppNavGraph(
             arguments = listOf(navArgument("scanId") { type = NavType.StringType })
         ) { backStackEntry ->
             val scanId = backStackEntry.arguments?.getString("scanId") ?: ""
-            val matchedScan = activeScans.find { it.id == scanId } ?: remember(scanId) {
-                val calculated = com.example.face.measure.MeasurementCalculator().calculate(emptyMap())
-                ScanResult(
-                    id = scanId,
-                    createdAt = System.currentTimeMillis(),
-                    kind = "front",
-                    engineVersion = AppConfig.ENGINE_VERSION,
-                    qualityReport = QualityReport(score = 90, flags = emptyList(), perGate = mapOf("light" to true)),
-                    metrics = calculated.metrics,
-                    indices = mapOf("proportions" to calculated.proportionIndex, "symmetry" to calculated.symmetryIndex, "clarity" to 80),
-                    skinResult = null,
-                    photoFileId = null
-                )
+            var matchedScan by remember(scanId) { mutableStateOf(activeScans.find { it.id == scanId }) }
+
+            LaunchedEffect(scanId) {
+                if (matchedScan == null) {
+                    matchedScan = container.scanRepository.getScanById(scanId)
+                }
             }
 
-            ResultsScreen(
-                scan = matchedScan,
-                onMetricClick = { metricId -> navController.navigate(Route.MetricDetail.createRoute(scanId, metricId)) },
-                onOverlayClick = { navController.navigate(Route.Overlay.createRoute(scanId)) },
-                onSkinResultsClick = { navController.navigate(Route.SkinResults.createRoute(scanId)) },
-                onCompareClick = { navController.navigate(Route.Compare.route) },
-                onDeleteClick = {
-                    scope.launch {
-                        container.scanRepository.deleteScan(scanId)
-                        navController.popBackStack()
-                    }
-                },
-                onBackClick = { navController.popBackStack() },
-                hideNumbers = hideNumbers
-            )
+            if (matchedScan != null) {
+                ResultsScreen(
+                    scan = matchedScan!!,
+                    onMetricClick = { metricId -> navController.navigate(Route.MetricDetail.createRoute(scanId, metricId)) },
+                    onOverlayClick = { navController.navigate(Route.Overlay.createRoute(scanId)) },
+                    onSkinResultsClick = { navController.navigate(Route.SkinResults.createRoute(scanId)) },
+                    onCompareClick = { navController.navigate(Route.Compare.route) },
+                    onDeleteClick = {
+                        scope.launch {
+                            container.scanRepository.deleteScan(scanId)
+                            navController.popBackStack()
+                        }
+                    },
+                    onBackClick = { navController.popBackStack() },
+                    hideNumbers = hideNumbers
+                )
+            }
         }
 
         // N18 Metric Detail
@@ -660,11 +703,15 @@ fun AppNavGraph(
 
         // N26 Chat History
         composable(Route.ChatHistory.route) {
+            val threads by container.coachRepository.observeThreads().collectAsState(initial = emptyList())
             ChatHistoryScreen(
-                threads = emptyList(),
-                onSelectThread = { threadId -> navController.navigate(Route.ChatThread.createRoute(threadId)) },
-                onDeleteThread = {},
-                onClearAllThreads = {},
+                threads = threads,
+                onSelectThread = { threadId ->
+                    coachViewModel.selectThread(threadId)
+                    navController.popBackStack()
+                },
+                onDeleteThread = { threadId -> coachViewModel.deleteThread(threadId) },
+                onClearAllThreads = { coachViewModel.clearAllThreads() },
                 onBackClick = { navController.popBackStack() }
             )
         }
@@ -746,25 +793,57 @@ fun AppNavGraph(
 
         // N34 Export Data
         composable(Route.Export.route) {
+            var isExporting by remember { mutableStateOf(false) }
+            var exportSuccess by remember { mutableStateOf(false) }
+
             ExportScreen(
-                onExportSave = {},
-                onExportShare = {},
-                onBackClick = { navController.popBackStack() }
+                onExportSave = {
+                    isExporting = true
+                    scope.launch {
+                        val result = container.dataExportRepository.generateExportZipFile()
+                        isExporting = false
+                        if (result.isSuccess) {
+                            exportSuccess = true
+                        }
+                    }
+                },
+                onExportShare = {
+                    isExporting = true
+                    scope.launch {
+                        val result = container.dataExportRepository.generateExportZipFile()
+                        isExporting = false
+                        if (result.isSuccess) {
+                            exportSuccess = true
+                        }
+                    }
+                },
+                onBackClick = { navController.popBackStack() },
+                isExporting = isExporting,
+                exportSuccess = exportSuccess
             )
         }
 
         // N35 Delete Account
         composable(Route.DeleteAccount.route) {
+            var isDeleting by remember { mutableStateOf(false) }
+
             DeleteAccountScreen(
-                onConfirmDelete = {
-                    scope.launch {
-                        container.authRepository.signOut()
-                        navController.navigate(Route.Welcome.route) { popUpTo(0) }
+                onConfirmDelete = { input ->
+                    if (input.trim() == "DELETE") {
+                        isDeleting = true
+                        scope.launch {
+                            container.dataExportRepository.deleteAllAccountData()
+                            container.authRepository.signOut()
+                            isDeleting = false
+                            navController.navigate(Route.Welcome.route) { popUpTo(0) }
+                        }
                     }
                 },
-                onBackClick = { navController.popBackStack() }
+                onBackClick = { navController.popBackStack() },
+                isDeleting = isDeleting
             )
         }
+
 
         // N36 Paywall
         composable(
@@ -839,5 +918,15 @@ fun AppNavGraph(
         composable(Route.About.route) {
             AboutScreen(onBackClick = { navController.popBackStack() })
         }
+    }
+
+    if (reportTargetMsgId != null) {
+        ReportReplySheet(
+            onDismiss = { reportTargetMsgId = null },
+            onSubmitReport = { reason, note ->
+                coachViewModel.reportReply(reportTargetMsgId!!, reason, note)
+                reportTargetMsgId = null
+            }
+        )
     }
 }

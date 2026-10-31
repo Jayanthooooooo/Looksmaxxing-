@@ -134,11 +134,18 @@ fun TodayScreen(
                             horizontalArrangement = Arrangement.SpaceBetween,
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Text(
-                                text = "Latest Scan",
-                                style = MaterialTheme.typography.titleMedium,
-                                color = MaterialTheme.colorScheme.onSurface
-                            )
+                            Column {
+                                Text(
+                                    text = "Latest Scan",
+                                    style = MaterialTheme.typography.titleMedium,
+                                    color = MaterialTheme.colorScheme.onSurface
+                                )
+                                Text(
+                                    text = "Estimate based on face geometry & photo analysis",
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
                             Text(
                                 text = "View details →",
                                 style = MaterialTheme.typography.labelMedium,
@@ -146,10 +153,22 @@ fun TodayScreen(
                             )
                         }
                         Spacer(modifier = Modifier.height(16.dp))
+                        
+                        val overallScore = latestScan.indices["overall"] ?: (
+                            ((latestScan.indices["proportions"] ?: 70) * 0.4f +
+                             (latestScan.indices["symmetry"] ?: 72) * 0.4f +
+                             (latestScan.indices["clarity"] ?: 68) * 0.2f).toInt()
+                        )
+
                         Row(
                             modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceAround
+                            horizontalArrangement = Arrangement.SpaceAround,
+                            verticalAlignment = Alignment.CenterVertically
                         ) {
+                            IndexRing(
+                                score = overallScore,
+                                label = "Face Score"
+                            )
                             IndexRing(
                                 score = latestScan.indices["proportions"] ?: 70,
                                 label = "Proportions"
@@ -164,6 +183,7 @@ fun TodayScreen(
                             )
                         }
                     }
+
                 }
             } else {
                 Card(

@@ -121,4 +121,37 @@ class CaptureAndQualityUnitTest {
         val lightingFailReport = evaluator.computeOverallQualityReport(ready, ready, notReady, ready, ready, faceCount = 1)
         assertEquals(75, lightingFailReport.score)
     }
+
+    @Test
+    fun testLightingGateFailure() {
+        val evaluator = CaptureQualityEvaluator()
+        val darkEval = evaluator.evaluateLighting(20f, 2f)
+        assertFalse(darkEval.isReady)
+        assertTrue(darkEval.flag!!.contains("dark"))
+
+        val brightEval = evaluator.evaluateLighting(245f, 2f)
+        assertFalse(brightEval.isReady)
+        assertTrue(brightEval.flag!!.contains("bright"))
+    }
+
+    @Test
+    fun testMeasurementDeterminism() {
+        val calc = com.example.face.measure.MeasurementCalculator()
+        val landmarks = mapOf(
+            10 to Point3D(0f, -100f),
+            151 to Point3D(0f, -50f),
+            9 to Point3D(0f, -40f),
+            164 to Point3D(0f, 10f),
+            0 to Point3D(0f, 40f),
+            152 to Point3D(0f, 90f),
+            234 to Point3D(-70f, 0f),
+            454 to Point3D(70f, 0f)
+        )
+        val res1 = calc.calculate(landmarks)
+        val res2 = calc.calculate(landmarks)
+
+        assertEquals(res1.proportionIndex, res2.proportionIndex)
+        assertEquals(res1.symmetryIndex, res2.symmetryIndex)
+        assertEquals(res1.metrics["facial_symmetry_index"]?.value, res2.metrics["facial_symmetry_index"]?.value)
+    }
 }

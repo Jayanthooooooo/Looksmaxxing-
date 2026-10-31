@@ -138,16 +138,37 @@ fun ResultsScreen(
                 text = "What stayed on this phone: Face landmarks & photos.\nWhat was sent: De-identified face crop to Gemini via AI Logic (with consent)."
             )
 
-            // Group Indices (No single overall score)
-            Text(
-                text = "Photo-based estimates",
-                style = MaterialTheme.typography.titleMedium,
-                color = MaterialTheme.colorScheme.onSurface
+            // Group Indices & Overall Face Score
+            Column {
+                Text(
+                    text = "Overall Face Score & Sub-scores",
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+                Spacer(modifier = Modifier.height(2.dp))
+                Text(
+                    text = "Derived from facial geometry and photo analysis. Not a measure of attractiveness or personal worth.",
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+
+            val overallScore = scan.indices["overall"] ?: (
+                ((scan.indices["proportions"] ?: 70) * 0.4f +
+                 (scan.indices["symmetry"] ?: 72) * 0.4f +
+                 (scan.indices["clarity"] ?: 68) * 0.2f).toInt()
             )
+
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceAround
+                horizontalArrangement = Arrangement.SpaceAround,
+                verticalAlignment = Alignment.CenterVertically
             ) {
+                IndexRing(
+                    score = overallScore,
+                    label = "Face Score",
+                    hideNumbers = hideNumbers
+                )
                 IndexRing(
                     score = scan.indices["proportions"] ?: 72,
                     label = "Proportions",
@@ -164,6 +185,7 @@ fun ResultsScreen(
                     hideNumbers = hideNumbers
                 )
             }
+
 
             // Skin results card shortcut
             Card(

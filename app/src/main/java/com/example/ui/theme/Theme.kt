@@ -37,13 +37,13 @@ private val LightColorScheme = lightColorScheme(
 )
 
 private val DarkColorScheme = darkColorScheme(
-    primary = LumoraColors.DarkPrimary,
-    onPrimary = LumoraColors.DarkOnPrimary,
+    primary = LumoraColors.VioletPrimary,
+    onPrimary = LumoraColors.DarkOnSurface,
     primaryContainer = LumoraColors.DarkSurfaceVariant,
     onPrimaryContainer = LumoraColors.DarkOnSurface,
-    secondary = LumoraColors.DarkAccent,
-    onSecondary = LumoraColors.DarkOnPrimary,
-    tertiary = LumoraColors.DarkCaution,
+    secondary = LumoraColors.SecondaryCyan,
+    onSecondary = LumoraColors.DarkBackground,
+    tertiary = LumoraColors.WarningAmber,
     background = LumoraColors.DarkBackground,
     onBackground = LumoraColors.DarkOnSurface,
     surface = LumoraColors.DarkSurface,
@@ -51,7 +51,7 @@ private val DarkColorScheme = darkColorScheme(
     surfaceVariant = LumoraColors.DarkSurfaceVariant,
     onSurfaceVariant = LumoraColors.DarkOnSurfaceMuted,
     outline = LumoraColors.DarkOutline,
-    error = LumoraColors.DarkError
+    error = LumoraColors.ErrorCoral
 )
 
 val LumoraShapes = Shapes(
@@ -63,7 +63,7 @@ val LumoraShapes = Shapes(
 
 @Composable
 fun LumoraTheme(
-    darkTheme: Boolean = isSystemInDarkTheme(),
+    darkTheme: Boolean = true, // Dark-first default
     dynamicColor: Boolean = false,
     content: @Composable () -> Unit
 ) {

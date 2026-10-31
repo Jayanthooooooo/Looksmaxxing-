@@ -32,4 +32,18 @@ class AppContainer(val context: Context) {
     val scanRepository: com.example.data.repo.ScanRepository by lazy {
         com.example.data.repo.ScanRepository(database.scanDao(), database.metricNoiseDao(), photoVault, dispatchers)
     }
+
+    val coachRepository: com.example.data.repo.CoachRepository by lazy {
+        com.example.data.repo.CoachRepository(database.chatDao(), firebaseModule, preferencesDataStore, dispatchers)
+    }
+
+    val habitRepository: com.example.data.repo.HabitRepository by lazy {
+        com.example.data.repo.HabitRepository(database.habitDao(), dispatchers)
+    }
+
+    val dataExportRepository: com.example.data.repo.DataExportRepository by lazy {
+        com.example.data.repo.DataExportRepository(context, database, photoVault, preferencesDataStore, dispatchers)
+    }
 }
+
+

@@ -13,6 +13,10 @@ interface ScanDao {
     @Query("SELECT * FROM scans WHERE deleted = 0 ORDER BY createdAt DESC")
     fun observeAllActiveScans(): Flow<List<ScanEntity>>
 
+    @Query("SELECT * FROM scans WHERE deleted = 0 ORDER BY createdAt DESC")
+    suspend fun getAllActiveScansSync(): List<ScanEntity>
+
+
     @Query("SELECT * FROM scans WHERE deleted = 0 AND kind = :kind ORDER BY createdAt DESC")
     fun observeActiveScansByKind(kind: String): Flow<List<ScanEntity>>
 

@@ -42,6 +42,10 @@ class PreferencesDataStore(private val context: Context) {
         // Last seen legal versions
         val LAST_SEEN_TERMS_VERSION = intPreferencesKey("last_seen_terms_version")
         val LAST_SEEN_PRIVACY_VERSION = intPreferencesKey("last_seen_privacy_version")
+
+        // Daily coach message tracking
+        val COACH_DAILY_DATE = stringPreferencesKey("coach_daily_date")
+        val COACH_DAILY_COUNT = intPreferencesKey("coach_daily_count")
     }
 
     val themeModeFlow: Flow<String> = context.dataStore.data.map { it[THEME_MODE] ?: "SYSTEM" }
@@ -117,6 +121,26 @@ class PreferencesDataStore(private val context: Context) {
         context.dataStore.edit { it[SIMULATE_PRO] = simulate }
     }
 
+    val coachDailyCountFlow: Flow<Pair<String, Int>> = context.dataStore.data.map {
+        Pair(it[COACH_DAILY_DATE] ?: "", it[COACH_DAILY_COUNT] ?: 0)
+    }
+
+    suspend fun incrementCoachCount(todayDateStr: String): Int {
+        var newCount = 1
+        context.dataStore.edit { prefs ->
+            val savedDate = prefs[COACH_DAILY_DATE] ?: ""
+            val currentCount = prefs[COACH_DAILY_COUNT] ?: 0
+            if (savedDate == todayDateStr) {
+                newCount = currentCount + 1
+            } else {
+                prefs[COACH_DAILY_DATE] = todayDateStr
+                newCount = 1
+            }
+            prefs[COACH_DAILY_COUNT] = newCount
+        }
+        return newCount
+    }
+
     suspend fun clearSessionKeys() {
         context.dataStore.edit {
             it.remove(CONSENT_ON_DEVICE)
@@ -129,4 +153,9 @@ class PreferencesDataStore(private val context: Context) {
             it.remove(SIMULATE_PRO)
         }
     }
+
+    suspend fun clearAll() {
+        context.dataStore.edit { it.clear() }
+    }
 }
+
