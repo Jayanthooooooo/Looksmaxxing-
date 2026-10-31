@@ -39,6 +39,7 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.example.ui.components.LumoraTopBar
 import com.example.ui.components.PrimaryButton
 import com.example.ui.components.QuietTextButton
@@ -56,7 +57,8 @@ fun AuthChoiceScreen(
     errorMessage: String? = null
 ) {
     Scaffold(
-        topBar = { LumoraTopBar(title = "Get Started") },
+        topBar = { LumoraTopBar(title = "Account") },
+        containerColor = androidx.compose.ui.graphics.Color.Transparent,
         modifier = modifier.testTag("auth_choice_screen")
     ) { padding ->
         Column(
@@ -68,18 +70,26 @@ fun AuthChoiceScreen(
             verticalArrangement = Arrangement.SpaceBetween,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                Text(
-                    text = "Create your private journal",
-                    style = MaterialTheme.typography.headlineMedium,
-                    color = MaterialTheme.colorScheme.onBackground,
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier.padding(top = 16.dp)
+            ) {
+                com.example.ui.theme.GoldEyebrow(text = "GET STARTED")
+                Spacer(modifier = Modifier.height(12.dp))
+                com.example.ui.theme.SerifHeadline(
+                    text = "Welcome back",
+                    italicWord = "back",
+                    fontSize = 32.sp,
+                    lineHeight = 40.sp,
                     textAlign = TextAlign.Center
                 )
-                Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(10.dp))
                 Text(
                     text = "Sign in to securely sync your progress or keep it strictly on this device.",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    fontFamily = com.example.ui.theme.PlusJakartaSans,
+                    fontSize = 14.sp,
+                    lineHeight = 20.sp,
+                    color = androidx.compose.ui.graphics.Color(0x99F4F4F6),
                     textAlign = TextAlign.Center
                 )
                 if (errorMessage != null) {
@@ -93,7 +103,7 @@ fun AuthChoiceScreen(
                 }
             }
 
-            Column(modifier = Modifier.fillMaxWidth()) {
+            Column(modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp)) {
                 PrimaryButton(
                     text = "Continue with Google",
                     onClick = onGoogleSignIn,
@@ -113,26 +123,29 @@ fun AuthChoiceScreen(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = "Already have an account? ",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                        text = "New here? ",
+                        fontFamily = com.example.ui.theme.PlusJakartaSans,
+                        fontSize = 14.sp,
+                        color = androidx.compose.ui.graphics.Color(0x99F4F4F6)
                     )
-                    TextButton(onClick = onSignIn) {
+                    TextButton(onClick = onEmailSignUp) {
                         Text(
-                            text = "Sign in",
-                            style = MaterialTheme.typography.labelLarge,
-                            color = MaterialTheme.colorScheme.primary
+                            text = "Create your account",
+                            fontFamily = com.example.ui.theme.PlusJakartaSans,
+                            fontWeight = androidx.compose.ui.text.font.FontWeight.SemiBold,
+                            color = com.example.ui.theme.LumoraColors.ChampagneGold
                         )
                     }
                 }
-                Spacer(modifier = Modifier.height(12.dp))
+                Spacer(modifier = Modifier.height(8.dp))
                 Row(
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.Center
+                    horizontalArrangement = Arrangement.Center,
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    QuietTextButton(text = "Privacy Policy", onClick = onPrivacyClick)
-                    Text(text = " · ", color = MaterialTheme.colorScheme.onSurfaceVariant)
-                    QuietTextButton(text = "Terms of Service", onClick = onTermsClick)
+                    QuietTextButton(text = "Terms", onClick = onTermsClick)
+                    Text(text = " · ", color = androidx.compose.ui.graphics.Color(0x99F4F4F6))
+                    QuietTextButton(text = "Privacy", onClick = onPrivacyClick)
                 }
             }
         }

@@ -1,48 +1,32 @@
 package com.example.ui.theme
 
 import android.app.Activity
-import android.os.Build
-import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Shapes
 import androidx.compose.material3.darkColorScheme
-import androidx.compose.material3.dynamicDarkColorScheme
-import androidx.compose.material3.dynamicLightColorScheme
-import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.unit.dp
 import androidx.core.view.WindowCompat
 
-private val LightColorScheme = lightColorScheme(
-    primary = LumoraColors.LightPrimary,
-    onPrimary = LumoraColors.LightOnPrimary,
-    primaryContainer = LumoraColors.LightSurfaceVariant,
-    onPrimaryContainer = LumoraColors.LightOnSurface,
-    secondary = LumoraColors.LightAccent,
-    onSecondary = LumoraColors.LightOnPrimary,
-    tertiary = LumoraColors.LightCaution,
-    background = LumoraColors.LightBackground,
-    onBackground = LumoraColors.LightOnSurface,
-    surface = LumoraColors.LightSurface,
-    onSurface = LumoraColors.LightOnSurface,
-    surfaceVariant = LumoraColors.LightSurfaceVariant,
-    onSurfaceVariant = LumoraColors.LightOnSurfaceMuted,
-    outline = LumoraColors.LightOutline,
-    error = LumoraColors.LightError
-)
-
+// Pure dark-only luxury palette
 private val DarkColorScheme = darkColorScheme(
-    primary = LumoraColors.VioletPrimary,
-    onPrimary = LumoraColors.DarkOnSurface,
-    primaryContainer = LumoraColors.DarkSurfaceVariant,
-    onPrimaryContainer = LumoraColors.DarkOnSurface,
-    secondary = LumoraColors.SecondaryCyan,
-    onSecondary = LumoraColors.DarkBackground,
+    primary = LumoraColors.ChampagneGold,
+    onPrimary = Color(0xFF0B0B0F),
+    primaryContainer = Color(0x24D9C59B),
+    onPrimaryContainer = LumoraColors.ChampagneGold,
+    secondary = LumoraColors.ChampagneGold,
+    onSecondary = Color(0xFF0B0B0F),
+    secondaryContainer = Color(0x18FFFFFF),
+    onSecondaryContainer = LumoraColors.DarkOnSurface,
     tertiary = LumoraColors.WarningAmber,
     background = LumoraColors.DarkBackground,
     onBackground = LumoraColors.DarkOnSurface,
@@ -50,49 +34,51 @@ private val DarkColorScheme = darkColorScheme(
     onSurface = LumoraColors.DarkOnSurface,
     surfaceVariant = LumoraColors.DarkSurfaceVariant,
     onSurfaceVariant = LumoraColors.DarkOnSurfaceMuted,
-    outline = LumoraColors.DarkOutline,
+    outline = Color.White.copy(alpha = 0.12f),
+    outlineVariant = Color.White.copy(alpha = 0.06f),
     error = LumoraColors.ErrorCoral
 )
 
 val LumoraShapes = Shapes(
     small = RoundedCornerShape(12.dp),
-    medium = RoundedCornerShape(20.dp),
-    large = RoundedCornerShape(28.dp),
-    extraLarge = RoundedCornerShape(32.dp)
+    medium = RoundedCornerShape(16.dp),
+    large = RoundedCornerShape(20.dp), // 20dp cards
+    extraLarge = RoundedCornerShape(28.dp)
 )
 
 @Composable
 fun LumoraTheme(
-    darkTheme: Boolean = true, // Dark-first default
+    darkTheme: Boolean = true, // Dark only as requested
     dynamicColor: Boolean = false,
     content: @Composable () -> Unit
 ) {
-    val colorScheme = when {
-        dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
-            val context = LocalContext.current
-            if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
-        }
-        darkTheme -> DarkColorScheme
-        else -> LightColorScheme
-    }
-
     val view = LocalView.current
     if (!view.isInEditMode) {
         SideEffect {
             val window = (view.context as? Activity)?.window
             if (window != null) {
-                window.statusBarColor = colorScheme.background.toArgb()
-                window.navigationBarColor = colorScheme.background.toArgb()
-                WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = !darkTheme
-                WindowCompat.getInsetsController(window, view).isAppearanceLightNavigationBars = !darkTheme
+                // Keep status bar and navigation bar dark
+                window.statusBarColor = LumoraColors.DarkBackground.toArgb()
+                window.navigationBarColor = LumoraColors.DarkBackground.toArgb()
+                WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = false
+                WindowCompat.getInsetsController(window, view).isAppearanceLightNavigationBars = false
             }
         }
     }
 
     MaterialTheme(
-        colorScheme = colorScheme,
+        colorScheme = DarkColorScheme,
         typography = LumoraTypography,
-        shapes = LumoraShapes,
-        content = content
-    )
+        shapes = LumoraShapes
+    ) {
+        // Enforce background near-black #0B0B0F with a soft warm-brown radial glow at the top right
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(LumoraColors.DarkBackground)
+                .background(LumoraColors.TopRightWarmGlow)
+        ) {
+            content()
+        }
+    }
 }

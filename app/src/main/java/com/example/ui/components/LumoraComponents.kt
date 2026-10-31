@@ -34,14 +34,14 @@ import com.example.ui.theme.LumoraColors
 @Composable
 fun GlassCard(
     modifier: Modifier = Modifier,
-    shape: Shape = RoundedCornerShape(24.dp),
+    shape: Shape = RoundedCornerShape(20.dp),
     content: @Composable ColumnScope.() -> Unit
 ) {
     Box(
         modifier = modifier
             .clip(shape)
-            .background(LumoraColors.GlassBackground)
-            .border(1.dp, LumoraColors.GlassBorder, shape)
+            .background(Color.White.copy(alpha = 0.07f))
+            .border(1.dp, Color.White.copy(alpha = 0.10f), shape)
             .padding(20.dp)
     ) {
         Column {

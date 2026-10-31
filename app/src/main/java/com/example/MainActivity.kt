@@ -54,7 +54,7 @@ class MainActivity : ComponentActivity() {
             val isExpanded = configuration.screenWidthDp >= 600
 
             LumoraTheme(darkTheme = isDark) {
-                Surface {
+                Surface(color = androidx.compose.ui.graphics.Color.Transparent) {
                     AppNavGraph(
                         isExpanded = isExpanded,
                         startDestination = Route.Splash.route
