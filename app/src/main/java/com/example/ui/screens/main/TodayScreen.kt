@@ -33,8 +33,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.example.domain.model.ScanResult
 import com.example.ui.components.EmptyState
 import com.example.ui.components.HabitRow
@@ -118,104 +120,91 @@ fun TodayScreen(
 
             // Latest Scan Card or Empty State
             if (latestScan != null) {
-                Card(
+                com.example.ui.components.GlassCard(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .clip(RoundedCornerShape(20.dp))
                         .clickable { onLatestScanClick(latestScan.id) }
-                        .testTag("latest_scan_card"),
-                    shape = RoundedCornerShape(20.dp),
-                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-                    elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+                        .testTag("latest_scan_card")
                 ) {
-                    Column(modifier = Modifier.padding(20.dp)) {
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Column {
-                                Text(
-                                    text = "Latest Scan",
-                                    style = MaterialTheme.typography.titleMedium,
-                                    color = MaterialTheme.colorScheme.onSurface
-                                )
-                                Text(
-                                    text = "Estimate based on face geometry & photo analysis",
-                                    style = MaterialTheme.typography.labelSmall,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                                )
-                            }
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Column(modifier = Modifier.weight(1f)) {
                             Text(
-                                text = "View details →",
-                                style = MaterialTheme.typography.labelMedium,
-                                color = MaterialTheme.colorScheme.primary
+                                text = "LATEST SCAN",
+                                style = MaterialTheme.typography.labelSmall,
+                                color = LumoraColors.SecondaryCyan,
+                                letterSpacing = 1.sp
+                            )
+                            Text(
+                                text = "Daily Analysis",
+                                style = MaterialTheme.typography.titleMedium,
+                                color = Color.White
                             )
                         }
-                        Spacer(modifier = Modifier.height(16.dp))
-                        
-                        val overallScore = latestScan.indices["overall"] ?: (
-                            ((latestScan.indices["proportions"] ?: 70) * 0.4f +
-                             (latestScan.indices["symmetry"] ?: 72) * 0.4f +
-                             (latestScan.indices["clarity"] ?: 68) * 0.2f).toInt()
+                        Text(
+                            text = "View details →",
+                            style = MaterialTheme.typography.labelMedium,
+                            color = LumoraColors.SecondaryCyan
                         )
+                    }
+                    Spacer(modifier = Modifier.height(20.dp))
+                    
+                    val overallScore = latestScan.indices["overall"] ?: 70
 
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceAround,
-                            verticalAlignment = Alignment.CenterVertically
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        com.example.ui.components.ScoreRing(score = overallScore, size = 120.dp, strokeWidth = 8.dp)
+                        
+                        Column(
+                            modifier = Modifier.weight(1f).padding(start = 20.dp),
+                            verticalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
-                            IndexRing(
-                                score = overallScore,
-                                label = "Face Score"
+                            com.example.ui.components.SubScoreBar(
+                                label = "PROPORTIONS",
+                                score = (latestScan.indices["proportions"] ?: 70) / 100f,
+                                color = LumoraColors.SecondaryCyan
                             )
-                            IndexRing(
-                                score = latestScan.indices["proportions"] ?: 70,
-                                label = "Proportions"
-                            )
-                            IndexRing(
-                                score = latestScan.indices["symmetry"] ?: 72,
-                                label = "Symmetry"
-                            )
-                            IndexRing(
-                                score = latestScan.indices["clarity"] ?: 68,
-                                label = "Skin Clarity"
+                            com.example.ui.components.SubScoreBar(
+                                label = "SYMMETRY",
+                                score = (latestScan.indices["symmetry"] ?: 72) / 100f,
+                                color = LumoraColors.MagentaPrimary
                             )
                         }
                     }
-
                 }
             } else {
-                Card(
+                com.example.ui.components.GlassCard(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .clip(RoundedCornerShape(20.dp))
                         .clickable { onScanClick() }
-                        .testTag("take_first_scan_card"),
-                    shape = RoundedCornerShape(20.dp),
-                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
+                        .testTag("take_first_scan_card")
                 ) {
                     Column(
-                        modifier = Modifier.padding(24.dp),
+                        modifier = Modifier.padding(12.dp),
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         Icon(
                             imageVector = Icons.Default.CameraAlt,
                             contentDescription = null,
-                            tint = MaterialTheme.colorScheme.primary,
+                            tint = LumoraColors.SecondaryCyan,
                             modifier = Modifier.size(40.dp)
                         )
-                        Spacer(modifier = Modifier.height(12.dp))
+                        Spacer(modifier = Modifier.height(16.dp))
                         Text(
                             text = "Take your first scan",
                             style = MaterialTheme.typography.titleMedium,
-                            color = MaterialTheme.colorScheme.onSurface
+                            color = Color.White
                         )
-                        Spacer(modifier = Modifier.height(4.dp))
                         Text(
-                            text = "Takes 2 minutes. Photos stay securely on your phone.",
+                            text = "Analyze your face geometry in 2 minutes",
                             style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                            color = Color.White.copy(alpha = 0.6f)
                         )
                     }
                 }
@@ -305,5 +294,24 @@ fun TodayScreen(
             Spacer(modifier = Modifier.height(24.dp))
             PrivacyBadge()
         }
+    }
+}
+
+@androidx.compose.ui.tooling.preview.Preview(showBackground = true, backgroundColor = 0xFF0B0D1A)
+@Composable
+fun TodayScreenPreview() {
+    com.example.ui.theme.LumoraTheme {
+        TodayScreen(
+            displayName = "Alex",
+            latestScan = null,
+            daysSinceLastScan = null,
+            streakDays = 5,
+            habits = listOf("Morning Cleanse" to true, "Evening Serum" to false),
+            onToggleHabit = { _, _ -> },
+            onScanClick = {},
+            onLatestScanClick = {},
+            onCoachClick = {},
+            onPlanClick = {}
+        )
     }
 }

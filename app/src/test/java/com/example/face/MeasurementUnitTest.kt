@@ -31,7 +31,7 @@ class MeasurementUnitTest {
         val yMenton = ySubnasale + lowerHeight
         val yStomion = ySubnasale + (lowerHeight / 3f)
 
-        return mapOf(
+        val baseMap = mapOf(
             10 to Point3D(0f, yTrichion),                       // Trichion (forehead top)
             151 to Point3D(0f, yGlabella),                     // Glabella (brow level)
             9 to Point3D(0f, yGlabella + 10f),                 // Nasion
@@ -60,20 +60,22 @@ class MeasurementUnitTest {
             132 to Point3D(-60f, ySubnasale + 20f),            // Gonion Left
             361 to Point3D(60f, ySubnasale + 20f)              // Gonion Right
         )
+        return baseMap.toMutableMap().apply {
+            for (i in 0..467) {
+                if (!containsKey(i)) put(i, Point3D(0f, 0f))
+            }
+        }
     }
 
     @Test
     fun testSymmetricalFaceSymmetryScore() {
         val symmetricFace = createSyntheticFace(asymmetryOffset = 0f)
         val result = calculator.calculate(symmetricFace)
-
-        val symmetryMetric = result.metrics["facial_symmetry_index"]
+        val metrics = result.getOrNull()?.metrics
+        val symmetryMetric = metrics?.get("facial_symmetry_index")
         assertTrue(symmetryMetric != null)
-        assertTrue(
-            "Symmetric face should have high symmetry score >= 97, was ${symmetryMetric!!.value}",
-            symmetryMetric.value >= 97f
-        )
-        assertTrue(result.symmetryIndex >= 97)
+        assertTrue(symmetryMetric?.value ?: 0f >= 97f)
+        assertTrue((result.getOrNull()?.symmetryIndex ?: 0) >= 97)
     }
 
     @Test
@@ -82,7 +84,7 @@ class MeasurementUnitTest {
         val asymmetricFace = createSyntheticFace(asymmetryOffset = 25f)
         val result = calculator.calculate(asymmetricFace)
 
-        val symmetryMetric = result.metrics["facial_symmetry_index"]
+        val symmetryMetric = result.getOrNull()?.metrics?.get("facial_symmetry_index")
         assertTrue(symmetryMetric != null)
         assertTrue(
             "Asymmetric face should have reduced symmetry score < 90, was ${symmetryMetric!!.value}",
@@ -94,10 +96,11 @@ class MeasurementUnitTest {
     fun testVerticalThirdsCalculation() {
         val balancedFace = createSyntheticFace(upperHeight = 50f, midHeight = 50f, lowerHeight = 50f)
         val result = calculator.calculate(balancedFace)
+        val metrics = result.getOrNull()?.metrics!!
 
-        val upper = result.metrics["vertical_thirds_upper"]!!.value
-        val mid = result.metrics["vertical_thirds_middle"]!!.value
-        val lower = result.metrics["vertical_thirds_lower"]!!.value
+        val upper = metrics["vertical_thirds_upper"]!!.value
+        val mid = metrics["vertical_thirds_middle"]!!.value
+        val lower = metrics["vertical_thirds_lower"]!!.value
 
         assertEquals(33.3f, upper, 1.5f)
         assertEquals(33.3f, mid, 1.5f)
@@ -157,25 +160,25 @@ class MeasurementUnitTest {
     fun testMeasurementDeterminismAndMonotonicity() {
         val face1 = createSyntheticFace(asymmetryOffset = 0f)
         val face2 = createSyntheticFace(asymmetryOffset = 0f)
-        val res1 = calculator.calculate(face1)
-        val res2 = calculator.calculate(face2)
+        val res1 = calculator.calculate(face1).getOrNull()!!
+        val res2 = calculator.calculate(face2).getOrNull()!!
 
         assertEquals(res1.overallFaceScore, res2.overallFaceScore, 0.01f)
 
         val faceAsym = createSyntheticFace(asymmetryOffset = 30f)
-        val resAsym = calculator.calculate(faceAsym)
+        val resAsym = calculator.calculate(faceAsym).getOrNull()!!
         assertTrue("Symmetric face overall score should be higher than asymmetric face", res1.overallFaceScore > resAsym.overallFaceScore)
     }
 
     @Test
     fun testPoseNormalisationTolerance() {
         val normalFace = createSyntheticFace(asymmetryOffset = 0f)
-        val resNormal = calculator.calculate(normalFace)
+        val resNormal = calculator.calculate(normalFace).getOrNull()!!
 
         val rotatedFace = normalFace.mapValues { (_, pt) ->
             Point3D(pt.x * 0.99f, pt.y * 0.99f, pt.z)
         }
-        val resRotated = calculator.calculate(rotatedFace)
+        val resRotated = calculator.calculate(rotatedFace).getOrNull()!!
         val diff = abs(resNormal.overallFaceScore - resRotated.overallFaceScore)
         assertTrue("Normalized score should stay within ±2.5 points under mild rotation/scale, diff was $diff", diff <= 2.5f)
     }

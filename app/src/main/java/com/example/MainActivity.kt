@@ -12,6 +12,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.platform.LocalConfiguration
 import com.example.data.remote.configureAppCheck
 import com.example.ui.nav.AppNavGraph
+import com.example.ui.nav.Route
 import com.example.ui.theme.LumoraTheme
 
 class MainActivity : ComponentActivity() {
@@ -35,12 +36,10 @@ class MainActivity : ComponentActivity() {
             val themeMode by preferences.themeModeFlow.collectAsState(initial = "SYSTEM")
             val blockScreenshots by preferences.blockScreenshotsFlow.collectAsState(initial = false)
 
-            // Respect blockScreenshots setting
-            if (blockScreenshots) {
-                window.setFlags(
-                    WindowManager.LayoutParams.FLAG_SECURE,
-                    WindowManager.LayoutParams.FLAG_SECURE
-                )
+            // Respect blockScreenshots setting: only applied when BuildConfig.DEBUG is false
+            // to prevent Android Studio preview and debug streaming emulator from being blocked by screenshot protection.
+            if (!BuildConfig.DEBUG && blockScreenshots) {
+                window.addFlags(WindowManager.LayoutParams.FLAG_SECURE)
             } else {
                 window.clearFlags(WindowManager.LayoutParams.FLAG_SECURE)
             }
@@ -56,7 +55,10 @@ class MainActivity : ComponentActivity() {
 
             LumoraTheme(darkTheme = isDark) {
                 Surface {
-                    AppNavGraph(isExpanded = isExpanded)
+                    AppNavGraph(
+                        isExpanded = isExpanded,
+                        startDestination = Route.Splash.route
+                    )
                 }
             }
         }

@@ -75,12 +75,16 @@ import com.example.ui.screens.settings.PaywallScreen
 import com.example.ui.screens.settings.PrivacyCentreScreen
 import com.example.ui.screens.settings.SettingsScreen
 import com.example.ui.screens.settings.SubscriptionScreen
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withTimeoutOrNull
 
 @Composable
 fun AppNavGraph(
     isExpanded: Boolean = false,
     navController: NavHostController = rememberNavController(),
+    startDestination: String = Route.Splash.route,
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
@@ -115,12 +119,12 @@ fun AppNavGraph(
     val todayLogs by container.habitRepository.observeLogsForDate(container.habitRepository.todayDateString).collectAsState(initial = emptyList())
     var streakDays by remember { mutableStateOf(0) }
 
-    // Load profile and habits when ready
+    // Load profile and habits when session is Ready (non-blocking for initial splash rendering)
     LaunchedEffect(sessionState) {
-        container.habitRepository.initializeDefaultHabitsIfEmpty()
-        streakDays = container.habitRepository.calculateStreakDays()
-
         if (sessionState is SessionState.Ready) {
+            container.habitRepository.initializeDefaultHabitsIfEmpty()
+            streakDays = container.habitRepository.calculateStreakDays()
+
             val uid = (sessionState as SessionState.Ready).userId
             val res = container.profileRepository.getProfile(uid)
             if (res.isSuccess) {
@@ -132,22 +136,39 @@ fun AppNavGraph(
 
     NavHost(
         navController = navController,
-        startDestination = Route.Splash.route,
+        startDestination = startDestination,
         modifier = modifier
     ) {
         // N01 Splash
         composable(Route.Splash.route) {
-            SplashScreen(
-                onNavigateNext = {
-                    when (sessionState) {
-                        is SessionState.SignedOut -> navController.navigate(Route.Welcome.route) { popUpTo(Route.Splash.route) { inclusive = true } }
-                        is SessionState.NeedsOnboarding -> navController.navigate(Route.Onboarding.createRoute(1)) { popUpTo(Route.Splash.route) { inclusive = true } }
-                        is SessionState.NeedsConsent -> navController.navigate(Route.Consent.route) { popUpTo(Route.Splash.route) { inclusive = true } }
-                        is SessionState.Ready -> navController.navigate(Route.Main.route) { popUpTo(Route.Splash.route) { inclusive = true } }
-                        else -> navController.navigate(Route.Welcome.route) { popUpTo(Route.Splash.route) { inclusive = true } }
+            var hasNavigated by remember { mutableStateOf(false) }
+
+            val navigateAway = { state: SessionState ->
+                if (!hasNavigated) {
+                    hasNavigated = true
+                    val targetRoute = when (state) {
+                        is SessionState.Ready -> Route.Main.route
+                        is SessionState.NeedsOnboarding -> Route.IntroOnboarding.route
+                        is SessionState.NeedsConsent -> Route.Consent.route
+                        is SessionState.SignedOut, is SessionState.Loading -> Route.Welcome.route
+                    }
+                    navController.navigate(targetRoute) {
+                        popUpTo(Route.Splash.route) { inclusive = true }
                     }
                 }
-            )
+            }
+
+            // Start destination non-blocking initialization:
+            // Observes session state asynchronously with a 1.5s timeout. If initialization is delayed or hangs,
+            // timeout forces navigation to the secondary screen (Welcome), ensuring the main UI graph renders immediately.
+            LaunchedEffect(Unit) {
+                val resolvedState = withTimeoutOrNull(1500L) {
+                    container.authRepository.observeSessionState().first { it !is SessionState.Loading }
+                }
+                navigateAway(resolvedState ?: sessionState)
+            }
+
+            SplashScreen()
         }
 
         // N02 Welcome
@@ -179,7 +200,7 @@ fun AppNavGraph(
                         val outcome = container.authRepository.signInWithGoogleInteractive(context)
                         isLoading = false
                         if (outcome.isSuccess) {
-                            navController.navigate(Route.Onboarding.createRoute(1))
+                            navController.navigate(Route.IntroOnboarding.route)
                         } else {
                             errorMsg = (outcome as? com.example.core.Outcome.Error)?.message
                         }
@@ -191,6 +212,13 @@ fun AppNavGraph(
                 onTermsClick = { navController.navigate(Route.Legal.createRoute("terms")) },
                 isLoading = isLoading,
                 errorMessage = errorMsg
+            )
+        }
+
+        // Intro Onboarding
+        composable(Route.IntroOnboarding.route) {
+            com.example.ui.screens.onboarding.OnboardingScreen(
+                onComplete = { navController.navigate(Route.Onboarding.createRoute(1)) }
             )
         }
 
@@ -291,12 +319,12 @@ fun AppNavGraph(
                     scope.launch {
                         val outcome = container.authRepository.reloadUser()
                         if (outcome.isSuccess && outcome.getOrNull() == true) {
-                            navController.navigate(Route.Onboarding.createRoute(1))
+                            navController.navigate(Route.IntroOnboarding.route)
                         }
                     }
                 },
                 onContinueForNow = {
-                    navController.navigate(Route.Onboarding.createRoute(1))
+                    navController.navigate(Route.IntroOnboarding.route)
                 }
             )
         }
@@ -434,12 +462,14 @@ fun AppNavGraph(
                         onHistoryClick = { navController.navigate(Route.ChatHistory.route) },
                         onConsentSettingsClick = { navController.navigate(Route.PrivacyCentre.route) },
                         onUpgradeClick = { navController.navigate(Route.Paywall.createRoute("coach_limit")) },
+                        onRetryMessage = { coachViewModel.retryLastMessage(activeScans.firstOrNull(), isPro) },
                         isCloudAiConsentGranted = consentState.cloudAiAnalysis,
                         isGenerating = coachUiState.isGenerating,
                         messagesUsedToday = coachUiState.messagesUsedToday,
                         dailyLimit = coachUiState.dailyLimit,
                         isPro = isPro
                     )
+
                     MainTab.YOU -> YouScreen(
                         displayName = userProfile.displayName,
                         email = container.authRepository.currentUser?.email ?: "",
@@ -523,15 +553,24 @@ fun AppNavGraph(
 
         // N16 Processing
         composable(Route.Processing.route) {
+            var currentStage by remember { mutableStateOf("Detecting landmarks") }
+            
             LaunchedEffect(Unit) {
                 val bitmap = ScanDraftHolder.capturedBitmap
                 val landmarks = ScanDraftHolder.aggregatedLandmarks
                 val kind = ScanDraftHolder.scanKind
 
+                delay(600)
+                currentStage = "Evaluating lighting"
                 val calculated = MeasurementCalculator().calculate(landmarks)
+                
+                delay(600)
+                currentStage = "Calculating symmetry"
                 val skinStats = SkinStatsExtractor().extract(bitmap ?: Bitmap.createBitmap(100, 100, Bitmap.Config.ARGB_8888), ScanDraftHolder.faceBounds)
                 val skinResult = SkinScoreEngine().computeResult(skinStats)
 
+                delay(600)
+                currentStage = "Finalising report"
                 val newScanId = "scan_${System.currentTimeMillis()}"
                 val newScan = ScanResult(
                     id = newScanId,
@@ -539,11 +578,11 @@ fun AppNavGraph(
                     kind = kind,
                     engineVersion = AppConfig.ENGINE_VERSION,
                     qualityReport = ScanDraftHolder.qualityReport ?: QualityReport(score = 85, flags = emptyList(), perGate = emptyMap()),
-                    metrics = calculated.metrics,
+                    metrics = calculated.getOrNull()?.metrics ?: emptyMap(),
                     indices = mapOf(
-                        "overall" to ((calculated.proportionIndex * 0.4f + calculated.symmetryIndex * 0.4f + skinResult.clarityIndex * 0.2f).toInt()),
-                        "proportions" to calculated.proportionIndex,
-                        "symmetry" to calculated.symmetryIndex,
+                        "overall" to ((calculated.getOrNull()?.let { it.proportionIndex * 0.4f + it.symmetryIndex * 0.4f + skinResult.clarityIndex * 0.2f }?.toInt()) ?: 0),
+                        "proportions" to (calculated.getOrNull()?.proportionIndex ?: 0),
+                        "symmetry" to (calculated.getOrNull()?.symmetryIndex ?: 0),
                         "clarity" to skinResult.clarityIndex
                     ),
 
@@ -553,13 +592,13 @@ fun AppNavGraph(
                 )
                 container.scanRepository.saveScan(newScan, bitmap)
                 ScanDraftHolder.clear()
-                kotlinx.coroutines.delay(800)
+                delay(800)
                 navController.navigate(Route.Results.createRoute(newScanId)) {
                     popUpTo(Route.ScanHub.route) { inclusive = true }
                 }
             }
             ProcessingScreen(
-                currentStageText = "Executing real face measurement & skin analysis...",
+                currentStageText = currentStage,
                 onCancel = { navController.popBackStack() }
             )
         }
@@ -737,6 +776,9 @@ fun AppNavGraph(
 
         // N32 Settings
         composable(Route.Settings.route) {
+            var isTestingAi by remember { mutableStateOf(false) }
+            var testAiResult by remember { mutableStateOf<String?>(null) }
+
             SettingsScreen(
                 onNavigateToAppearance = { navController.navigate(Route.Appearance.route) },
                 onNavigateToNotifications = { navController.navigate(Route.NotificationSettings.route) },
@@ -744,6 +786,20 @@ fun AppNavGraph(
                 onNavigateToSubscription = { navController.navigate(Route.Subscription.route) },
                 onNavigateToLegal = { doc -> navController.navigate(Route.Legal.createRoute(doc)) },
                 onNavigateToAbout = { navController.navigate(Route.About.route) },
+                onTestAiConnection = {
+                    isTestingAi = true
+                    testAiResult = null
+                    scope.launch {
+                        val outcome = container.coachRepository.testAiConnection()
+                        isTestingAi = false
+                        testAiResult = when (outcome) {
+                            is com.example.core.Outcome.Success -> outcome.data
+                            is com.example.core.Outcome.Error -> outcome.message
+                        }
+                    }
+                },
+                testAiResult = testAiResult,
+                isTestingAi = isTestingAi,
                 onSignOut = {
                     scope.launch {
                         container.authRepository.signOut()
@@ -753,6 +809,7 @@ fun AppNavGraph(
                 onBackClick = { navController.popBackStack() }
             )
         }
+
 
         // N33 Privacy Centre
         composable(Route.PrivacyCentre.route) {

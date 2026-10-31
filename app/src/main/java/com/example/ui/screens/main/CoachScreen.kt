@@ -1,5 +1,6 @@
 package com.example.ui.screens.main
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -16,6 +17,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Send
@@ -39,17 +41,23 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.example.ui.components.EmptyState
 import com.example.ui.components.PrimaryButton
 import com.example.ui.components.StreamingMessageBubble
+import com.example.ui.theme.LumoraColors
 
 data class ChatMessage(
     val id: String,
     val role: String, // "user", "assistant"
     val text: String,
-    val isStreaming: Boolean = false
+    val isStreaming: Boolean = false,
+    val isError: Boolean = false
 )
 
 @OptIn(ExperimentalLayoutApi::class)
@@ -63,6 +71,8 @@ fun CoachScreen(
     onConsentSettingsClick: () -> Unit,
     onUpgradeClick: () -> Unit,
     modifier: Modifier = Modifier,
+    onRetryMessage: (() -> Unit)? = null,
+
     isCloudAiConsentGranted: Boolean = true,
     isGenerating: Boolean = false,
     messagesUsedToday: Int = 0,
@@ -105,36 +115,44 @@ fun CoachScreen(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 20.dp, vertical = 12.dp),
+                .padding(horizontal = 20.dp, vertical = 16.dp),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
             Column {
                 Text(
                     text = "Lumora AI Coach",
-                    style = MaterialTheme.typography.titleLarge,
-                    color = MaterialTheme.colorScheme.onBackground
+                    style = MaterialTheme.typography.headlineSmall,
+                    color = Color.White,
+                    fontWeight = FontWeight.Bold
                 )
                 Text(
-                    text = if (isPro) "Pro: $messagesUsedToday / $dailyLimit messages" else "Free: $messagesUsedToday / $dailyLimit messages today",
+                    text = if (isPro) "PRO MEMBER" else "$messagesUsedToday / $dailyLimit messages used today",
                     style = MaterialTheme.typography.labelSmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    color = LumoraColors.SecondaryCyan,
+                    letterSpacing = 1.sp
                 )
             }
-            IconButton(onClick = onHistoryClick, modifier = Modifier.testTag("chat_history_button")) {
+            IconButton(
+                onClick = onHistoryClick,
+                modifier = Modifier
+                    .clip(CircleShape)
+                    .background(Color.White.copy(alpha = 0.05f))
+                    .testTag("chat_history_button")
+            ) {
                 Icon(
                     imageVector = Icons.Default.History,
                     contentDescription = "Chat history",
-                    tint = MaterialTheme.colorScheme.onSurface
+                    tint = Color.White
                 )
             }
         }
 
         LinearProgressIndicator(
             progress = { (messagesUsedToday.toFloat() / dailyLimit.coerceAtLeast(1)).coerceIn(0f, 1f) },
-            modifier = Modifier.fillMaxWidth().height(3.dp),
-            color = if (messagesUsedToday >= dailyLimit) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary,
-            trackColor = MaterialTheme.colorScheme.surfaceVariant
+            modifier = Modifier.fillMaxWidth().height(2.dp),
+            color = if (messagesUsedToday >= dailyLimit) LumoraColors.ErrorCoral else LumoraColors.SecondaryCyan,
+            trackColor = Color.White.copy(alpha = 0.05f)
         )
 
         // Suggestion chips when empty
@@ -183,9 +201,12 @@ fun CoachScreen(
                         role = msg.role,
                         text = msg.text,
                         isStreaming = msg.isStreaming,
-                        onReport = { onReportMessage(msg.id) }
+                        isError = msg.isError,
+                        onReport = { onReportMessage(msg.id) },
+                        onRetry = onRetryMessage
                     )
                 }
+
             }
         }
 
@@ -222,28 +243,39 @@ fun CoachScreen(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(12.dp),
+                    .padding(16.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 OutlinedTextField(
                     value = inputText,
                     onValueChange = { inputText = it },
-                    placeholder = { Text("Ask your coach...") },
+                    placeholder = { Text("Ask your coach...", color = Color.White.copy(alpha = 0.4f)) },
                     modifier = Modifier.weight(1f).testTag("coach_message_input"),
                     shape = RoundedCornerShape(24.dp),
+                    colors = androidx.compose.material3.OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = LumoraColors.SecondaryCyan,
+                        unfocusedBorderColor = Color.White.copy(alpha = 0.1f),
+                        cursorColor = LumoraColors.SecondaryCyan,
+                        focusedTextColor = Color.White,
+                        unfocusedTextColor = Color.White
+                    ),
                     maxLines = 4
                 )
-                Spacer(modifier = Modifier.width(8.dp))
+                Spacer(modifier = Modifier.width(12.dp))
 
                 if (isGenerating) {
                     IconButton(
                         onClick = onStopGeneration,
-                        modifier = Modifier.testTag("coach_stop_button")
+                        modifier = Modifier
+                            .size(48.dp)
+                            .clip(CircleShape)
+                            .background(LumoraColors.ErrorCoral.copy(alpha = 0.2f))
+                            .testTag("coach_stop_button")
                     ) {
                         Icon(
                             imageVector = Icons.Default.Stop,
                             contentDescription = "Stop generation",
-                            tint = MaterialTheme.colorScheme.error
+                            tint = LumoraColors.ErrorCoral
                         )
                     }
                 } else {
@@ -256,16 +288,40 @@ fun CoachScreen(
                             }
                         },
                         enabled = inputText.isNotBlank(),
-                        modifier = Modifier.testTag("coach_send_button")
+                        modifier = Modifier
+                            .size(48.dp)
+                            .clip(CircleShape)
+                            .background(if (inputText.isNotBlank()) LumoraColors.PrimaryGradient else SolidColor(Color.White.copy(alpha = 0.05f)))
+                            .testTag("coach_send_button")
                     ) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.Send,
                             contentDescription = "Send message",
-                            tint = if (inputText.isNotBlank()) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
+                            tint = Color.White
                         )
                     }
                 }
             }
         }
+    }
+}
+
+@androidx.compose.ui.tooling.preview.Preview(showBackground = true, backgroundColor = 0xFF0B0D1A)
+@Composable
+fun CoachScreenPreview() {
+    val mockMessages = listOf(
+        ChatMessage("1", "user", "How can I improve my skin symmetry?"),
+        ChatMessage("2", "assistant", "Consistency in your evening routine is key! I recommend using a gentle cleanser followed by a hydrating serum.")
+    )
+    com.example.ui.theme.LumoraTheme {
+        CoachScreen(
+            messages = mockMessages,
+            onSendMessage = {},
+            onStopGeneration = {},
+            onReportMessage = {},
+            onHistoryClick = {},
+            onConsentSettingsClick = {},
+            onUpgradeClick = {}
+        )
     }
 }

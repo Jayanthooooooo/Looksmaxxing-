@@ -1,40 +1,26 @@
 package com.example.ui.screens.main
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.FilterChip
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.example.domain.model.ScanResult
-import com.example.ui.components.EmptyState
-import com.example.ui.components.LumoraTopBar
-import com.example.ui.components.SecondaryButton
-import com.example.ui.components.SectionHeader
-import com.example.ui.components.TrendChart
-import com.example.ui.components.TrendPoint
+import com.example.ui.components.*
+import com.example.ui.theme.LumoraColors
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -63,33 +49,51 @@ fun ProgressScreen(
         ) {
             Text(
                 text = "Progress & Trends",
-                style = MaterialTheme.typography.headlineMedium,
-                color = MaterialTheme.colorScheme.onBackground
+                style = MaterialTheme.typography.headlineMedium.copy(
+                    fontWeight = FontWeight.Bold,
+                    color = Color.White
+                )
             )
             if (scans.size >= 2) {
-                SecondaryButton(
-                    text = "Compare",
-                    onClick = onCompareClick,
-                    modifier = Modifier.height(40.dp),
-                    testTag = "progress_compare_button"
-                )
+                Box(
+                    modifier = Modifier
+                        .clip(CircleShape)
+                        .background(LumoraColors.GlassBackground)
+                        .clickable { onCompareClick() }
+                        .padding(horizontal = 16.dp, vertical = 8.dp)
+                ) {
+                    Text(
+                        text = "Compare",
+                        style = MaterialTheme.typography.labelMedium,
+                        color = LumoraColors.SecondaryCyan
+                    )
+                }
             }
         }
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(24.dp))
 
         // Period filter chips
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             listOf("4wk" to "4 Weeks", "12wk" to "12 Weeks", "all" to "All time").forEach { (key, label) ->
-                FilterChip(
-                    selected = selectedPeriod == key,
-                    onClick = { selectedPeriod = key },
-                    label = { Text(label) }
-                )
+                val isSelected = selectedPeriod == key
+                Box(
+                    modifier = Modifier
+                        .clip(CircleShape)
+                        .background(if (isSelected) LumoraColors.PrimaryGradient else Brush.linearGradient(listOf(Color.White.copy(alpha = 0.05f), Color.White.copy(alpha = 0.05f))))
+                        .clickable { selectedPeriod = key }
+                        .padding(horizontal = 16.dp, vertical = 8.dp)
+                ) {
+                    Text(
+                        text = label,
+                        style = MaterialTheme.typography.labelMedium,
+                        color = if (isSelected) Color.White else Color.White.copy(alpha = 0.6f)
+                    )
+                }
             }
         }
 
-        Spacer(modifier = Modifier.height(20.dp))
+        Spacer(modifier = Modifier.height(24.dp))
 
         if (scans.isEmpty()) {
             EmptyState(
@@ -117,51 +121,55 @@ fun ProgressScreen(
             val clarityPoints = scans.reversed().map {
                 TrendPoint(dateFormat.format(Date(it.createdAt)), (it.indices["clarity"] ?: 68).toFloat())
             }
-            TrendChart(title = "Skin Clarity Index", points = clarityPoints)
+            TrendChart(title = "Skin Clarity Index", points = clarityPoints, lineColor = LumoraColors.MagentaPrimary)
 
-            Spacer(modifier = Modifier.height(24.dp))
+            Spacer(modifier = Modifier.height(32.dp))
 
-            SectionHeader(title = "Scan History (${scans.size})")
-            Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                text = "Scan History (${scans.size})",
+                style = MaterialTheme.typography.titleMedium,
+                color = Color.White.copy(alpha = 0.7f),
+                letterSpacing = 1.sp
+            )
+            Spacer(modifier = Modifier.height(12.dp))
 
-            Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 scans.forEach { scan ->
-                    Card(
+                    GlassCard(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .clip(RoundedCornerShape(16.dp))
                             .clickable { onScanClick(scan.id) },
-                        shape = RoundedCornerShape(16.dp),
-                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
+                        shape = RoundedCornerShape(20.dp)
                     ) {
                         Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(16.dp),
+                            modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.SpaceBetween,
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Column {
                                 Text(
-                                    text = SimpleDateFormat("EEEE, MMM d, yyyy", Locale.US).format(Date(scan.createdAt)),
+                                    text = SimpleDateFormat("EEEE, MMM d", Locale.US).format(Date(scan.createdAt)),
                                     style = MaterialTheme.typography.titleSmall,
-                                    color = MaterialTheme.colorScheme.onSurface
+                                    color = Color.White
                                 )
+                                Spacer(modifier = Modifier.height(4.dp))
                                 Text(
-                                    text = "${scan.kind.replaceFirstChar { it.uppercase() }} scan · Quality ${scan.qualityReport.score}/100",
+                                    text = "${scan.kind.replaceFirstChar { it.uppercase() }} · Quality ${scan.qualityReport.score}%",
                                     style = MaterialTheme.typography.bodySmall,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    color = Color.White.copy(alpha = 0.5f)
                                 )
                             }
                             Text(
                                 text = "View →",
                                 style = MaterialTheme.typography.labelMedium,
-                                color = MaterialTheme.colorScheme.primary
+                                color = LumoraColors.SecondaryCyan
                             )
                         }
                     }
                 }
             }
         }
+        
+        Spacer(modifier = Modifier.height(40.dp))
     }
 }

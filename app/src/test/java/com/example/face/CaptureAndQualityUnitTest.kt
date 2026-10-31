@@ -141,14 +141,30 @@ class CaptureAndQualityUnitTest {
             10 to Point3D(0f, -100f),
             151 to Point3D(0f, -50f),
             9 to Point3D(0f, -40f),
-            164 to Point3D(0f, 10f),
-            0 to Point3D(0f, 40f),
+            2 to Point3D(0f, 10f),
+            13 to Point3D(0f, 40f),
+            14 to Point3D(0f, 45f),
             152 to Point3D(0f, 90f),
             234 to Point3D(-70f, 0f),
-            454 to Point3D(70f, 0f)
-        )
-        val res1 = calc.calculate(landmarks)
-        val res2 = calc.calculate(landmarks)
+            454 to Point3D(70f, 0f),
+            33 to Point3D(-50f, -20f),
+            133 to Point3D(-20f, -20f),
+            362 to Point3D(20f, -20f),
+            263 to Point3D(50f, -20f),
+            102 to Point3D(-15f, 10f),
+            331 to Point3D(15f, 10f),
+            61 to Point3D(-30f, 40f),
+            291 to Point3D(30f, 40f),
+            132 to Point3D(-50f, 60f),
+            361 to Point3D(50f, 60f)
+        ).toMutableMap().apply {
+            // Fill up to 400+ to pass the size check
+            for (i in 0..467) {
+                if (!containsKey(i)) put(i, Point3D(0f, 0f))
+            }
+        }
+        val res1 = calc.calculate(landmarks).getOrNull()!!
+        val res2 = calc.calculate(landmarks).getOrNull()!!
 
         assertEquals(res1.proportionIndex, res2.proportionIndex)
         assertEquals(res1.symmetryIndex, res2.symmetryIndex)

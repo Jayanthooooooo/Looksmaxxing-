@@ -34,12 +34,14 @@ import kotlinx.coroutines.delay
 
 @Composable
 fun SplashScreen(
-    onNavigateNext: () -> Unit,
+    onNavigateNext: (() -> Unit)? = null,
     modifier: Modifier = Modifier
 ) {
-    LaunchedEffect(Unit) {
-        delay(1500)
-        onNavigateNext()
+    if (onNavigateNext != null) {
+        LaunchedEffect(Unit) {
+            delay(1500)
+            onNavigateNext()
+        }
     }
 
     Box(

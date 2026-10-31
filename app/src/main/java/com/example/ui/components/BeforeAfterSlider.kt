@@ -43,6 +43,10 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import kotlin.math.roundToInt
 
+import androidx.compose.foundation.border
+import androidx.compose.ui.text.style.TextAlign
+import com.example.ui.theme.LumoraColors
+
 @Composable
 fun BeforeAfterSlider(
     beforeBitmap: Bitmap?,
@@ -57,8 +61,8 @@ fun BeforeAfterSlider(
         modifier = modifier
             .fillMaxWidth()
             .height(340.dp)
-            .clip(RoundedCornerShape(20.dp))
-            .background(MaterialTheme.colorScheme.surfaceVariant)
+            .clip(RoundedCornerShape(28.dp))
+            .background(LumoraColors.DarkSurfaceVariant)
             .testTag("before_after_slider")
             .semantics {
                 contentDescription = "Comparison slider. $beforeLabel on left, $afterLabel on right. Split position: ${(splitFraction * 100).toInt()}%."
@@ -82,18 +86,20 @@ fun BeforeAfterSlider(
 
                 // Divider line
                 drawLine(
-                    color = Color.White,
+                    color = Color.White.copy(alpha = 0.8f),
                     start = Offset(splitX, 0f),
                     end = Offset(splitX, size.height),
-                    strokeWidth = 3.dp.toPx()
+                    strokeWidth = 2.dp.toPx()
                 )
             }
         } else {
             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                 Text(
-                    text = "Photos retained on device are required for visual comparison",
+                    text = "Historical photos required for visual comparison",
                     style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    color = Color.White.copy(alpha = 0.4f),
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.padding(horizontal = 40.dp)
                 )
             }
         }
@@ -101,10 +107,11 @@ fun BeforeAfterSlider(
         // Draggable handle
         Box(
             modifier = Modifier
-                .offset { IntOffset((splitX - 20.dp.toPx()).roundToInt(), (constraints.maxHeight / 2 - 20.dp.toPx()).roundToInt()) }
-                .size(40.dp)
+                .offset { IntOffset((splitX - 24.dp.toPx()).roundToInt(), (constraints.maxHeight / 2 - 24.dp.toPx()).roundToInt()) }
+                .size(48.dp)
                 .clip(CircleShape)
-                .background(MaterialTheme.colorScheme.primary)
+                .background(LumoraColors.PrimaryGradient)
+                .border(2.dp, Color.White.copy(alpha = 0.2f), CircleShape)
                 .pointerInput(Unit) {
                     detectDragGestures { change, dragAmount ->
                         change.consume()
@@ -117,7 +124,7 @@ fun BeforeAfterSlider(
             Icon(
                 imageVector = Icons.AutoMirrored.Filled.CompareArrows,
                 contentDescription = "Drag to compare photos",
-                tint = MaterialTheme.colorScheme.onPrimary,
+                tint = Color.White,
                 modifier = Modifier.size(24.dp)
             )
         }
@@ -126,21 +133,23 @@ fun BeforeAfterSlider(
         Box(
             modifier = Modifier
                 .align(Alignment.BottomStart)
-                .padding(12.dp)
-                .background(Color.Black.copy(alpha = 0.6f), RoundedCornerShape(8.dp))
-                .padding(horizontal = 8.dp, vertical = 4.dp)
+                .padding(16.dp)
+                .clip(RoundedCornerShape(12.dp))
+                .background(Color.Black.copy(alpha = 0.5f))
+                .padding(horizontal = 12.dp, vertical = 6.dp)
         ) {
-            Text(text = beforeLabel, style = MaterialTheme.typography.labelSmall, color = Color.White)
+            Text(text = beforeLabel, style = MaterialTheme.typography.labelMedium, color = Color.White)
         }
 
         Box(
             modifier = Modifier
                 .align(Alignment.BottomEnd)
-                .padding(12.dp)
-                .background(Color.Black.copy(alpha = 0.6f), RoundedCornerShape(8.dp))
-                .padding(horizontal = 8.dp, vertical = 4.dp)
+                .padding(16.dp)
+                .clip(RoundedCornerShape(12.dp))
+                .background(Color.Black.copy(alpha = 0.5f))
+                .padding(horizontal = 12.dp, vertical = 6.dp)
         ) {
-            Text(text = afterLabel, style = MaterialTheme.typography.labelSmall, color = Color.White)
+            Text(text = afterLabel, style = MaterialTheme.typography.labelMedium, color = Color.White)
         }
     }
 }

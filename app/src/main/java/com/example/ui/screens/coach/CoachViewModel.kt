@@ -23,7 +23,8 @@ data class CoachUiState(
     val isGenerating: Boolean = false,
     val messagesUsedToday: Int = 0,
     val dailyLimit: Int = AiConfig.FREE_DAILY_MESSAGE_LIMIT,
-    val errorMessage: String? = null
+    val errorMessage: String? = null,
+    val lastUserPrompt: String? = null
 )
 
 class CoachViewModel(
@@ -33,6 +34,9 @@ class CoachViewModel(
 
     private val _uiState = MutableStateFlow(CoachUiState())
     val uiState: StateFlow<CoachUiState> = _uiState.asStateFlow()
+
+    private val _roomMessages = MutableStateFlow<List<ChatMessage>>(emptyList())
+    private val _streamingMessage = MutableStateFlow<ChatMessage?>(null)
 
     private var currentJob: Job? = null
 
@@ -60,6 +64,17 @@ class CoachViewModel(
         observeThreadMessages(threadId)
     }
 
+    private fun updateCombinedMessages() {
+        val roomMsgs = _roomMessages.value
+        val streamingMsg = _streamingMessage.value
+        val combined = if (streamingMsg != null) {
+            roomMsgs.filter { it.id != streamingMsg.id } + streamingMsg
+        } else {
+            roomMsgs
+        }
+        _uiState.value = _uiState.value.copy(messages = combined)
+    }
+
     private fun observeThreadMessages(threadId: String) {
         viewModelScope.launch {
             coachRepository.observeMessages(threadId).collect { entities ->
@@ -68,10 +83,12 @@ class CoachViewModel(
                         id = e.id,
                         role = e.role,
                         text = e.text,
-                        isStreaming = false
+                        isStreaming = false,
+                        isError = false
                     )
                 }
-                _uiState.value = _uiState.value.copy(messages = uiMsgs)
+                _roomMessages.value = uiMsgs
+                updateCombinedMessages()
             }
         }
     }
@@ -83,7 +100,7 @@ class CoachViewModel(
     ) {
         val state = _uiState.value
         val limit = if (isPro) 100 else AiConfig.FREE_DAILY_MESSAGE_LIMIT
-        _uiState.value = state.copy(dailyLimit = limit)
+        _uiState.value = state.copy(dailyLimit = limit, lastUserPrompt = userPrompt)
 
         if (state.messagesUsedToday >= limit && !isPro) {
             _uiState.value = _uiState.value.copy(errorMessage = "Daily message limit reached. Upgrade to Pro for more responses.")
@@ -96,8 +113,9 @@ class CoachViewModel(
             val newCount = preferencesDataStore.incrementCoachCount(todayDateStr())
             _uiState.value = _uiState.value.copy(messagesUsedToday = newCount)
 
-            var streamingText = ""
-            val tempAssistantId = "temp_${System.currentTimeMillis()}"
+            var lastChunkText = ""
+            _streamingMessage.value = ChatMessage(id = "streaming", role = "assistant", text = "Thinking...", isStreaming = true)
+            updateCombinedMessages()
 
             try {
                 coachRepository.streamCoachResponse(
@@ -106,14 +124,29 @@ class CoachViewModel(
                     latestScan = latestScan,
                     isPro = isPro
                 ).collect { chunkText ->
-                    streamingText = chunkText
-                    val currentList = _uiState.value.messages.filter { it.id != tempAssistantId }.toMutableList()
-                    currentList.add(ChatMessage(id = tempAssistantId, role = "assistant", text = streamingText, isStreaming = true))
-                    _uiState.value = _uiState.value.copy(messages = currentList)
+                    lastChunkText = chunkText
+                    _streamingMessage.value = ChatMessage(id = "streaming", role = "assistant", text = chunkText, isStreaming = true)
+                    updateCombinedMessages()
+                }
+
+                // Check if final response is an error message
+                val isErrorMsg = isKnownErrorMessage(lastChunkText)
+                if (isErrorMsg) {
+                    _streamingMessage.value = ChatMessage(id = "streaming_error", role = "assistant", text = lastChunkText, isStreaming = false, isError = true)
+                    updateCombinedMessages()
+                } else if (lastChunkText.isNotBlank()) {
+                    coachRepository.saveAssistantMessage(state.currentThreadId, lastChunkText)
+                    _streamingMessage.value = null
+                    updateCombinedMessages()
+                } else {
+                    _streamingMessage.value = null
+                    updateCombinedMessages()
                 }
             } catch (e: Exception) {
                 if (e !is kotlinx.coroutines.CancellationException) {
-                    _uiState.value = _uiState.value.copy(errorMessage = e.localizedMessage ?: "Failed to generate response")
+                    val errText = e.localizedMessage ?: "Failed to generate AI response"
+                    _streamingMessage.value = ChatMessage(id = "streaming_error", role = "assistant", text = errText, isStreaming = false, isError = true)
+                    updateCombinedMessages()
                 }
             } finally {
                 _uiState.value = _uiState.value.copy(isGenerating = false)
@@ -121,10 +154,26 @@ class CoachViewModel(
         }
     }
 
+    fun retryLastMessage(latestScan: ScanResult?, isPro: Boolean) {
+        val prompt = _uiState.value.lastUserPrompt
+        if (!prompt.isNullOrBlank()) {
+            sendMessage(prompt, latestScan, isPro)
+        }
+    }
+
+
     fun stopGeneration() {
+        val currentStreamingText = _streamingMessage.value?.text.orEmpty()
         currentJob?.cancel()
         currentJob = null
-        _uiState.value = _uiState.value.copy(isGenerating = false)
+        viewModelScope.launch {
+            if (currentStreamingText.isNotBlank() && !isKnownErrorMessage(currentStreamingText) && currentStreamingText != "Thinking...") {
+                coachRepository.saveAssistantMessage(_uiState.value.currentThreadId, currentStreamingText)
+            }
+            _streamingMessage.value = null
+            _uiState.value = _uiState.value.copy(isGenerating = false)
+            updateCombinedMessages()
+        }
     }
 
     fun deleteThread(threadId: String) {
@@ -147,5 +196,20 @@ class CoachViewModel(
         viewModelScope.launch {
             coachRepository.reportReply(messageId, reason, note)
         }
+    }
+
+    private fun isKnownErrorMessage(text: String): Boolean {
+        return text.startsWith("AI key missing") ||
+                text.startsWith("Invalid API Key") ||
+                text.startsWith("Bad Request") ||
+                text.startsWith("Model Not Found") ||
+                text.startsWith("Rate limit reached") ||
+                text.startsWith("AI Server Error") ||
+                text.startsWith("AI Service Error") ||
+                text.startsWith("Network connection failed")
+    }
+
+    private fun String?.isNull_or_blank(): Boolean {
+        return this.isNullOrBlank()
     }
 }

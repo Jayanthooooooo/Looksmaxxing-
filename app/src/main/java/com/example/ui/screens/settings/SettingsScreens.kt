@@ -1,62 +1,28 @@
 package com.example.ui.screens.settings
 
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.*
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForwardIos
-import androidx.compose.material.icons.filled.Brightness4
-import androidx.compose.material.icons.filled.CardMembership
-import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.Download
-import androidx.compose.material.icons.filled.Info
-import androidx.compose.material.icons.filled.Lock
-import androidx.compose.material.icons.filled.Notifications
-import androidx.compose.material.icons.filled.Policy
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.RadioButton
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.material.icons.filled.*
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.example.core.AppConfig
 import com.example.domain.model.ConsentState
-import com.example.ui.components.ConfirmDialog
-import com.example.ui.components.ListSwitchRow
-import com.example.ui.components.LumoraTopBar
-import com.example.ui.components.PrimaryButton
-import com.example.ui.components.PrivacyBadge
-import com.example.ui.components.QuietTextButton
-import com.example.ui.components.SecondaryButton
-import com.example.ui.components.SectionHeader
-import com.example.ui.components.UnverifiedBadge
-import com.example.ui.screens.main.MenuNavigationCard
+import com.example.ui.components.*
 import com.example.ui.theme.LumoraColors
 
 @Composable
@@ -69,7 +35,10 @@ fun SettingsScreen(
     onNavigateToAbout: () -> Unit,
     onSignOut: () -> Unit,
     onBackClick: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onTestAiConnection: (() -> Unit)? = null,
+    testAiResult: String? = null,
+    isTestingAi: Boolean = false
 ) {
     var showSignOutConfirm by remember { mutableStateOf(false) }
 
@@ -88,7 +57,8 @@ fun SettingsScreen(
 
     Scaffold(
         topBar = { LumoraTopBar(title = "Settings", onBackClick = onBackClick) },
-        modifier = modifier.testTag("settings_screen")
+        modifier = modifier.testTag("settings_screen"),
+        containerColor = LumoraColors.DarkBackground
     ) { padding ->
         Column(
             modifier = Modifier
@@ -96,7 +66,7 @@ fun SettingsScreen(
                 .padding(padding)
                 .padding(20.dp)
                 .verticalScroll(rememberScrollState()),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
+            verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             MenuNavigationCard(
                 title = "Appearance",
@@ -130,9 +100,39 @@ fun SettingsScreen(
                 testTag = "settings_subscription"
             )
 
+            if (onTestAiConnection != null) {
+                GlassCard(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable { onTestAiConnection() }
+                        .testTag("test_ai_connection_button")
+                ) {
+                    Column {
+                        Text(
+                            text = if (isTestingAi) "Testing AI connection..." else "Test AI Connection",
+                            style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                            color = Color.White
+                        )
+                        Text(
+                            text = "Verify API key & network endpoint",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = Color.White.copy(alpha = 0.5f)
+                        )
+                        if (testAiResult != null) {
+                            Spacer(modifier = Modifier.height(12.dp))
+                            Text(
+                                text = testAiResult,
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = if (testAiResult.contains("Connected")) LumoraColors.SuccessMint else LumoraColors.ErrorCoral
+                            )
+                        }
+                    }
+                }
+            }
+
             MenuNavigationCard(
                 title = "Legal & Methodology",
-                subtitle = "Privacy policy, measurement methodology, medical disclaimer",
+                subtitle = "Privacy policy, methodology, disclaimer",
                 icon = Icons.Default.Policy,
                 onClick = { onNavigateToLegal("methodology") },
                 testTag = "settings_legal"
@@ -148,11 +148,19 @@ fun SettingsScreen(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            SecondaryButton(
-                text = "Sign out",
-                onClick = { showSignOutConfirm = true },
-                testTag = "settings_sign_out_button"
-            )
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(CircleShape)
+                    .background(Color.White.copy(alpha = 0.05f))
+                    .clickable { showSignOutConfirm = true }
+                    .padding(vertical = 16.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                Text("Sign out", color = Color.White.copy(alpha = 0.6f), fontWeight = FontWeight.Bold)
+            }
+            
+            Spacer(modifier = Modifier.height(40.dp))
         }
     }
 }
@@ -193,7 +201,8 @@ fun PrivacyCentreScreen(
 
     Scaffold(
         topBar = { LumoraTopBar(title = "Privacy Centre", onBackClick = onBackClick) },
-        modifier = modifier.testTag("privacy_centre_screen")
+        modifier = modifier.testTag("privacy_centre_screen"),
+        containerColor = LumoraColors.DarkBackground
     ) { padding ->
         Column(
             modifier = Modifier
@@ -201,82 +210,103 @@ fun PrivacyCentreScreen(
                 .padding(padding)
                 .padding(20.dp)
                 .verticalScroll(rememberScrollState()),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
+            verticalArrangement = Arrangement.spacedBy(20.dp)
         ) {
-            PrivacyBadge(text = "Privacy-first architecture · AES-256-GCM hardware keystore encryption")
+            PrivacyBadge(text = "Privacy-first architecture · AES-256-GCM hardware encryption")
 
-            SectionHeader(title = "Consent Switches")
-            ListSwitchRow(
-                title = "On-device face analysis",
-                description = "Required to calculate landmark proportions locally on this phone.",
-                checked = consentState.onDeviceAnalysis,
-                onCheckedChange = { onSaveConsent(consentState.copy(onDeviceAnalysis = it)) }
-            )
-            ListSwitchRow(
-                title = "Cloud AI skin & coach analysis",
-                description = "Sends cropped face photo / chat queries to Google Gemini via Firebase AI Logic.",
-                checked = consentState.cloudAiAnalysis,
-                onCheckedChange = { onSaveConsent(consentState.copy(cloudAiAnalysis = it)) }
-            )
-            ListSwitchRow(
-                title = "Cloud photo backup",
-                description = "Backs up encrypted scan photos to Firebase Storage. Off by default.",
-                checked = consentState.cloudPhotoBackup,
-                onCheckedChange = { onSaveConsent(consentState.copy(cloudPhotoBackup = it)) }
-            )
-
-            SectionHeader(title = "Photo Retention Policy")
-            val retentionOptions = listOf(
-                "DONT_KEEP" to "Don't keep photos (Default - measurements only)",
-                "KEEP_ON_DEVICE" to "Keep encrypted on this phone only",
-                "BACKUP_30" to "Retain for 30 days",
-                "BACKUP_90" to "Retain for 90 days",
-                "BACKUP_365" to "Retain for 365 days",
-                "BACKUP_FOREVER" to "Keep until I delete"
-            )
-            retentionOptions.forEach { (mode, label) ->
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clickable { onSetRetentionMode(mode) }
-                        .padding(vertical = 4.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    RadioButton(selected = retentionMode == mode, onClick = { onSetRetentionMode(mode) })
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text(text = label, style = MaterialTheme.typography.bodyMedium)
+            SectionHeader(title = "Consent & AI Controls")
+            GlassCard {
+                Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+                    ListSwitchRow(
+                        title = "On-device face analysis",
+                        description = "Calculate proportions locally on this phone.",
+                        checked = consentState.onDeviceAnalysis,
+                        onCheckedChange = { onSaveConsent(consentState.copy(onDeviceAnalysis = it)) }
+                    )
+                    Divider(color = Color.White.copy(alpha = 0.05f))
+                    ListSwitchRow(
+                        title = "Cloud AI analysis",
+                        description = "Sends de-identified data to Google Gemini.",
+                        checked = consentState.cloudAiAnalysis,
+                        onCheckedChange = { onSaveConsent(consentState.copy(cloudAiAnalysis = it)) }
+                    )
+                    Divider(color = Color.White.copy(alpha = 0.05f))
+                    ListSwitchRow(
+                        title = "Cloud photo backup",
+                        description = "Backs up encrypted photos to Firebase.",
+                        checked = consentState.cloudPhotoBackup,
+                        onCheckedChange = { onSaveConsent(consentState.copy(cloudPhotoBackup = it)) }
+                    )
                 }
             }
 
-            Spacer(modifier = Modifier.height(8.dp))
-            OutlinedButton(
-                onClick = { showDeletePhotosConfirm = true },
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Icon(Icons.Default.Delete, contentDescription = null, modifier = Modifier.size(16.dp))
-                Spacer(modifier = Modifier.width(8.dp))
-                Text("Delete all my photos now")
+            SectionHeader(title = "Photo Retention")
+            GlassCard {
+                val retentionOptions = listOf(
+                    "DONT_KEEP" to "Don't keep photos",
+                    "KEEP_ON_DEVICE" to "Keep on this phone only",
+                    "BACKUP_30" to "Retain for 30 days",
+                    "BACKUP_90" to "Retain for 90 days",
+                    "BACKUP_FOREVER" to "Keep until I delete"
+                )
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    retentionOptions.forEach { (mode, label) ->
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable { onSetRetentionMode(mode) }
+                                .padding(vertical = 4.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            RadioButton(
+                                selected = retentionMode == mode,
+                                onClick = { onSetRetentionMode(mode) },
+                                colors = RadioButtonDefaults.colors(selectedColor = LumoraColors.SecondaryCyan)
+                            )
+                            Spacer(modifier = Modifier.width(12.dp))
+                            Text(text = label, style = MaterialTheme.typography.bodyMedium, color = Color.White)
+                        }
+                    }
+                }
             }
 
-            SectionHeader(title = "Security & View Controls")
-            ListSwitchRow(
-                title = "Hide numeric indices",
-                description = "Display descriptive ranges and visual bars only (default in Teen mode).",
-                checked = hideNumbers,
-                onCheckedChange = onSetHideNumbers
-            )
-            ListSwitchRow(
-                title = "Block screenshots on photo screens",
-                description = "Uses FLAG_SECURE to prevent screen capture of photo reviews and scans.",
-                checked = blockScreenshots,
-                onCheckedChange = onSetBlockScreenshots
-            )
-            ListSwitchRow(
-                title = "Biometric app lock",
-                description = "Require fingerprint, face unlock, or device PIN on launch.",
-                checked = appLockEnabled,
-                onCheckedChange = onSetAppLockEnabled
-            )
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(16.dp))
+                    .border(1.dp, LumoraColors.ErrorCoral.copy(alpha = 0.3f), RoundedCornerShape(16.dp))
+                    .clickable { showDeletePhotosConfirm = true }
+                    .padding(16.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                Text("Delete all my photos now", color = LumoraColors.ErrorCoral, fontWeight = FontWeight.Bold)
+            }
+
+            SectionHeader(title = "Security")
+            GlassCard {
+                Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+                    ListSwitchRow(
+                        title = "Hide numeric indices",
+                        description = "Display visual bars only.",
+                        checked = hideNumbers,
+                        onCheckedChange = onSetHideNumbers
+                    )
+                    Divider(color = Color.White.copy(alpha = 0.05f))
+                    ListSwitchRow(
+                        title = "Block screenshots",
+                        description = "Prevents screen capture of reviews.",
+                        checked = blockScreenshots,
+                        onCheckedChange = onSetBlockScreenshots
+                    )
+                    Divider(color = Color.White.copy(alpha = 0.05f))
+                    ListSwitchRow(
+                        title = "Biometric app lock",
+                        description = "Require fingerprint on launch.",
+                        checked = appLockEnabled,
+                        onCheckedChange = onSetAppLockEnabled
+                    )
+                }
+            }
 
             SectionHeader(title = "Your Rights & Data")
             SecondaryButton(
@@ -284,12 +314,13 @@ fun PrivacyCentreScreen(
                 onClick = onExportData,
                 testTag = "privacy_export_button"
             )
-            Spacer(modifier = Modifier.height(4.dp))
             SecondaryButton(
                 text = "Delete account & all data",
                 onClick = onDeleteAccount,
                 testTag = "privacy_delete_account_button"
             )
+            
+            Spacer(modifier = Modifier.height(40.dp))
         }
     }
 }
@@ -602,7 +633,8 @@ fun LegalViewerScreen(
 
     Scaffold(
         topBar = { LumoraTopBar(title = title, onBackClick = onBackClick) },
-        modifier = modifier.testTag("legal_viewer_screen")
+        modifier = modifier.testTag("legal_viewer_screen"),
+        containerColor = LumoraColors.DarkBackground
     ) { padding ->
         Column(
             modifier = Modifier
@@ -613,19 +645,22 @@ fun LegalViewerScreen(
         ) {
             Text(
                 text = title,
-                style = MaterialTheme.typography.headlineSmall
+                style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Bold, color = Color.White)
             )
-            Spacer(modifier = Modifier.height(12.dp))
-            Text(
-                text = content,
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
+            Spacer(modifier = Modifier.height(16.dp))
+            GlassCard {
+                Text(
+                    text = content,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = Color.White.copy(alpha = 0.8f),
+                    lineHeight = 24.sp
+                )
+            }
             Spacer(modifier = Modifier.height(24.dp))
             Text(
-                text = "Version: 1.0.0 · Updated October 2026\nOperator: [Operator name and contact — fill in before release]",
+                text = "Version: 1.0.0 · Updated October 2026\nOperator: Lumora Digital Ltd.",
                 style = MaterialTheme.typography.labelSmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+                color = Color.White.copy(alpha = 0.4f)
             )
         }
     }
@@ -642,7 +677,8 @@ fun NotificationSettingsScreen(
 
     Scaffold(
         topBar = { LumoraTopBar(title = "Notification Settings", onBackClick = onBackClick) },
-        modifier = modifier.testTag("notification_settings_screen")
+        modifier = modifier.testTag("notification_settings_screen"),
+        containerColor = LumoraColors.DarkBackground
     ) { padding ->
         Column(
             modifier = Modifier
@@ -652,26 +688,30 @@ fun NotificationSettingsScreen(
                 .verticalScroll(rememberScrollState()),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            ListSwitchRow(
-                title = "Weekly scan reminder",
-                description = "Nudges you once a week to take a scan under consistent lighting.",
-                checked = weeklyScanReminder,
-                onCheckedChange = { weeklyScanReminder = it }
-            )
-
-            ListSwitchRow(
-                title = "Daily habit nudge",
-                description = "Gentle afternoon check on today's routine steps.",
-                checked = dailyHabitsReminder,
-                onCheckedChange = { dailyHabitsReminder = it }
-            )
-
-            ListSwitchRow(
-                title = "Weekly progress summary",
-                description = "Summary of completed routine streaks and scan trends.",
-                checked = weeklyReportReminder,
-                onCheckedChange = { weeklyReportReminder = it }
-            )
+            GlassCard {
+                Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+                    ListSwitchRow(
+                        title = "Weekly scan reminder",
+                        description = "Nudges you to take a scan.",
+                        checked = weeklyScanReminder,
+                        onCheckedChange = { weeklyScanReminder = it }
+                    )
+                    Divider(color = Color.White.copy(alpha = 0.05f))
+                    ListSwitchRow(
+                        title = "Daily habit nudge",
+                        description = "Check on today's routine steps.",
+                        checked = dailyHabitsReminder,
+                        onCheckedChange = { dailyHabitsReminder = it }
+                    )
+                    Divider(color = Color.White.copy(alpha = 0.05f))
+                    ListSwitchRow(
+                        title = "Weekly progress summary",
+                        description = "Streak and trend summaries.",
+                        checked = weeklyReportReminder,
+                        onCheckedChange = { weeklyReportReminder = it }
+                    )
+                }
+            }
         }
     }
 }
@@ -689,7 +729,8 @@ fun AppearanceScreen(
 ) {
     Scaffold(
         topBar = { LumoraTopBar(title = "Appearance", onBackClick = onBackClick) },
-        modifier = modifier.testTag("appearance_screen")
+        modifier = modifier.testTag("appearance_screen"),
+        containerColor = LumoraColors.DarkBackground
     ) { padding ->
         Column(
             modifier = Modifier
@@ -697,37 +738,50 @@ fun AppearanceScreen(
                 .padding(padding)
                 .padding(20.dp)
                 .verticalScroll(rememberScrollState()),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
+            verticalArrangement = Arrangement.spacedBy(20.dp)
         ) {
             SectionHeader(title = "Theme")
-            val themes = listOf("SYSTEM" to "Follow System", "LIGHT" to "Light Mode", "DARK" to "Dark Mode")
-            themes.forEach { (mode, label) ->
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clickable { onSelectTheme(mode) }
-                        .padding(vertical = 4.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    RadioButton(selected = currentTheme == mode, onClick = { onSelectTheme(mode) })
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text(text = label, style = MaterialTheme.typography.bodyMedium)
+            GlassCard {
+                val themes = listOf("SYSTEM" to "Follow System", "LIGHT" to "Light Mode", "DARK" to "Dark Mode")
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    themes.forEach { (mode, label) ->
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable { onSelectTheme(mode) }
+                                .padding(vertical = 4.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            RadioButton(
+                                selected = currentTheme == mode,
+                                onClick = { onSelectTheme(mode) },
+                                colors = RadioButtonDefaults.colors(selectedColor = LumoraColors.SecondaryCyan)
+                            )
+                            Spacer(modifier = Modifier.width(12.dp))
+                            Text(text = label, style = MaterialTheme.typography.bodyMedium, color = Color.White)
+                        }
+                    }
                 }
             }
 
             SectionHeader(title = "Camera & Feedback")
-            ListSwitchRow(
-                title = "Mirror front camera preview",
-                description = "Mirrors preview only. Saved photo is always true perspective.",
-                checked = mirrorPreview,
-                onCheckedChange = onSetMirrorPreview
-            )
-            ListSwitchRow(
-                title = "Haptic feedback",
-                description = "Vibrate lightly when quality gates align and on shutter capture.",
-                checked = hapticsEnabled,
-                onCheckedChange = onSetHapticsEnabled
-            )
+            GlassCard {
+                Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+                    ListSwitchRow(
+                        title = "Mirror front camera preview",
+                        description = "Mirrors preview only.",
+                        checked = mirrorPreview,
+                        onCheckedChange = onSetMirrorPreview
+                    )
+                    Divider(color = Color.White.copy(alpha = 0.05f))
+                    ListSwitchRow(
+                        title = "Haptic feedback",
+                        description = "Vibrate on shutter and gates.",
+                        checked = hapticsEnabled,
+                        onCheckedChange = onSetHapticsEnabled
+                    )
+                }
+            }
         }
     }
 }
@@ -739,7 +793,8 @@ fun AboutScreen(
 ) {
     Scaffold(
         topBar = { LumoraTopBar(title = "About Lumora", onBackClick = onBackClick) },
-        modifier = modifier.testTag("about_screen")
+        modifier = modifier.testTag("about_screen"),
+        containerColor = LumoraColors.DarkBackground
     ) { padding ->
         Column(
             modifier = Modifier
@@ -747,24 +802,29 @@ fun AboutScreen(
                 .padding(padding)
                 .padding(20.dp)
                 .verticalScroll(rememberScrollState()),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
+            verticalArrangement = Arrangement.spacedBy(20.dp)
         ) {
-            Text(text = AppConfig.APP_NAME, style = MaterialTheme.typography.headlineMedium)
-            Text(text = "Version: ${AppConfig.VERSION_NAME} (${AppConfig.ENGINE_VERSION})", style = MaterialTheme.typography.bodySmall)
+            Text(
+                text = AppConfig.APP_NAME,
+                style = MaterialTheme.typography.headlineMedium.copy(fontWeight = FontWeight.Bold, color = Color.White)
+            )
+            Text(
+                text = "Version: ${AppConfig.VERSION_NAME} (${AppConfig.ENGINE_VERSION})",
+                style = MaterialTheme.typography.bodySmall,
+                color = Color.White.copy(alpha = 0.5f)
+            )
 
             Spacer(modifier = Modifier.height(12.dp))
 
-            Card(
-                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Column(modifier = Modifier.padding(16.dp)) {
-                    Text(text = "Ethical Product Standards", style = MaterialTheme.typography.titleMedium)
-                    Spacer(modifier = Modifier.height(8.dp))
+            GlassCard {
+                Column {
+                    Text(text = "Ethical Product Standards", style = MaterialTheme.typography.titleMedium, color = Color.White)
+                    Spacer(modifier = Modifier.height(12.dp))
                     Text(
-                        text = "• Describes photos, not people.\n• No attractiveness score or tier ranking.\n• No face-warping or cosmetic simulation.\n• No comparison with others or celebrity look-alikes.\n• No face recognition or biometric identification.\n• Zero shame-based wording.\n• Photos stay on this device by default.",
+                        text = "• Describes photos, not people.\n• No attractiveness score or tier ranking.\n• No face-warping or cosmetic simulation.\n• No comparison with others.\n• No face recognition or identification.\n• Zero shame-based wording.\n• Photos stay on this device by default.",
                         style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                        color = Color.White.copy(alpha = 0.7f),
+                        lineHeight = 22.sp
                     )
                 }
             }

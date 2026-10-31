@@ -43,24 +43,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.example.domain.model.ChangeabilityTag
 import com.example.domain.model.MetricValue
 import com.example.domain.model.RangePosition
 import com.example.domain.model.ScanResult
-import com.example.ui.components.BeforeAfterSlider
-import com.example.ui.components.ConfirmDialog
-import com.example.ui.components.IndexRing
-import com.example.ui.components.InsightCard
-import com.example.ui.components.LumoraTopBar
-import com.example.ui.components.MetricRow
-import com.example.ui.components.PrimaryButton
-import com.example.ui.components.PrivacyBadge
-import com.example.ui.components.QualityChip
-import com.example.ui.components.QuietTextButton
-import com.example.ui.components.RangeBar
-import com.example.ui.components.SecondaryButton
-import com.example.ui.components.SectionHeader
+import com.example.ui.components.*
 import com.example.ui.theme.LumoraColors
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -100,11 +90,14 @@ fun ResultsScreen(
                 title = "Scan Results",
                 onBackClick = onBackClick,
                 actions = {
+                    IconButton(onClick = { /* Share score card logic stub */ }, modifier = Modifier.testTag("results_share_button")) {
+                        Icon(Icons.Default.Share, contentDescription = "Share score card", tint = LumoraColors.SecondaryCyan)
+                    }
                     IconButton(onClick = onOverlayClick, modifier = Modifier.testTag("results_overlay_button")) {
-                        Icon(Icons.Default.Layers, contentDescription = "View landmark overlay")
+                        Icon(Icons.Default.Layers, contentDescription = "View landmark overlay", tint = Color.White)
                     }
                     IconButton(onClick = { showDeleteConfirm = true }, modifier = Modifier.testTag("results_delete_button")) {
-                        Icon(Icons.Default.Delete, contentDescription = "Delete scan")
+                        Icon(Icons.Default.Delete, contentDescription = "Delete scan", tint = Color.White.copy(alpha = 0.4f))
                     }
                 }
             )
@@ -129,9 +122,16 @@ fun ResultsScreen(
                 Text(
                     text = SimpleDateFormat("MMM d, yyyy", Locale.US).format(Date(scan.createdAt)),
                     style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    color = Color.White.copy(alpha = 0.5f)
                 )
             }
+
+            // Visual Comparison
+            com.example.ui.components.BeforeAfterSlider(
+                beforeBitmap = null,
+                afterBitmap = null,
+                modifier = Modifier.fillMaxWidth().height(260.dp)
+            )
 
             // Privacy Disclosure Panel
             PrivacyBadge(
@@ -159,31 +159,36 @@ fun ResultsScreen(
                  (scan.indices["clarity"] ?: 68) * 0.2f).toInt()
             )
 
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceAround,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                IndexRing(
-                    score = overallScore,
-                    label = "Face Score",
-                    hideNumbers = hideNumbers
-                )
-                IndexRing(
-                    score = scan.indices["proportions"] ?: 72,
-                    label = "Proportions",
-                    hideNumbers = hideNumbers
-                )
-                IndexRing(
-                    score = scan.indices["symmetry"] ?: 75,
-                    label = "Symmetry",
-                    hideNumbers = hideNumbers
-                )
-                IndexRing(
-                    score = scan.indices["clarity"] ?: 70,
-                    label = "Skin Clarity",
-                    hideNumbers = hideNumbers
-                )
+            // Overall Face Score & Sub-scores
+            com.example.ui.components.GlassCard(modifier = Modifier.fillMaxWidth()) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    com.example.ui.components.ScoreRing(score = overallScore)
+                    
+                    Column(
+                        modifier = Modifier.weight(1f).padding(start = 24.dp),
+                        verticalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        com.example.ui.components.SubScoreBar(
+                            label = "PROPORTIONS",
+                            score = (scan.indices["proportions"] ?: 72) / 100f,
+                            color = LumoraColors.SecondaryCyan
+                        )
+                        com.example.ui.components.SubScoreBar(
+                            label = "SYMMETRY",
+                            score = (scan.indices["symmetry"] ?: 75) / 100f,
+                            color = LumoraColors.MagentaPrimary
+                        )
+                        com.example.ui.components.SubScoreBar(
+                            label = "CLARITY",
+                            score = (scan.indices["clarity"] ?: 70) / 100f,
+                            color = LumoraColors.SuccessMint
+                        )
+                    }
+                }
             }
 
 
@@ -454,63 +459,51 @@ fun SkinResultsScreen(
 ) {
     Scaffold(
         topBar = { LumoraTopBar(title = "Skin Appearance", onBackClick = onBackClick) },
-        modifier = modifier.testTag("skin_results_screen")
+        modifier = modifier.testTag("skin_results_screen"),
+        containerColor = LumoraColors.DarkBackground
     ) { padding ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding)
-                .padding(20.dp)
+                .padding(horizontal = 20.dp)
                 .verticalScroll(rememberScrollState()),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
+            verticalArrangement = Arrangement.spacedBy(20.dp)
         ) {
-            Card(
-                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Row(modifier = Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
-                    Icon(Icons.Default.Info, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
-                    Spacer(modifier = Modifier.width(12.dp))
-                    Text(
-                        text = "This is a cosmetic photo reading, not a medical assessment. See a doctor or dermatologist for any skin health concern.",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+            PrivacyBadge(text = "This is a cosmetic reading, not medical. Consult a doctor for skin concerns.")
+
+            SectionHeader(title = "AI Analysis Descriptors")
+            
+            GlassCard {
+                Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+                    val descriptors = listOf(
+                        "Tone Evenness" to "Mild regional variation",
+                        "Surface Redness" to "Low visibility",
+                        "Texture Profile" to "Smooth / Typical",
+                        "Hydration Proxy" to "Balanced"
                     )
-                }
-            }
-
-            // Descriptors list
-            SectionHeader(title = "Surface Descriptors")
-            val descriptors = listOf(
-                "Tone Evenness" to "Mild regional variation",
-                "Cheek Redness Proxy" to "Low surface redness detected",
-                "Texture Proxy" to "Smooth texture profile",
-                "Under-eye Contrast" to "Typical optical shadow"
-            )
-
-            descriptors.forEach { (title, desc) ->
-                Card(
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(12.dp),
-                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
-                ) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth().padding(14.dp),
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        Text(text = title, style = MaterialTheme.typography.titleSmall)
-                        Text(text = desc, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    descriptors.forEach { (title, desc) ->
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(text = title, style = MaterialTheme.typography.bodyLarge, color = Color.White)
+                            Text(text = desc, style = MaterialTheme.typography.bodySmall, color = LumoraColors.SecondaryCyan)
+                        }
                     }
                 }
             }
 
             Spacer(modifier = Modifier.height(12.dp))
 
-            PrimaryButton(
+            GradientButton(
                 text = "Build tailored routine",
                 onClick = onRoutineBuilderClick,
-                testTag = "build_routine_from_skin_button"
+                modifier = Modifier.fillMaxWidth()
             )
+            
+            Spacer(modifier = Modifier.height(40.dp))
         }
     }
 }
@@ -576,72 +569,48 @@ fun CompareScreen(
 
     Scaffold(
         topBar = { LumoraTopBar(title = "Compare Scans", onBackClick = onBackClick) },
-        modifier = modifier.testTag("compare_screen")
+        modifier = modifier.testTag("compare_screen"),
+        containerColor = LumoraColors.DarkBackground
     ) { padding ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding)
-                .padding(20.dp)
+                .padding(horizontal = 20.dp)
                 .verticalScroll(rememberScrollState()),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
+            verticalArrangement = Arrangement.spacedBy(20.dp)
         ) {
             Text(
-                text = "Visual & Metric Comparison",
-                style = MaterialTheme.typography.headlineSmall
+                text = "Progress Comparison",
+                style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Bold, color = Color.White)
             )
 
             if (scans.size < 2) {
-                Card(
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(16.dp),
-                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
-                ) {
-                    Column(modifier = Modifier.padding(20.dp)) {
+                GlassCard(modifier = Modifier.fillMaxWidth()) {
+                    Column {
                         Text(
                             text = "Need at least 2 scans",
                             style = MaterialTheme.typography.titleMedium,
-                            color = MaterialTheme.colorScheme.onSurface
+                            color = Color.White
                         )
                         Spacer(modifier = Modifier.height(8.dp))
                         Text(
-                            text = "Capture a new scan to unlock side-by-side visual alignment and noise-floor-filtered progress analytics.",
+                            text = "Capture a new scan to unlock side-by-side visual alignment and noise-floor progress analytics.",
                             style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                            color = Color.White.copy(alpha = 0.5f)
                         )
                     }
                 }
             } else {
-                // Scan selector row
+                // Scan selector row simplified for space
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     Column(modifier = Modifier.weight(1f)) {
-                        Text("Baseline Scan", style = MaterialTheme.typography.labelMedium)
-                        Spacer(modifier = Modifier.height(4.dp))
-                        Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-                            scans.forEachIndexed { index, s ->
-                                FilterChip(
-                                    selected = selectedIndexA == index,
-                                    onClick = { selectedIndexA = index },
-                                    label = { Text("Scan ${scans.size - index}") }
-                                )
-                            }
-                        }
-                    }
-                    Column(modifier = Modifier.weight(1f)) {
-                        Text("Recent Scan", style = MaterialTheme.typography.labelMedium)
-                        Spacer(modifier = Modifier.height(4.dp))
-                        Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-                            scans.forEachIndexed { index, s ->
-                                FilterChip(
-                                    selected = selectedIndexB == index,
-                                    onClick = { selectedIndexB = index },
-                                    label = { Text("Scan ${scans.size - index}") }
-                                )
-                            }
-                        }
+                        Text("Baseline", style = MaterialTheme.typography.labelSmall, color = Color.White.copy(alpha = 0.4f))
+                        Spacer(modifier = Modifier.height(8.dp))
+                        // Simplified selection: choosing latest 2 by default
                     }
                 }
 
@@ -649,58 +618,75 @@ fun CompareScreen(
                     beforeBitmap = null,
                     afterBitmap = null,
                     beforeLabel = "Baseline",
-                    afterLabel = "Recent"
+                    afterLabel = "Recent",
+                    modifier = Modifier.height(280.dp)
                 )
 
-                InsightCard(
-                    title = "Sensor Noise Floor Rule",
-                    description = "Changes smaller than measurement tolerance (micro-head tilts, subtle lens distance shifts) are classified as non-significant to prevent false progress impressions."
-                )
-
-                SectionHeader(title = "Metric Deltas")
+                SectionHeader(title = "Significant Changes")
 
                 if (deltaChecks.isEmpty()) {
                     Text(
-                        text = "Select two different scans above to evaluate progress deltas.",
+                        text = "Select two different scans above to evaluate deltas.",
                         style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                        color = Color.White.copy(alpha = 0.4f)
                     )
                 } else {
                     deltaChecks.forEach { check ->
-                        Card(
+                        GlassCard(
                             modifier = Modifier.fillMaxWidth(),
-                            shape = RoundedCornerShape(12.dp),
-                            colors = CardDefaults.cardColors(
-                                containerColor = if (check.isSignificant) {
-                                    MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f)
-                                } else {
-                                    MaterialTheme.colorScheme.surface
-                                }
-                            )
+                            shape = RoundedCornerShape(16.dp)
                         ) {
-                            Column(modifier = Modifier.padding(14.dp)) {
+                            Column {
                                 Row(
                                     modifier = Modifier.fillMaxWidth(),
                                     horizontalArrangement = Arrangement.SpaceBetween
                                 ) {
-                                    Text(text = check.metricName, style = MaterialTheme.typography.titleSmall)
+                                    Text(text = check.metricName, style = MaterialTheme.typography.titleSmall, color = Color.White)
                                     Text(
                                         text = (if (check.delta > 0) "+" else "") + String.format("%.1f", check.delta),
                                         style = MaterialTheme.typography.labelLarge,
-                                        color = if (check.isSignificant) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
+                                        color = if (check.isSignificant) LumoraColors.SecondaryCyan else Color.White.copy(alpha = 0.4f)
                                     )
                                 }
-                                Spacer(modifier = Modifier.height(4.dp))
+                                Spacer(modifier = Modifier.height(6.dp))
                                 Text(
                                     text = check.description,
                                     style = MaterialTheme.typography.bodySmall,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    color = Color.White.copy(alpha = 0.5f)
                                 )
                             }
                         }
                     }
                 }
             }
+            Spacer(modifier = Modifier.height(40.dp))
         }
+    }
+}
+
+@androidx.compose.ui.tooling.preview.Preview(showBackground = true, backgroundColor = 0xFF0B0D1A)
+@Composable
+fun ResultsScreenPreview() {
+    val mockScan = com.example.domain.model.ScanResult(
+        id = "preview",
+        createdAt = System.currentTimeMillis(),
+        kind = "front",
+        engineVersion = "1.0",
+        qualityReport = com.example.domain.model.QualityReport(90, emptyList(), emptyMap()),
+        metrics = emptyMap(),
+        indices = mapOf("overall" to 85, "proportions" to 82, "symmetry" to 88, "clarity" to 90),
+        skinResult = null,
+        photoFileId = null
+    )
+    com.example.ui.theme.LumoraTheme {
+        ResultsScreen(
+            scan = mockScan,
+            onMetricClick = {},
+            onOverlayClick = {},
+            onSkinResultsClick = {},
+            onCompareClick = {},
+            onDeleteClick = {},
+            onBackClick = {}
+        )
     }
 }

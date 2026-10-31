@@ -46,7 +46,11 @@ class PreferencesDataStore(private val context: Context) {
         // Daily coach message tracking
         val COACH_DAILY_DATE = stringPreferencesKey("coach_daily_date")
         val COACH_DAILY_COUNT = intPreferencesKey("coach_daily_count")
+
+        // Cached working model
+        val WORKING_MODEL = stringPreferencesKey("working_model")
     }
+
 
     val themeModeFlow: Flow<String> = context.dataStore.data.map { it[THEME_MODE] ?: "SYSTEM" }
     val mirrorPreviewFlow: Flow<Boolean> = context.dataStore.data.map { it[MIRROR_PREVIEW] ?: false }
@@ -55,6 +59,13 @@ class PreferencesDataStore(private val context: Context) {
     val blockScreenshotsFlow: Flow<Boolean> = context.dataStore.data.map { it[BLOCK_SCREENSHOTS] ?: false }
     val appLockEnabledFlow: Flow<Boolean> = context.dataStore.data.map { it[APP_LOCK_ENABLED] ?: false }
     val onboardingCompletedFlow: Flow<Boolean> = context.dataStore.data.map { it[ONBOARDING_COMPLETED] ?: false }
+
+    val workingModelFlow: Flow<String?> = context.dataStore.data.map { it[WORKING_MODEL] }
+
+    suspend fun setWorkingModel(model: String) {
+        context.dataStore.edit { it[WORKING_MODEL] = model }
+    }
+
 
     val consentOnDeviceFlow: Flow<Boolean> = context.dataStore.data.map { it[CONSENT_ON_DEVICE] ?: false }
     val consentCloudAiFlow: Flow<Boolean> = context.dataStore.data.map { it[CONSENT_CLOUD_AI] ?: false }

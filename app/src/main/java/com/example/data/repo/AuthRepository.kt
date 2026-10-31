@@ -138,7 +138,17 @@ class AuthRepository(
         } catch (e: FirebaseAuthWeakPasswordException) {
             Outcome.Error("Password is too weak. Please use at least 8 characters.")
         } catch (e: FirebaseAuthUserCollisionException) {
-            Outcome.Error("An account with this email already exists.")
+            try {
+                val signInResult = auth.signInWithEmailAndPassword(email, password).await()
+                val user = signInResult.user
+                if (user != null) {
+                    Outcome.Success(user.uid)
+                } else {
+                    Outcome.Error("An account with this email already exists. Please sign in.")
+                }
+            } catch (signInEx: Exception) {
+                Outcome.Error("An account with this email already exists. Please enter your correct password to sign in.")
+            }
         } catch (e: FirebaseAuthInvalidCredentialsException) {
             Outcome.Error("The email address is improperly formatted.")
         } catch (e: Exception) {

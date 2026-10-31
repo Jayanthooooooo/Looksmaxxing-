@@ -34,10 +34,12 @@ object LumoraColors {
     val LightError = Color(0xFFDC2626)
     val LightOutline = Color(0xFFD1D6EE)
 
-    // Reusable Gradients
+    // Reusable Gradients & Glass Tokens
     val PrimaryGradient = Brush.horizontalGradient(listOf(VioletPrimary, MagentaPrimary))
     val AccentGradient = Brush.horizontalGradient(listOf(MagentaPrimary, SecondaryCyan))
     val GlowGradient = Brush.radialGradient(listOf(VioletPrimary.copy(alpha = 0.4f), Color.Transparent))
-    val GlassBorder = Brush.linearGradient(listOf(Color.White.copy(alpha = 0.25f), Color.White.copy(alpha = 0.05f)))
-    val GlassBackground = Color.White.copy(alpha = 0.07f)
+    val GlassBorder = Brush.linearGradient(
+        colors = listOf(Color.White.copy(alpha = 0.25f), Color.White.copy(alpha = 0.05f))
+    )
+    val GlassBackground = Color.White.copy(alpha = 0.08f)
 }

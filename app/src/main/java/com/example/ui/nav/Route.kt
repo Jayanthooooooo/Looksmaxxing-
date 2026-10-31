@@ -9,6 +9,7 @@ sealed class Route(val route: String) {
     data object SignIn : Route("sign_in")
     data object ForgotPassword : Route("forgot_password")
     data object VerifyEmail : Route("verify_email")
+    data object IntroOnboarding : Route("intro_onboarding")
     data object Onboarding : Route("onboarding/{step}") {
         fun createRoute(step: Int) = "onboarding/$step"
     }

@@ -32,6 +32,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
+import com.example.ui.theme.LumoraColors
 
 enum class MainTab(val label: String, val icon: ImageVector) {
     TODAY("Today", Icons.Default.Today),
@@ -83,8 +84,8 @@ fun MainScaffold(
             bottomBar = {
                 Box(modifier = Modifier.fillMaxWidth()) {
                     NavigationBar(
-                        containerColor = MaterialTheme.colorScheme.surface,
-                        tonalElevation = 2.dp,
+                        containerColor = LumoraColors.DarkBackground.copy(alpha = 0.95f),
+                        tonalElevation = 8.dp,
                         modifier = Modifier.fillMaxWidth().testTag("main_bottom_nav")
                     ) {
                         NavigationBarItem(
@@ -128,26 +129,16 @@ fun MainScaffold(
                     }
 
                     // Centre Floating Action Button
-                    FloatingActionButton(
+                    com.example.ui.components.GlowingScanButton(
                         onClick = onCenterScanClick,
-                        shape = CircleShape,
-                        containerColor = MaterialTheme.colorScheme.primary,
-                        contentColor = MaterialTheme.colorScheme.onPrimary,
-                        elevation = FloatingActionButtonDefaults.elevation(defaultElevation = 4.dp),
                         modifier = Modifier
                             .align(Alignment.TopCenter)
-                            .offset(y = (-20).dp)
-                            .size(56.dp)
+                            .offset(y = (-24).dp)
                             .testTag("center_scan_fab")
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Add,
-                            contentDescription = "New Scan",
-                            modifier = Modifier.size(28.dp)
-                        )
-                    }
+                    )
                 }
             },
+            containerColor = LumoraColors.DarkBackground,
             modifier = Modifier.testTag("main_scaffold_compact")
         ) { padding ->
             Box(modifier = Modifier.fillMaxSize().padding(padding)) {

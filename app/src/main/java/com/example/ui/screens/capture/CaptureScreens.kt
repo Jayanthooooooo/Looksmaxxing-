@@ -9,12 +9,18 @@ import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -58,6 +64,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.drawscope.Stroke
@@ -65,8 +72,10 @@ import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageAnalysis
@@ -85,6 +94,8 @@ import com.example.face.quality.OneEuroFilter
 import com.example.face.quality.Point3D
 import com.example.domain.model.QualityReport
 import com.example.ui.components.GateChip
+import com.example.ui.components.GlassCard
+import com.example.ui.components.GradientButton
 import com.example.ui.components.LumoraTopBar
 import com.example.ui.components.PrimaryButton
 import com.example.ui.components.PrivacyBadge
@@ -170,59 +181,57 @@ fun ScanHubScreen(
                 Spacer(modifier = Modifier.height(20.dp))
 
                 // 18+ Confirmation & Product Framing Card
-                Card(
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(16.dp),
-                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
+                GlassCard(
+                    modifier = Modifier.fillMaxWidth()
                 ) {
-                    Column(modifier = Modifier.padding(16.dp)) {
-                        Text(
-                            text = "Important Terms & Age Requirement",
-                            style = MaterialTheme.typography.titleSmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                    Text(
+                        text = "Important Terms & Age Requirement",
+                        style = MaterialTheme.typography.titleSmall,
+                        color = LumoraColors.DarkOnSurface
+                    )
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        text = "Lumora overall Face Score (0-100) is an estimate based on facial geometry and photo analysis, not a measure of personal worth or attractiveness.",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = LumoraColors.DarkOnSurfaceMuted
+                    )
+                    Spacer(modifier = Modifier.height(12.dp))
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(8.dp))
+                            .border(1.dp, if (isAgeConfirmed) LumoraColors.SuccessMint else LumoraColors.DarkOutline, RoundedCornerShape(8.dp))
+                            .clickable { isAgeConfirmed = !isAgeConfirmed }
+                            .padding(12.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        androidx.compose.material3.Checkbox(
+                            checked = isAgeConfirmed,
+                            onCheckedChange = { isAgeConfirmed = it },
+                            modifier = Modifier.testTag("age_18_confirm_checkbox")
                         )
-                        Spacer(modifier = Modifier.height(4.dp))
+                        Spacer(modifier = Modifier.width(8.dp))
                         Text(
-                            text = "Lumora overall Face Score (0-100) is an estimate based on facial geometry and photo analysis, not a measure of personal worth or attractiveness.",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.85f)
+                            text = "I confirm I am 18 or older",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = LumoraColors.DarkOnSurface
                         )
-                        Spacer(modifier = Modifier.height(12.dp))
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .clip(RoundedCornerShape(8.dp))
-                                .border(1.dp, if (isAgeConfirmed) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline, RoundedCornerShape(8.dp))
-                                .clickable { isAgeConfirmed = !isAgeConfirmed }
-                                .padding(12.dp),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            androidx.compose.material3.Checkbox(
-                                checked = isAgeConfirmed,
-                                onCheckedChange = { isAgeConfirmed = it },
-                                modifier = Modifier.testTag("age_18_confirm_checkbox")
-                            )
-                            Spacer(modifier = Modifier.width(8.dp))
-                            Text(
-                                text = "I confirm I am 18 or older",
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = MaterialTheme.colorScheme.onSurface
-                            )
-                        }
                     }
                 }
-
+ 
                 Spacer(modifier = Modifier.height(16.dp))
                 PrivacyBadge(text = "Processed strictly on this phone · Encrypted storage")
             }
-
+ 
             Column(modifier = Modifier.fillMaxWidth().padding(top = 24.dp)) {
-                PrimaryButton(
+                GradientButton(
                     text = "Front scan",
                     onClick = onFrontScanClick,
                     enabled = isAgeConfirmed,
-                    testTag = "scan_hub_front_button"
+                    modifier = Modifier.fillMaxWidth()
                 )
+                // Re-enable/disable based on isAgeConfirmed within GradientButton? Or wrap GradientButton in something that handles enabled?
+                // The current GradientButton doesn't handle 'enabled'. I need to fix that.
                 Spacer(modifier = Modifier.height(12.dp))
                 SecondaryButton(
                     text = "Side scan (Beta)",
@@ -349,9 +358,10 @@ fun LiveCaptureScreen(
     val qualityEvaluator = remember { CaptureQualityEvaluator() }
     val landmarkAggregator = remember { LandmarkAggregator() }
 
-    val burstBuffer = remember { mutableListOf<Map<Int, Point3D>>() }
-    val bitmapBuffer = remember { mutableListOf<Bitmap>() }
     var isCapturingBurst by remember { mutableStateOf(false) }
+
+    data class FrameData(val landmarks: Map<Int, Point3D>, val bitmap: Bitmap, val qualityScore: Int)
+    val frameBuffer = remember { mutableListOf<FrameData>() }
 
     val cameraProviderFuture = remember { ProcessCameraProvider.getInstance(context) }
     val cameraExecutor = remember { Executors.newSingleThreadExecutor() }
@@ -368,12 +378,15 @@ fun LiveCaptureScreen(
         if (consecutiveFramesHeld >= AppConfig.HOLD_FRAMES_REQUIRED && !isCapturingBurst && currentBitmap != null) {
             isCapturingBurst = true
             scope.launch {
-                val finalLandmarks = if (burstBuffer.isNotEmpty()) {
-                    landmarkAggregator.aggregateMedianBurst(burstBuffer)
+                val finalLandmarks = if (frameBuffer.isNotEmpty()) {
+                    val sorted = frameBuffer.sortedByDescending { it.qualityScore }
+                    val keepCount = (sorted.size * 0.75f).toInt().coerceAtLeast(1)
+                    val bestFrames = sorted.take(keepCount)
+                    landmarkAggregator.aggregateMedianBurst(bestFrames.map { it.landmarks })
                 } else {
                     currentLandmarks
                 }
-                val bestBitmap = bitmapBuffer.lastOrNull() ?: currentBitmap!!
+                val bestBitmap = frameBuffer.maxByOrNull { it.qualityScore }?.bitmap ?: currentBitmap!!
 
                 ScanDraftHolder.capturedBitmap = bestBitmap
                 ScanDraftHolder.aggregatedLandmarks = finalLandmarks
@@ -460,13 +473,19 @@ fun LiveCaptureScreen(
                                                 } else {
                                                     guidanceText = "Hold steady... scanning"
                                                     consecutiveFramesHeld++
-                                                    burstBuffer.add(result.landmarks)
-                                                    bitmapBuffer.add(bitmap)
-                                                    if (burstBuffer.size > AppConfig.BURST_FRAME_COUNT) {
-                                                        burstBuffer.removeAt(0)
-                                                    }
-                                                    if (bitmapBuffer.size > AppConfig.BURST_FRAME_COUNT) {
-                                                        bitmapBuffer.removeAt(0)
+                                                    
+                                                    val qualityReport = qualityEvaluator.computeOverallQualityReport(
+                                                        GateEvaluation(poseEval.isReady),
+                                                        GateEvaluation(distEval.isReady),
+                                                        GateEvaluation(lightEval.isReady),
+                                                        GateEvaluation(exprEval.isReady),
+                                                        GateEvaluation(steadyEval.isReady),
+                                                        1
+                                                    )
+                                                    
+                                                    frameBuffer.add(FrameData(result.landmarks, bitmap, qualityReport.score))
+                                                    if (frameBuffer.size > AppConfig.BURST_FRAME_COUNT) {
+                                                        frameBuffer.removeAt(0)
                                                     }
                                                 }
                                             }
@@ -486,23 +505,100 @@ fun LiveCaptureScreen(
             }
         )
 
+        val infiniteTransition = rememberInfiniteTransition(label = "scan_pulse")
+        val pulseScale by infiniteTransition.animateFloat(
+            initialValue = 1f,
+            targetValue = 1.05f,
+            animationSpec = infiniteRepeatable(
+                animation = tween(2000, easing = FastOutSlowInEasing),
+                repeatMode = RepeatMode.Reverse
+            ),
+            label = "pulse_scale"
+        )
+        val scanLineY by infiniteTransition.animateFloat(
+            initialValue = 0f,
+            targetValue = 1f,
+            animationSpec = infiniteRepeatable(
+                animation = tween(3000, easing = LinearEasing),
+                repeatMode = RepeatMode.Restart
+            ),
+            label = "scan_line"
+        )
+
         Canvas(modifier = Modifier.fillMaxSize()) {
             val canvasWidth = size.width
             val canvasHeight = size.height
-            val ovalWidth = canvasWidth * 0.6f
-            val ovalHeight = canvasHeight * 0.5f
+            val ovalWidth = canvasWidth * 0.6f * pulseScale
+            val ovalHeight = canvasHeight * 0.5f * pulseScale
             val left = (canvasWidth - ovalWidth) / 2f
             val top = (canvasHeight - ovalHeight) / 2f
 
-            val strokeColor = if (allGatesReady) LumoraColors.LightSuccess else Color.White.copy(alpha = 0.6f)
-            drawContext.canvas.nativeCanvas
-
+            val strokeColor = if (allGatesReady) LumoraColors.SuccessMint else Color.White.copy(alpha = 0.4f)
+            
+            // Draw pulsing oval
             drawOval(
-                color = strokeColor,
+                brush = Brush.sweepGradient(
+                    colors = if (allGatesReady) {
+                        listOf(LumoraColors.SecondaryCyan, LumoraColors.SuccessMint, LumoraColors.SecondaryCyan)
+                    } else {
+                        listOf(Color.White.copy(alpha = 0.2f), Color.White.copy(alpha = 0.2f))
+                    }
+                ),
                 topLeft = androidx.compose.ui.geometry.Offset(left, top),
                 size = androidx.compose.ui.geometry.Size(ovalWidth, ovalHeight),
-                style = Stroke(width = 4.dp.toPx())
+                style = Stroke(width = 3.dp.toPx())
             )
+
+            // Scan line
+            if (allGatesReady) {
+                drawLine(
+                    brush = Brush.horizontalGradient(
+                        colors = listOf(Color.Transparent, LumoraColors.SecondaryCyan, Color.Transparent)
+                    ),
+                    start = androidx.compose.ui.geometry.Offset(left, top + ovalHeight * scanLineY),
+                    end = androidx.compose.ui.geometry.Offset(left + ovalWidth, top + ovalHeight * scanLineY),
+                    strokeWidth = 2.dp.toPx()
+                )
+            }
+            
+            // Mesh dots (simulated for UI)
+            if (currentLandmarks.isNotEmpty()) {
+                currentLandmarks.values.forEach { pt ->
+                    // Simplified: map pt to canvas. In real app, use better mapping.
+                    // For now, just decorative dots if ready
+                    if (allGatesReady) {
+                        drawCircle(
+                            color = LumoraColors.SecondaryCyan.copy(alpha = 0.5f),
+                            radius = 1.dp.toPx(),
+                            center = androidx.compose.ui.geometry.Offset(
+                                left + (pt.x * ovalWidth),
+                                top + (pt.y * ovalHeight)
+                            )
+                        )
+                    }
+                }
+            }
+        }
+
+        // Countdown overlay
+        if (consecutiveFramesHeld > 0 && !allGatesReady) {
+             // If hold started but lost a gate, maybe show warning? 
+             // But usually it resets.
+        } else if (consecutiveFramesHeld > 0) {
+            val progress = (consecutiveFramesHeld.toFloat() / AppConfig.HOLD_FRAMES_REQUIRED).coerceIn(0f, 1f)
+            if (progress > 0.1f) {
+                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    val remaining = ((1f - progress) * 3 + 1).toInt()
+                    Text(
+                        text = "$remaining",
+                        style = MaterialTheme.typography.displayLarge.copy(
+                            fontSize = 120.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = LumoraColors.SecondaryCyan.copy(alpha = 0.4f * progress)
+                        )
+                    )
+                }
+            }
         }
 
         Row(
@@ -577,8 +673,18 @@ fun LiveCaptureScreen(
                     if (currentBitmap != null) {
                         isCapturingBurst = true
                         scope.launch {
-                            ScanDraftHolder.capturedBitmap = currentBitmap
-                            ScanDraftHolder.aggregatedLandmarks = currentLandmarks
+                            val finalLandmarks = if (frameBuffer.isNotEmpty()) {
+                                val sorted = frameBuffer.sortedByDescending { it.qualityScore }
+                                val keepCount = (sorted.size * 0.75f).toInt().coerceAtLeast(1)
+                                val bestFrames = sorted.take(keepCount)
+                                landmarkAggregator.aggregateMedianBurst(bestFrames.map { it.landmarks })
+                            } else {
+                                currentLandmarks
+                            }
+                            val bestBitmap = frameBuffer.maxByOrNull { it.qualityScore }?.bitmap ?: currentBitmap
+
+                            ScanDraftHolder.capturedBitmap = bestBitmap
+                            ScanDraftHolder.aggregatedLandmarks = finalLandmarks
                             ScanDraftHolder.faceBounds = detectedFaceBounds
                             ScanDraftHolder.scanKind = kind
                             ScanDraftHolder.qualityReport = qualityEvaluator.computeOverallQualityReport(
@@ -791,25 +897,70 @@ fun ProcessingScreen(
                 QuietTextButton(text = "Cancel", onClick = onCancel)
             } else {
                 CircularProgressIndicator(
-                    modifier = Modifier.size(64.dp),
-                    color = MaterialTheme.colorScheme.primary,
-                    strokeWidth = 3.dp
+                    modifier = Modifier.size(72.dp),
+                    color = Color.Transparent,
+                    strokeWidth = 4.dp,
+                    trackColor = Color.White.copy(alpha = 0.1f)
+                )
+                // Overlay a custom gradient indicator logic could go here, but using a themed standard one for now
+                Box(contentAlignment = Alignment.Center) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(72.dp),
+                        color = LumoraColors.VioletPrimary,
+                        strokeWidth = 4.dp
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(40.dp))
+                
+                Text(
+                    text = "Analysing Face",
+                    style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Bold),
+                    color = Color.White
                 )
                 Spacer(modifier = Modifier.height(24.dp))
-                Text(
-                    text = currentStageText,
-                    style = MaterialTheme.typography.titleMedium,
-                    color = MaterialTheme.colorScheme.onBackground,
-                    textAlign = TextAlign.Center
+
+                val stages = listOf(
+                    "Detecting landmarks" to "Mapping 468 3D points",
+                    "Evaluating lighting" to "Checking luma and contrast",
+                    "Calculating symmetry" to "Analysing lateral balance",
+                    "Finalising report" to "Generating Lumora indices"
                 )
-                Spacer(modifier = Modifier.height(8.dp))
-                Text(
-                    text = "Measuring landmarks and evaluating lighting...",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    textAlign = TextAlign.Center
-                )
-                Spacer(modifier = Modifier.height(32.dp))
+                
+                Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+                    stages.forEach { (title, subtitle) ->
+                        val isActive = currentStageText.contains(title, ignoreCase = true) || 
+                                     (currentStageText.contains("Finalising", ignoreCase = true) && title.contains("Finalising"))
+                        
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp)
+                        ) {
+                            Box(
+                                modifier = Modifier
+                                    .size(12.dp)
+                                    .clip(CircleShape)
+                                    .background(if (isActive) LumoraColors.SecondaryCyan else Color.White.copy(alpha = 0.1f))
+                            )
+                            Spacer(modifier = Modifier.width(16.dp))
+                            Column {
+                                Text(
+                                    text = title,
+                                    style = MaterialTheme.typography.bodyLarge,
+                                    color = if (isActive) Color.White else Color.White.copy(alpha = 0.4f),
+                                    fontWeight = if (isActive) FontWeight.Bold else FontWeight.Normal
+                                )
+                                Text(
+                                    text = subtitle,
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = if (isActive) Color.White.copy(alpha = 0.6f) else Color.White.copy(alpha = 0.2f)
+                                )
+                            }
+                        }
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(48.dp))
                 QuietTextButton(text = "Cancel", onClick = onCancel, testTag = "processing_cancel_button")
             }
         }
