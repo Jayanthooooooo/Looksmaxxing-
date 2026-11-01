@@ -1,0 +1,1292 @@
+{
+  "articles": [
+    {
+      "id": "cleanse_basics",
+      "category": "Skin basics",
+      "title": "Gentle Daily Cleansing",
+      "summary": "Removing airborne particulates and excess surface sebum while preserving the delicate lipid stratum corneum.",
+      "evidenceLevel": "STRONG",
+      "whatToDo": [
+        "Wash your face once or twice daily with lukewarm water.",
+        "Choose a fragrance-free, pH-balanced (5.0 to 5.5) non-foaming or gel cleanser.",
+        "Gently pat the skin dry with a clean towel; avoid harsh rubbing which micro-tears the barrier."
+      ],
+      "timeToSeeResults": "1 to 2 weeks",
+      "cost": "LOW",
+      "risks": [
+        "Over-cleansing strips natural ceramides, provoking compensatory oil rebound and irritation."
+      ],
+      "seeAProfessionalIf": [
+        "Basic water or gentle cleansers cause intense burning or redness.",
+        "Crusting or weeping epidermal fissures appear."
+      ],
+      "changeability": "SKIN",
+      "minAge": 13,
+      "tags": [
+        "cleanse",
+        "barrier",
+        "basics"
+      ],
+      "disclaimer": "Educational information, not medical advice."
+    },
+    {
+      "id": "moisturise_barrier",
+      "category": "Skin basics",
+      "title": "Barrier-Repair Moisturising",
+      "summary": "Reinforcing hydration with physiological lipids including ceramides, fatty acids, and humectant humectants.",
+      "evidenceLevel": "STRONG",
+      "whatToDo": [
+        "Apply moisturiser to slightly damp skin within 60 seconds of cleansing.",
+        "Look for formulations featuring ceramides NP/AP/EOP, glycerin, and squalane.",
+        "Use lighter lotion textures in high humidity and richer creams during colder winter climates."
+      ],
+      "timeToSeeResults": "2 to 4 weeks",
+      "cost": "LOW",
+      "risks": [
+        "Using excessively heavy occlusives (like pure petrolatum) over active acne can trap sebum."
+      ],
+      "seeAProfessionalIf": [
+        "Chronic scaling or eczematous plaques fail to resolve.",
+        "Sudden severe contact dermatitis develops."
+      ],
+      "changeability": "SKIN",
+      "minAge": 13,
+      "tags": [
+        "moisturiser",
+        "ceramides",
+        "dryness"
+      ],
+      "disclaimer": "Educational information, not medical advice."
+    },
+    {
+      "id": "sunscreen_daily",
+      "category": "Skin basics",
+      "title": "Daily Broad-Spectrum Sunscreen",
+      "summary": "The single most effective preventative habit to safeguard structural collagen and prevent extrinsic photoaging.",
+      "evidenceLevel": "STRONG",
+      "whatToDo": [
+        "Apply approximately 2 finger-lengths (about 1/4 teaspoon) to the entire face and ears each morning.",
+        "Select an SPF 30 or higher broad-spectrum formula rated for both UVB and UVA protection.",
+        "Reapply every two hours if exposed to direct outdoor sunshine or immediately after swimming."
+      ],
+      "timeToSeeResults": "Lifelong preventative benefit",
+      "cost": "MEDIUM",
+      "risks": [
+        "Certain older chemical filters may cause mild ocular stinging; opt for mineral zinc oxide filters if eyes are sensitive."
+      ],
+      "seeAProfessionalIf": [
+        "A mole displays asymmetric borders, diameter over 6mm, or color variegation.",
+        "A non-healing scaly papule bleeds easily."
+      ],
+      "changeability": "SKIN",
+      "minAge": 13,
+      "tags": [
+        "sunscreen",
+        "spf",
+        "uv"
+      ],
+      "disclaimer": "Educational information, not medical advice."
+    },
+    {
+      "id": "bha_salicylic",
+      "category": "Acne and marks",
+      "title": "Salicylic Acid (BHA) for Congested Pores",
+      "summary": "A lipophilic beta-hydroxy acid that penetrates sebaceous follicles to dissolve desquamated keratin and reduce comedones.",
+      "evidenceLevel": "STRONG",
+      "whatToDo": [
+        "Introduce a 1% to 2% BHA leave-on liquid or cleanser 2 nights per week initially.",
+        "Apply after gentle cleansing and allow to dry before applying barrier moisturiser.",
+        "Gradually increase to alternate nights only if skin shows zero signs of peeling or stinging."
+      ],
+      "timeToSeeResults": "4 to 6 weeks",
+      "cost": "LOW",
+      "risks": [
+        "Transient purging (temporary rise of pre-existing microcomedones) during weeks 2 to 4."
+      ],
+      "seeAProfessionalIf": [
+        "Acne presents as deep, painful nodules or cysts.",
+        "Lesions begin healing with atrophic (ice-pick or boxcar) indentations."
+      ],
+      "changeability": "SKIN",
+      "minAge": 13,
+      "tags": [
+        "salicylic acid",
+        "bha",
+        "blackheads"
+      ],
+      "disclaimer": "Educational information, not medical advice."
+    },
+    {
+      "id": "azelaic_marks",
+      "category": "Acne and marks",
+      "title": "Azelaic Acid for Post-Inflammatory Marks",
+      "summary": "A dicarboxylic acid that targets abnormal hyperactive melanocytes and calms vascular redness from resolving blemishes.",
+      "evidenceLevel": "STRONG",
+      "whatToDo": [
+        "Apply a pea-sized amount of 10% OTC azelaic acid cream once daily after your moisturiser.",
+        "Pair strictly with consistent morning sunscreen to stop UV rays from darkening red or brown marks.",
+        "Maintain consistency for 8 to 12 weeks, matching the natural rate of skin cell turnover."
+      ],
+      "timeToSeeResults": "8 to 12 weeks",
+      "cost": "MEDIUM",
+      "risks": [
+        "A mild tingling or itchy sensation for the first 5 minutes after application is common initially."
+      ],
+      "seeAProfessionalIf": [
+        "Post-acne erythema is accompanied by ocular irritation or persistent central facial flushing.",
+        "Marks do not fade after 16 weeks of dedicated topical care."
+      ],
+      "changeability": "SKIN",
+      "minAge": 13,
+      "tags": [
+        "azelaic acid",
+        "red marks",
+        "pigmentation"
+      ],
+      "disclaimer": "Educational information, not medical advice."
+    },
+    {
+      "id": "topical_retinoids",
+      "category": "Acne and marks",
+      "title": "Topical Retinoids for Persistent Acne",
+      "summary": "Vitamin A derivatives that normalize follicular keratinization and accelerate cellular turnover.",
+      "evidenceLevel": "STRONG",
+      "whatToDo": [
+        "Adults 18+ may begin with low-strength OTC retinol (0.1%-0.3%) or adapalene 0.1% once weekly at night.",
+        "Buffer with the sandwich method: apply moisturiser, wait 10 minutes, apply a pea-sized drop of retinoid, then moisturiser.",
+        "Strictly avoid sun exposure without sunscreen; retinoids thin the outer stratum corneum during initial use."
+      ],
+      "timeToSeeResults": "12 to 24 weeks",
+      "cost": "MEDIUM",
+      "risks": [
+        "Retinoid dermatitis: significant flaking, erythema, and barrier compromise if introduced aggressively."
+      ],
+      "seeAProfessionalIf": [
+        "Skin develops weeping fissures or severe rash.",
+        "Prescription oral therapy (such as isotretinoin) is required for severe recalcitrant cystic acne."
+      ],
+      "changeability": "SKIN",
+      "minAge": 18,
+      "tags": [
+        "retinoids",
+        "adapalene",
+        "actives"
+      ],
+      "disclaimer": "Educational information, not medical advice."
+    },
+    {
+      "id": "uva_vs_uvb",
+      "category": "Sun protection",
+      "title": "UVA vs UVB Protection & PA Rating",
+      "summary": "Understanding solar radiation spectrums: UVB burns the surface, while UVA penetrates deeply to degrade elastic fibers.",
+      "evidenceLevel": "STRONG",
+      "whatToDo": [
+        "Look for both high SPF (SPF 30-50 for UVB) and high UVA protection (PA++++ or Boots 5 Stars).",
+        "Be aware that UVA passes through standard automobile and home window glass.",
+        "Ensure regular application even on cloudy or overcast days when up to 80% of UVA penetrates cloud cover."
+      ],
+      "timeToSeeResults": "Immediate cellular defense",
+      "cost": "LOW",
+      "risks": [
+        "Assuming higher SPF allows infinite hours in the midday sun without reapplication."
+      ],
+      "seeAProfessionalIf": [
+        "Experiencing intense solar urticaria (allergic sun hives) upon brief exposure."
+      ],
+      "changeability": "SKIN",
+      "minAge": 13,
+      "tags": [
+        "uva",
+        "uvb",
+        "pa rating"
+      ],
+      "disclaimer": "Educational information, not medical advice."
+    },
+    {
+      "id": "sun_habits_physical",
+      "category": "Sun protection",
+      "title": "Physical Sun Protection & UV Timing",
+      "summary": "Structural habits—wide hats, UV sunglasses, and seeking shade—that multiply the effectiveness of sunscreen.",
+      "evidenceLevel": "STRONG",
+      "whatToDo": [
+        "Check the local UV Index; when it exceeds 3, practice sun-seeking behavior under awnings or umbrellas.",
+        "Wear UV400-rated sunglasses to protect delicate periorbital eyelid skin and intraocular lenses.",
+        "Choose tightly woven UPF 50+ athletic clothing for prolonged outdoor sports or beach activities."
+      ],
+      "timeToSeeResults": "Immediate",
+      "cost": "LOW",
+      "risks": [
+        "None; physical barrier protection has zero dermatological side effects."
+      ],
+      "seeAProfessionalIf": [
+        "A history of childhood blistering sunburns warrants routine full-body dermatological screening."
+      ],
+      "changeability": "PRESENTATION",
+      "minAge": 13,
+      "tags": [
+        "sun protection",
+        "sunglasses",
+        "upf"
+      ],
+      "disclaimer": "Educational information, not medical advice."
+    },
+    {
+      "id": "haircut_face_shape",
+      "category": "Hair and haircuts by face shape",
+      "title": "Framing Face Shapes With Haircuts",
+      "summary": "Using vertical and horizontal hair geometry to counterbalance natural cranial width and jawline angles.",
+      "evidenceLevel": "STRONG",
+      "whatToDo": [
+        "Round faces: add height and volume on top while keeping the sides tapered to visually lengthen proportions.",
+        "Oblong faces: keep the top moderate and introduce fringe/bangs or side fullness to soften vertical length.",
+        "Square faces: choose textured, layered cuts or side sweeps to complement strong angular jawlines without boxiness."
+      ],
+      "timeToSeeResults": "Immediate upon styling",
+      "cost": "LOW",
+      "risks": [
+        "Misidentifying face shape from close-up wide-angle selfie photos."
+      ],
+      "seeAProfessionalIf": [
+        "Underlying scalp dermatitis interferes with haircuts or styling products."
+      ],
+      "changeability": "PRESENTATION",
+      "minAge": 13,
+      "tags": [
+        "haircut",
+        "face shape",
+        "styling"
+      ],
+      "disclaimer": "Educational information, not medical advice."
+    },
+    {
+      "id": "hair_volume_texture",
+      "category": "Hair and haircuts by face shape",
+      "title": "Hair Texture, Weight and Visual Width",
+      "summary": "Using matte clays, texturizing sprays, and root lift to prevent fine hair from falling flat against the skull.",
+      "evidenceLevel": "MODERATE",
+      "whatToDo": [
+        "Apply a lightweight sea salt spray or texturizing powder at the roots of damp hair before drying.",
+        "Blow dry with medium heat using fingertips to lift hair up and away from the crown.",
+        "Finish with a pea-sized amount of low-shine matte clay for all-day pliable definition."
+      ],
+      "timeToSeeResults": "Immediate",
+      "cost": "LOW",
+      "risks": [
+        "Excessive heat drying without a heat protectant can cause hair shaft bubble deformities and split ends."
+      ],
+      "seeAProfessionalIf": [
+        "Noticeable sudden diffuse hair shedding occurs upon touching hair."
+      ],
+      "changeability": "PRESENTATION",
+      "minAge": 13,
+      "tags": [
+        "hair texture",
+        "volume",
+        "grooming"
+      ],
+      "disclaimer": "Educational information, not medical advice."
+    },
+    {
+      "id": "androgenetic_thinning",
+      "category": "Hair loss basics",
+      "title": "Early Intervention for Pattern Hair Loss",
+      "summary": "Recognising early miniaturisation of hair follicles in androgenetic alopecia where medical intervention is most effective.",
+      "evidenceLevel": "STRONG",
+      "whatToDo": [
+        "Take baseline photographs of your hairline and vertex (crown) under consistent overhead lighting every 3 months.",
+        "Consult a board-certified dermatologist as soon as thinning is detected; treatments slow progression but cannot resurrect long-dead follicles.",
+        "Evidence-based clinical treatments (like topical minoxidil or prescription 5-alpha reductase inhibitors) require physician oversight."
+      ],
+      "timeToSeeResults": "3 to 6 months of medical treatment",
+      "cost": "HIGH",
+      "risks": [
+        "Wasting money on unverified internet oils and supplements while viable hair follicles permanently fibrose."
+      ],
+      "seeAProfessionalIf": [
+        "Hair shedding exceeds 100 hairs daily for over two months.",
+        "Scalp is accompanied by erythema, itching, burning, or scaly patches."
+      ],
+      "changeability": "SOFT_TISSUE",
+      "minAge": 18,
+      "tags": [
+        "hair loss",
+        "alopecia",
+        "doctor early"
+      ],
+      "disclaimer": "Educational information, not medical advice."
+    },
+    {
+      "id": "traction_scalp_care",
+      "category": "Hair loss basics",
+      "title": "Scalp Health & Tension Alopecia Prevention",
+      "summary": "Preventing mechanical follicular damage from tight hairstyles and maintaining an uninflamed scalp microbiome.",
+      "evidenceLevel": "STRONG",
+      "whatToDo": [
+        "Loosen tight ponytails, man-buns, braids, or dreadlocks that create persistent pulling tension along the front hairline.",
+        "Shampoo the scalp regularly with a gentle surfactant to prevent buildup of oxidized sebum and Malassezia yeast.",
+        "Avoid aggressive metal bristles; use flexible wide-tooth combs on wet hair."
+      ],
+      "timeToSeeResults": "4 to 8 weeks",
+      "cost": "LOW",
+      "risks": [
+        "Chronic mechanical tension causes irreversible follicular scarring if uncorrected over months."
+      ],
+      "seeAProfessionalIf": [
+        "Small pustules or tender bumps develop around stressed follicles (traction folliculitis).",
+        "Smooth, coin-sized bald spots appear suddenly (possible alopecia areata)."
+      ],
+      "changeability": "SOFT_TISSUE",
+      "minAge": 13,
+      "tags": [
+        "traction alopecia",
+        "scalp care",
+        "hair health"
+      ],
+      "disclaimer": "Educational information, not medical advice."
+    },
+    {
+      "id": "eyebrow_grooming",
+      "category": "Facial hair and brows",
+      "title": "Eyebrow Grooming & Framing the Eyes",
+      "summary": "Neatening the natural brow contour to open the eyes and reinforce symmetry without artificial reshaping.",
+      "evidenceLevel": "STRONG",
+      "whatToDo": [
+        "Comb brow hairs straight up with a spoolie brush to inspect stray length.",
+        "Tweeze only stray individual hairs beneath the lower arch line and directly between the eyebrows (glabella).",
+        "Never shave or over-pluck the top arch of the brow, which follows the natural supraorbital rim."
+      ],
+      "timeToSeeResults": "Immediate",
+      "cost": "LOW",
+      "risks": [
+        "Over-plucked brow follicles may take months to regrow or become permanently damaged."
+      ],
+      "seeAProfessionalIf": [
+        "Loss of the outer third of the eyebrows is observed (classic clinical sign of hypothyroidism)."
+      ],
+      "changeability": "PRESENTATION",
+      "minAge": 13,
+      "tags": [
+        "brows",
+        "grooming",
+        "eyes"
+      ],
+      "disclaimer": "Educational information, not medical advice."
+    },
+    {
+      "id": "beard_jaw_definition",
+      "category": "Facial hair and brows",
+      "title": "Beard Shaping for Jawline Definition",
+      "summary": "Accentuating the mandibular line and balancing lower third proportions using clean neckline architecture.",
+      "evidenceLevel": "STRONG",
+      "whatToDo": [
+        "Set the neckline precisely two fingers above the thyroid cartilage (Adam's apple), curving smoothly upward toward the jaw corners.",
+        "Fade or clean-shave cheek lines along the natural diagonal from the mid-ear to the corner of the mustache.",
+        "Condition with 2-3 drops of non-comedogenic squalane or jojoba oil to soften coarse beard whiskers."
+      ],
+      "timeToSeeResults": "2 to 6 weeks of growth",
+      "cost": "LOW",
+      "risks": [
+        "Trimming the neckline directly on the jaw bone creates a visual illusion of a double chin when speaking."
+      ],
+      "seeAProfessionalIf": [
+        "Persistent painful ingrown hairs (pseudofolliculitis barbae) cause inflammatory keloids or pustules."
+      ],
+      "changeability": "PRESENTATION",
+      "minAge": 13,
+      "tags": [
+        "beard",
+        "jawline",
+        "grooming"
+      ],
+      "disclaimer": "Educational information, not medical advice."
+    },
+    {
+      "id": "oral_hygiene_enamel",
+      "category": "Teeth and smile",
+      "title": "Enamel Preservation & Gum Health",
+      "summary": "Maintaining natural enamel translucency and preventing gingival recession through gentle, consistent hygiene.",
+      "evidenceLevel": "STRONG",
+      "whatToDo": [
+        "Brush twice daily for 2 full minutes using a soft-bristled manual or electric toothbrush and fluoride paste.",
+        "Floss or use an interdental brush once daily to remove bacterial plaque between tight contact points.",
+        "Wait at least 30 minutes after consuming acidic foods, coffee, or citrus drinks before brushing to avoid abrading softened enamel."
+      ],
+      "timeToSeeResults": "2 to 4 weeks for gingival inflammation",
+      "cost": "LOW",
+      "risks": [
+        "Vigorous horizontal scrubbing with medium/hard bristles permanently erodes enamel near the gumline."
+      ],
+      "seeAProfessionalIf": [
+        "Gums bleed repeatedly during brushing or flossing.",
+        "Teeth demonstrate severe sensitivity to cold or heat."
+      ],
+      "changeability": "STRUCTURE",
+      "minAge": 13,
+      "tags": [
+        "teeth",
+        "enamel",
+        "hygiene"
+      ],
+      "disclaimer": "Educational information, not medical advice."
+    },
+    {
+      "id": "orthodontic_alignment",
+      "category": "Teeth and smile",
+      "title": "Orthodontic Realignment & Functional Occlusion",
+      "summary": "Correcting dental crowding and malocclusions through licensed orthodontists for long-term health and symmetry.",
+      "evidenceLevel": "STRONG",
+      "whatToDo": [
+        "Consult a qualified specialist orthodontist who uses panoramic and cephalometric X-rays to plan tooth movement.",
+        "Prioritize functional bite health (occlusion) over quick cosmetic trends like invasive veneers on young, healthy teeth.",
+        "Wear retainers consistently as instructed following orthodontic treatment to prevent natural dental relapse."
+      ],
+      "timeToSeeResults": "12 to 24 months of treatment",
+      "cost": "HIGH",
+      "risks": [
+        "Mail-order direct-to-consumer aligners without clinical X-rays carry severe risks of tooth loss and bite collapse."
+      ],
+      "seeAProfessionalIf": [
+        "Experiencing temporomandibular joint (TMJ) clicking with pain or locking during mastication.",
+        "Severe anterior crossbite or deep bite impedes proper chewing."
+      ],
+      "changeability": "STRUCTURE",
+      "minAge": 13,
+      "tags": [
+        "orthodontics",
+        "braces",
+        "bite"
+      ],
+      "disclaimer": "Educational information, not medical advice."
+    },
+    {
+      "id": "forward_head_posture",
+      "category": "Posture and neck",
+      "title": "Forward Head Posture ('Tech Neck') Correction",
+      "summary": "Aligning the cervical spine and strengthening deep neck flexors to eliminate hunched neck presentation.",
+      "evidenceLevel": "STRONG",
+      "whatToDo": [
+        "Practice chin retraction exercises (chin tucks): smoothly slide the chin backward without looking down, hold 5 seconds, 10 reps daily.",
+        "Elevate computer monitors and phone screens to eye level to avoid chronic downward neck flexion.",
+        "Perform doorway chest stretches to loosen tight pectoralis muscles pulled forward by desk sitting."
+      ],
+      "timeToSeeResults": "4 to 8 weeks",
+      "cost": "LOW",
+      "risks": [
+        "Jerking the neck or tilting backward aggressively can compress cervical nerves."
+      ],
+      "seeAProfessionalIf": [
+        "Neck pain is accompanied by shooting numbness, pins and needles, or arm weakness."
+      ],
+      "changeability": "STRUCTURE",
+      "minAge": 13,
+      "tags": [
+        "posture",
+        "tech neck",
+        "cervical spine"
+      ],
+      "disclaimer": "Educational information, not medical advice."
+    },
+    {
+      "id": "tongue_posture_nasal",
+      "category": "Posture and neck",
+      "title": "Tongue Resting Posture & Nasal Breathing",
+      "summary": "Resting the tongue against the palate and breathing nasally to support facial muscular balance and airway health.",
+      "evidenceLevel": "LIMITED",
+      "whatToDo": [
+        "Gently seal the lips, breathe quietly through the nose, and rest the tongue against the roof of the mouth behind the front teeth.",
+        "Do NOT forcefully push the tongue forward against the front teeth, which causes dental flaring.",
+        "Recognize that while nasal breathing has clear airway benefits, adult maxillary bone expansion through tongue posture alone is biologically limited."
+      ],
+      "timeToSeeResults": "Immediate resting comfort",
+      "cost": "LOW",
+      "risks": [
+        "Excessive, forced tongue thrusting causes an anterior open bite and dental malocclusion."
+      ],
+      "seeAProfessionalIf": [
+        "Chronic nasal congestion, deviated septum, or snoring prevents continuous daytime nasal breathing."
+      ],
+      "changeability": "SOFT_TISSUE",
+      "minAge": 13,
+      "tags": [
+        "tongue posture",
+        "nasal breathing",
+        "airway"
+      ],
+      "disclaimer": "Educational information, not medical advice."
+    },
+    {
+      "id": "body_fat_facial_leanness",
+      "category": "Body fat and the face",
+      "title": "Overall Body Fat & Facial Bone Prominence",
+      "summary": "How gradual, healthy systemic body composition changes reveal underlying bone structure without spot reduction.",
+      "evidenceLevel": "STRONG",
+      "whatToDo": [
+        "Focus on a sustainable, moderate whole-food caloric balance combined with adequate dietary protein (1.2-1.6g/kg).",
+        "Engage in progressive resistance training and cardiovascular exercise to build lean muscle mass.",
+        "Recognize that genetics strictly govern which fat pads (e.g. buccal vs submental) diminish first during healthy fat loss."
+      ],
+      "timeToSeeResults": "8 to 16 weeks",
+      "cost": "MEDIUM",
+      "risks": [
+        "Extreme caloric restriction causes facial gauntness, accelerated skin laxity, and systemic endocrine disruption."
+      ],
+      "seeAProfessionalIf": [
+        "Unhealthy restrictive eating behaviors or obsessive body dysmorphic thoughts develop."
+      ],
+      "changeability": "SOFT_TISSUE",
+      "minAge": 13,
+      "tags": [
+        "body fat",
+        "composition",
+        "facial leanness"
+      ],
+      "disclaimer": "Educational information, not medical advice."
+    },
+    {
+      "id": "myth_facial_spot_reduction",
+      "category": "Body fat and the face",
+      "title": "The Myth of Facial Spot Reduction",
+      "summary": "Why face-slimming exercises, rubber jaw chewers, and facial wraps cannot specifically burn fat in the cheeks or chin.",
+      "evidenceLevel": "MYTH",
+      "whatToDo": [
+        "Understand human biochemistry: lipolysis mobilizes fatty acids systemically into the bloodstream, not locally from working muscles.",
+        "Discard rubber jaw chewing devices that claim to chisel face fat while destroying the jaw joint.",
+        "Rely on whole-body activity and balanced nutrition for healthy fat loss across the entire physique."
+      ],
+      "timeToSeeResults": "Permanent factual clarity",
+      "cost": "LOW",
+      "risks": [
+        "High-resistance jaw exercisers place hundreds of pounds of repetitive load directly onto the delicate TMJ disc."
+      ],
+      "seeAProfessionalIf": [
+        "Experiencing jaw pain, clicking, or inability to fully open the mouth."
+      ],
+      "changeability": "SOFT_TISSUE",
+      "minAge": 13,
+      "tags": [
+        "spot reduction",
+        "myths",
+        "jaw exerciser"
+      ],
+      "disclaimer": "Educational information, not medical advice."
+    },
+    {
+      "id": "sleep_under_eye_fluid",
+      "category": "Sleep, hydration and diet",
+      "title": "Circadian Sleep & Under-Eye Fluid Retention",
+      "summary": "How consistent 7-9 hours of nightly sleep prevents orbital venous pooling and lymphatic stagnation in periorbital tissue.",
+      "evidenceLevel": "STRONG",
+      "whatToDo": [
+        "Prioritize 7 to 9 hours of continuous sleep on a consistent sleep schedule.",
+        "Elevate the head slightly with an ergonomic pillow to promote natural gravitational lymphatic drainage.",
+        "Power down bright blue-lit screens 60 minutes prior to sleep to support natural melatonin synthesis."
+      ],
+      "timeToSeeResults": "1 to 2 weeks",
+      "cost": "LOW",
+      "risks": [
+        "None; quality sleep is an essential biological foundation for physiological repair."
+      ],
+      "seeAProfessionalIf": [
+        "Chronic daytime somnolence, heavy snoring, or waking gasping for air suggests obstructive sleep apnea."
+      ],
+      "changeability": "SOFT_TISSUE",
+      "minAge": 13,
+      "tags": [
+        "sleep",
+        "dark circles",
+        "under eyes"
+      ],
+      "disclaimer": "Educational information, not medical advice."
+    },
+    {
+      "id": "hydration_dietary_sodium",
+      "category": "Sleep, hydration and diet",
+      "title": "Hydration Balance & Dietary Sodium Management",
+      "summary": "Regulating water intake and sodium-to-potassium ratios to prevent water retention and morning facial puffiness.",
+      "evidenceLevel": "STRONG",
+      "whatToDo": [
+        "Drink plenty of water throughout the day (approx. 2 to 3 liters, adjusted for climate and physical exercise).",
+        "Moderate late-night meals heavy in sodium and monosodium glutamate (MSG) that drive fluid into soft tissues.",
+        "Incorporate potassium-rich whole foods like avocados, bananas, spinach, and beans to balance cellular electrolytes."
+      ],
+      "timeToSeeResults": "24 to 48 hours for morning fluid changes",
+      "cost": "LOW",
+      "risks": [
+        "Excessive plain water intake without electrolytes can dilute blood sodium (hyponatremia); drink to moderate thirst."
+      ],
+      "seeAProfessionalIf": [
+        "Sudden pitting edema (indented skin upon pressing) occurs in the face, hands, or lower extremities."
+      ],
+      "changeability": "SOFT_TISSUE",
+      "minAge": 13,
+      "tags": [
+        "hydration",
+        "sodium",
+        "puffiness"
+      ],
+      "disclaimer": "Educational information, not medical advice."
+    },
+    {
+      "id": "nutrition_antioxidants_skin",
+      "category": "Sleep, hydration and diet",
+      "title": "Nutrition, Micronutrients & Skin Health",
+      "summary": "Supplying the dermis with vitamin C, polyphenols, and essential fatty acids to support collagen synthesis.",
+      "evidenceLevel": "MODERATE",
+      "whatToDo": [
+        "Eat a broad variety of colorful vegetables and berries containing flavonoids and vitamin C for collagen production.",
+        "Incorporate omega-3 fatty acids from walnuts, flaxseeds, or fatty fish to dampen inflammatory skin responses.",
+        "Limit excessive intake of refined sugars and high-glycemic snacks that trigger collagen cross-linking via advanced glycation end-products (AGEs)."
+      ],
+      "timeToSeeResults": "8 to 12 weeks",
+      "cost": "MEDIUM",
+      "risks": [
+        "Severe restrictive elimination diets without medical guidance frequently trigger micronutrient deficiencies."
+      ],
+      "seeAProfessionalIf": [
+        "Experiencing systemic vitamin deficiency signs such as brittle splitting nails, cracked mouth corners, or hair thinning."
+      ],
+      "changeability": "SKIN",
+      "minAge": 13,
+      "tags": [
+        "diet",
+        "antioxidants",
+        "collagen"
+      ],
+      "disclaimer": "Educational information, not medical advice."
+    },
+    {
+      "id": "glasses_face_proportions",
+      "category": "Style, colours and glasses",
+      "title": "Eyewear Geometry & Proportional Framing",
+      "summary": "Selecting spectacles or sunglasses frames that visually harmonise with your forehead, cheek, and jaw widths.",
+      "evidenceLevel": "STRONG",
+      "whatToDo": [
+        "Ensure the frame width aligns with the temple width of your face, avoiding overhang beyond the cheekbones.",
+        "Square or angular jawlines benefit from softly rounded or aviator frames to balance sharp features.",
+        "Round or oval faces benefit from rectangular or geometric frames that introduce crisp lines and structure."
+      ],
+      "timeToSeeResults": "Immediate",
+      "cost": "MEDIUM",
+      "risks": [
+        "Frames that rest directly against the cheeks can collect oil and cause friction-induced acne mechanically."
+      ],
+      "seeAProfessionalIf": [
+        "Eyestrain, blurriness, or headaches require a comprehensive optometrist exam."
+      ],
+      "changeability": "PRESENTATION",
+      "minAge": 13,
+      "tags": [
+        "glasses",
+        "style",
+        "eyewear"
+      ],
+      "disclaimer": "Educational information, not medical advice."
+    },
+    {
+      "id": "color_contrast_framing",
+      "category": "Style, colours and glasses",
+      "title": "Color Contrast & Seasonal Palette Harmony",
+      "summary": "Leveraging clothing necklines and collar shades that complement natural hair-to-skin contrast levels.",
+      "evidenceLevel": "MODERATE",
+      "whatToDo": [
+        "Determine your contrast level: high contrast (e.g. dark hair, light skin) shines in deep charcoal, navy, and pure white.",
+        "Lower contrast features harmonize best with soft tonal palettes like taupe, sage, heather grey, or olive.",
+        "Notice how shirt collar colors reflect ambient light upward onto your jawline and neck."
+      ],
+      "timeToSeeResults": "Immediate",
+      "cost": "LOW",
+      "risks": [
+        "None; color palette styling is a presentation tool to elevate personal presentation."
+      ],
+      "seeAProfessionalIf": [
+        "None"
+      ],
+      "changeability": "PRESENTATION",
+      "minAge": 13,
+      "tags": [
+        "style",
+        "color theory",
+        "contrast"
+      ],
+      "disclaimer": "Educational information, not medical advice."
+    },
+    {
+      "id": "focal_length_selfie_distortion",
+      "category": "Photography",
+      "title": "Focal Length & Why Selfies Distort Your Face",
+      "summary": "The optical physics behind wide-angle smartphone cameras that exaggerate the nose and shrink ears at arm's length.",
+      "evidenceLevel": "STRONG",
+      "whatToDo": [
+        "Step back at least 1.5 to 2 meters (5 to 7 feet) from the camera and use 2x-3x optical zoom or a timer.",
+        "Never evaluate your facial symmetry, nose size, or proportions using a 30cm arm-length selfie.",
+        "Recognize that front phone lenses (equivalent to 24-28mm) inherently create barrel perspective distortion."
+      ],
+      "timeToSeeResults": "Immediate photographic accuracy",
+      "cost": "LOW",
+      "risks": [
+        "Psychological distress or body dysmorphia from mistakenly believing selfie distortion reflects true reality."
+      ],
+      "seeAProfessionalIf": [
+        "Obsessive digital photo-checking impairs everyday mental wellbeing."
+      ],
+      "changeability": "PRESENTATION",
+      "minAge": 13,
+      "tags": [
+        "photography",
+        "selfies",
+        "focal length"
+      ],
+      "disclaimer": "Educational information, not medical advice."
+    },
+    {
+      "id": "directional_lighting_shadows",
+      "category": "Photography",
+      "title": "Directional Lighting vs Overhead Downlighting",
+      "summary": "How lighting angle dictates facial rendering: harsh downlights cast severe eye bags and cheek hollow shadows.",
+      "evidenceLevel": "STRONG",
+      "whatToDo": [
+        "Position yourself directly facing a large, diffuse light source (such as an open window on a bright overcast day).",
+        "Avoid harsh ceiling spotlights in elevators, fitting rooms, and restrooms that cast unflattering downward shadows.",
+        "Keep the key light source at roughly eye level for balanced, realistic rendering of your natural contours."
+      ],
+      "timeToSeeResults": "Immediate",
+      "cost": "LOW",
+      "risks": [
+        "Squinting into direct intense sunlight causes temporary glare and eye fatigue."
+      ],
+      "seeAProfessionalIf": [
+        "None"
+      ],
+      "changeability": "PRESENTATION",
+      "minAge": 13,
+      "tags": [
+        "lighting",
+        "shadows",
+        "photography"
+      ],
+      "disclaimer": "Educational information, not medical advice."
+    },
+    {
+      "id": "camera_angle_parallax",
+      "category": "Photography",
+      "title": "Camera Angle, Pitch & Perspective Parallax",
+      "summary": "How slight shifts in camera elevation create false impressions of jaw width, forehead size, and chin projection.",
+      "evidenceLevel": "STRONG",
+      "whatToDo": [
+        "Hold the camera lens parallel to the horizon at exact eye level for objective documentation.",
+        "Avoid high angles which unnaturally shrink the lower jaw and exaggerate forehead breadth.",
+        "Avoid low angles which distort the submental neck area and tilt facial thirds out of alignment."
+      ],
+      "timeToSeeResults": "Immediate",
+      "cost": "LOW",
+      "risks": [
+        "None"
+      ],
+      "seeAProfessionalIf": [
+        "None"
+      ],
+      "changeability": "PRESENTATION",
+      "minAge": 13,
+      "tags": [
+        "camera angle",
+        "perspective",
+        "angles"
+      ],
+      "disclaimer": "Educational information, not medical advice."
+    },
+    {
+      "id": "myth_ice_rolling",
+      "category": "Myths",
+      "title": "Facial Ice Rollers: Temporary Vasoconstriction vs Sculpting",
+      "summary": "Debunking claims that cold temperatures dissolve fat cells or permanently reshape adult facial bones.",
+      "evidenceLevel": "MYTH",
+      "whatToDo": [
+        "Use ice rolling or cold spoons strictly as a harmless, temporary method to reduce morning periorbital puffiness.",
+        "Recognize that temporary vascular constriction relaxes within 60 minutes and does not change bone or fat pads.",
+        "Always wrap ice or frozen devices in a soft clean cloth to avoid cryo-damage to the delicate facial epidermis."
+      ],
+      "timeToSeeResults": "1 hour temporary de-puffing",
+      "cost": "LOW",
+      "risks": [
+        "Direct application of bare ice onto skin can induce ice burns, frostbite blisters, and broken capillaries."
+      ],
+      "seeAProfessionalIf": [
+        "Unilateral facial swelling occurs with warmth or fever, requiring urgent medical evaluation for infection."
+      ],
+      "changeability": "SOFT_TISSUE",
+      "minAge": 13,
+      "tags": [
+        "ice rolling",
+        "myths",
+        "puffiness"
+      ],
+      "disclaimer": "Educational information, not medical advice."
+    },
+    {
+      "id": "myth_pore_shrinking",
+      "category": "Myths",
+      "title": "Pore Shrinking & Adhesive Pore Strips",
+      "summary": "Why pores lack muscular sphincters to 'open or close' and why rip-off adhesive strips damage skin capillaries.",
+      "evidenceLevel": "MYTH",
+      "whatToDo": [
+        "Cease using aggressive adhesive nose pore strips that rip off the stratum corneum and irritate sebaceous filaments.",
+        "Use gentle chemical exfoliants like 2% salicylic acid (BHA) to dissolve oxidized plugs and make pores look cleaner.",
+        "Understand that pore diameter is genetically determined and governed by sebaceous gland size and surrounding collagen."
+      ],
+      "timeToSeeResults": "4 to 8 weeks with BHA",
+      "cost": "LOW",
+      "risks": [
+        "Adhesive pore strips can tear delicate facial capillaries, causing permanent spider veins (telangiectasias)."
+      ],
+      "seeAProfessionalIf": [
+        "Broken facial blood vessels require in-clinic vascular laser evaluation."
+      ],
+      "changeability": "SKIN",
+      "minAge": 13,
+      "tags": [
+        "pores",
+        "pore strips",
+        "myths"
+      ],
+      "disclaimer": "Educational information, not medical advice."
+    },
+    {
+      "id": "myth_mastic_gum_bone",
+      "category": "Myths",
+      "title": "Chewing Hard Gum for Mandibular Bone Growth",
+      "summary": "Why chewing high-resistance hard resin or rubber exercisers does not grow adult jaw bones and ruins the TMJ.",
+      "evidenceLevel": "MYTH",
+      "whatToDo": [
+        "Stop chewing extremely hard synthetic rubber devices or tough mastic resin gums for hours each day.",
+        "Understand that adult mandibular bones are fully formed; chewing stress hypertrophies masseter muscles, not the bone itself.",
+        "Rest over-tightened jaw muscles with gentle heat compresses and avoid jaw-clenching habits."
+      ],
+      "timeToSeeResults": "Relief from joint strain upon stopping",
+      "cost": "LOW",
+      "risks": [
+        "Severe temporomandibular joint (TMJ) disc displacement, chronic jaw clicking, tension headaches, and chipped molars."
+      ],
+      "seeAProfessionalIf": [
+        "The jaw clicks with sharp pain or locks in place when opening the mouth."
+      ],
+      "changeability": "STRUCTURE",
+      "minAge": 13,
+      "tags": [
+        "mastic gum",
+        "jaw exerciser",
+        "myths"
+      ],
+      "disclaimer": "Educational information, not medical advice."
+    },
+    {
+      "id": "not_rec_bone_smashing",
+      "category": "NOT_RECOMMENDED",
+      "title": "Bone Smashing (Fracture Remodeling Claims)",
+      "summary": "A dangerous internet subculture trend of striking facial bones with blunt objects under false claims of Wolff's Law.",
+      "evidenceLevel": "NOT_RECOMMENDED",
+      "whatToDo": [
+        "DO NOT ENGAGE. Completely avoid any intentional blunt trauma to the facial skeleton.",
+        "Wolff's Law applies to physiological micro-strains in living bone, NOT blunt trauma, which creates irregular fractures, scarring, and bone spurs.",
+        "Safer alternative: Focus on body composition, posture, grooming, or consult a licensed oral-maxillofacial surgeon for structural concerns."
+      ],
+      "timeToSeeResults": "Avoid catastrophic permanent injury",
+      "cost": "LOW",
+      "risks": [
+        "Permanent trigeminal and facial nerve palsy, facial numbness, asymmetrical fractures, orbital blowout, visual impairment, chronic osteomyelitis."
+      ],
+      "seeAProfessionalIf": [
+        "Any blunt facial trauma has occurred; seek immediate hospital emergency medical care."
+      ],
+      "changeability": "STRUCTURE",
+      "minAge": 13,
+      "tags": [
+        "danger",
+        "bone smashing",
+        "red flag"
+      ],
+      "disclaimer": "Educational information, not medical advice."
+    },
+    {
+      "id": "not_rec_diy_fillers",
+      "category": "NOT_RECOMMENDED",
+      "title": "DIY At-Home Dermal Fillers & Injections",
+      "summary": "Purchasing bootleg hyaluronic acid or substances online to self-inject into the lips, cheeks, or nose.",
+      "evidenceLevel": "NOT_RECOMMENDED",
+      "whatToDo": [
+        "DO NOT ENGAGE. Never self-inject any substance or needle into facial anatomy.",
+        "Facial arteries form intricate 3D networks; injecting filler into an artery blocks blood flow, causing rapid tissue necrosis and blindness.",
+        "Safer alternative: Topical barrier hydrators, quality skincare, or consultations with board-certified plastic surgeons and dermatologists."
+      ],
+      "timeToSeeResults": "Prevents catastrophic necrosis",
+      "cost": "HIGH",
+      "risks": [
+        "Vascular occlusion causing facial skin rot (necrosis), irreversible ophthalmic artery blindness, systemic bacterial infection, permanent disfiguring granulomas."
+      ],
+      "seeAProfessionalIf": [
+        "Any at-home injection has occurred; present to an emergency department or vascular surgeon immediately."
+      ],
+      "changeability": "SOFT_TISSUE",
+      "minAge": 18,
+      "tags": [
+        "diy fillers",
+        "injections",
+        "danger"
+      ],
+      "disclaimer": "Educational information, not medical advice."
+    },
+    {
+      "id": "not_rec_unregulated_hormones",
+      "category": "NOT_RECOMMENDED",
+      "title": "Unregulated Hormones, Steroids & Peptides",
+      "summary": "Using illicit black-market androgens, SARMs, or unapproved growth hormone secretagogues for facial masculinization.",
+      "evidenceLevel": "NOT_RECOMMENDED",
+      "whatToDo": [
+        "DO NOT ENGAGE. Refuse non-prescribed hormonal cocktails and unverified underground lab peptides.",
+        "Exogenous hormone abuse shuts down natural hypothalamic-pituitary-gonadal (HPG) production and damages cardiac tissue.",
+        "Safer alternative: Progressive natural athletic training, nutrient-rich whole foods, and consulting a physician for clinical hormonal evaluations."
+      ],
+      "timeToSeeResults": "Preserves lifelong endocrine health",
+      "cost": "HIGH",
+      "risks": [
+        "Endocrine shutdown, testicular atrophy, severe cystic scarring acne, accelerated baldness, liver toxicity, left ventricular cardiac hypertrophy."
+      ],
+      "seeAProfessionalIf": [
+        "Suffering chest pain, severe depression, or cystic lesions after exposure to illicit hormonal compounds."
+      ],
+      "changeability": "STRUCTURE",
+      "minAge": 18,
+      "tags": [
+        "steroids",
+        "hormones",
+        "peptides"
+      ],
+      "disclaimer": "Educational information, not medical advice."
+    },
+    {
+      "id": "not_rec_extreme_dieting",
+      "category": "NOT_RECOMMENDED",
+      "title": "Extreme Crash Dieting for Facial Hollows",
+      "summary": "Severe starvation diets and purging to force rapid facial fat loss in pursuit of extreme cheek hollows.",
+      "evidenceLevel": "NOT_RECOMMENDED",
+      "whatToDo": [
+        "DO NOT ENGAGE. Avoid severely restrictive crash diets below basal metabolic rate (BMR).",
+        "Starvation depletes supportive deep structural fat and collagen, leaving skin loose, sallow, and prematurely aged.",
+        "Safer alternative: Moderate, sustainable caloric deficit (10-15%) with high protein and regular resistance training."
+      ],
+      "timeToSeeResults": "Maintains physical and mental vitality",
+      "cost": "LOW",
+      "risks": [
+        "Severe electrolyte imbalances leading to cardiac arrest, muscle atrophy, loss of bone mineral density, diffuse hair loss, eating disorders."
+      ],
+      "seeAProfessionalIf": [
+        "Obsessive food anxiety, fear of eating, or persistent dizziness interferes with normal life."
+      ],
+      "changeability": "SOFT_TISSUE",
+      "minAge": 13,
+      "tags": [
+        "starvation",
+        "crash diet",
+        "danger"
+      ],
+      "disclaimer": "Educational information, not medical advice."
+    },
+    {
+      "id": "not_rec_harsh_acid_peels",
+      "category": "NOT_RECOMMENDED",
+      "title": "Harsh DIY Chemical Acid Peels at Home",
+      "summary": "Applying high-concentration (30-70%) professional TCA, glycolic, or phenol acid solutions at home without clinical supervision.",
+      "evidenceLevel": "NOT_RECOMMENDED",
+      "whatToDo": [
+        "DO NOT ENGAGE. Never perform deep chemical peels outside a sterile medical clinic.",
+        "High-concentration acids penetrate past the epidermis into the reticular dermis, causing uncontrolled chemical liquefaction burns.",
+        "Safer alternative: Gentle, buffered 5-10% over-the-counter exfoliants or physician-administered clinical peels."
+      ],
+      "timeToSeeResults": "Prevents permanent scarring",
+      "cost": "MEDIUM",
+      "risks": [
+        "Full-thickness chemical burns, permanent hypertrophic keloid scarring, irreversible hypopigmentation (loss of pigment), systemic toxicity."
+      ],
+      "seeAProfessionalIf": [
+        "Skin exhibits blistering, weeping, or white blanching chemical burn damage."
+      ],
+      "changeability": "SKIN",
+      "minAge": 18,
+      "tags": [
+        "chemical peels",
+        "acid burns",
+        "danger"
+      ],
+      "disclaimer": "Educational information, not medical advice."
+    },
+    {
+      "id": "not_rec_mewing_claims",
+      "category": "NOT_RECOMMENDED",
+      "title": "Mewing Claims Beyond Resting Posture",
+      "summary": "Internet claims that hard tongue pressure alone can rapidly push adult cranial bones forward or restructure the mandible.",
+      "evidenceLevel": "LIMITED",
+      "whatToDo": [
+        "Maintain relaxed tongue posture on the palate and breathe nasally for airway and respiratory wellness.",
+        "Understand that the midpalatal and circummaxillary sutures are biologically interdigitated and fused in adults.",
+        "Safer alternative: Consult an orthodontist or maxillofacial specialist if functional bite or airway constriction is present."
+      ],
+      "timeToSeeResults": "No skeletal change in adults",
+      "cost": "LOW",
+      "risks": [
+        "Excessive tongue pushing against teeth creates anterior open bite, tooth tipping, and temporomandibular joint pain."
+      ],
+      "seeAProfessionalIf": [
+        "Noticeable bite misalignment or jaw pain develops from forced tongue habits."
+      ],
+      "changeability": "STRUCTURE",
+      "minAge": 13,
+      "tags": [
+        "mewing",
+        "tongue posture",
+        "claims"
+      ],
+      "disclaimer": "Educational information, not medical advice."
+    }
+  ],
+  "glossary": [
+    {
+      "id": "canthal_tilt",
+      "term": "Canthal Tilt",
+      "plainExplanation": "The angle formed by drawing an imaginary line from the inner corner of the eye (medial canthus) to the outer corner (lateral canthus).",
+      "whatItMeasures": "Whether the outer corner sits higher (positive tilt), level (neutral), or lower (negative) relative to the inner corner.",
+      "limits": "Both positive and negative canthal tilts are natural, healthy anatomical variations across human populations. The metric is easily skewed by upward or downward camera pitch and head tilt.",
+      "isCommunityOnly": false
+    },
+    {
+      "id": "fwhr",
+      "term": "Facial Width-to-Height Ratio (FWHR)",
+      "plainExplanation": "The horizontal width between the cheekbones (bizygomatic width) divided by the vertical height between the brow ridge and upper lip.",
+      "whatItMeasures": "A geometric ratio describing relative compactness versus vertical elongation in the upper and middle face.",
+      "limits": "Popular internet claims correlating FWHR with psychological traits or aggression are largely inconsistent in rigorous scientific literature. Small camera tilts distort FWHR substantially.",
+      "isCommunityOnly": false
+    },
+    {
+      "id": "symmetry",
+      "term": "Facial Symmetry",
+      "plainExplanation": "How closely the anatomical landmarks on the left and right halves of the face mirror each other across the central vertical midline.",
+      "whatItMeasures": "Bilateral dimensional concordance across paired structures including eyes, cheeks, lips, and mandibular angles.",
+      "limits": "Absolute symmetry does not exist in biological human faces. Minor natural asymmetry is universal, characterful, and often artificially exaggerated by uneven lighting or head turns.",
+      "isCommunityOnly": false
+    },
+    {
+      "id": "midface_ratio",
+      "term": "Midface Ratio",
+      "plainExplanation": "The vertical distance from the horizontal pupil line to the upper lip line, compared against the horizontal width between the cheekbones.",
+      "whatItMeasures": "The proportional relationship between central facial height and breadth.",
+      "limits": "A longer or more compact midface is a normal genetic variation. Close-up smartphone camera lenses severely stretch and distort central midface proportions.",
+      "isCommunityOnly": false
+    },
+    {
+      "id": "gonial_angle",
+      "term": "Gonial Angle",
+      "plainExplanation": "The angle formed by the horizontal base of the lower jaw (mandibular body) and the vertical back branch (ascending ramus).",
+      "whatItMeasures": "The profile slope or squareness of the lower jaw corner (typically 115° to 130° in adults).",
+      "limits": "Primarily determined by genetic skeletal structure. A squarer or more obtuse angle is neither healthy nor unhealthy unless linked to functional bite problems.",
+      "isCommunityOnly": false
+    },
+    {
+      "id": "eline",
+      "term": "Ricketts' E-Line (Esthetic Line)",
+      "plainExplanation": "A clinical orthodontic reference line drawn in profile from the tip of the nose (pronasale) to the most prominent point of the chin (pogonion).",
+      "whatItMeasures": "The anterior-posterior projection of the upper and lower lips relative to the nose and chin.",
+      "limits": "Varies significantly across diverse ethnic ancestries and nasal shapes. A prominent nose or chin moves the line independently of lip fullness.",
+      "isCommunityOnly": false
+    },
+    {
+      "id": "nasolabial_angle",
+      "term": "Nasolabial Angle",
+      "plainExplanation": "The angle formed in profile between the lower border of the nose (columella) and the border of the upper lip.",
+      "whatItMeasures": "The inclination of the nasal tip and the degree of upper lip protrusion (classically 90° to 105°).",
+      "limits": "Dynamic smiling, speech, and natural nasal cartilage anatomy heavily alter this measurement from frame to frame.",
+      "isCommunityOnly": false
+    },
+    {
+      "id": "facial_thirds",
+      "term": "Facial Thirds",
+      "plainExplanation": "A classical aesthetic division of the face into three vertical zones: hairline to brow (upper), brow to nose base (middle), and nose base to chin (lower).",
+      "whatItMeasures": "Vertical balance and proportionality across the three primary facial zones.",
+      "limits": "The 'equal thirds' concept is an idealized Renaissance artistic convention. Real human faces exhibit healthy, attractive variance that rarely equals exactly 33.3% each.",
+      "isCommunityOnly": false
+    },
+    {
+      "id": "philtrum_ratio",
+      "term": "Philtrum-to-Chin Ratio",
+      "plainExplanation": "The vertical length of the upper lip (from nose base to mouth opening) compared to the length from the lower lip to the bottom of the chin.",
+      "whatItMeasures": "Vertical proportionality within the lower third of the face (classically cited around a 1:2 ratio).",
+      "limits": "The philtrum naturally lengthens over chronological decades as cutaneous elasticity decreases. Requires a completely relaxed mouth expression.",
+      "isCommunityOnly": false
+    },
+    {
+      "id": "bizygomatic_width",
+      "term": "Bizygomatic Width",
+      "plainExplanation": "The maximum horizontal distance between the outermost edges of the cheekbone arches (zygomatic arches).",
+      "whatItMeasures": "The structural breadth of the upper and middle facial skeleton.",
+      "limits": "Fixed by underlying cranial bones in adulthood; soft tissue thickness and hairstyle alter perceived surface width.",
+      "isCommunityOnly": false
+    },
+    {
+      "id": "interpupillary_distance",
+      "term": "Interpupillary Distance (IPD)",
+      "plainExplanation": "The horizontal distance measured between the centers of the pupils of both eyes.",
+      "whatItMeasures": "The spacing of the ocular orbits within the cranial vault, commonly used to center prescription lenses.",
+      "limits": "Anatomically fixed in adulthood; wide or narrow spacing reflects normal genetic human diversity.",
+      "isCommunityOnly": false
+    },
+    {
+      "id": "intercanthal_distance",
+      "term": "Intercanthal Distance",
+      "plainExplanation": "The horizontal distance between the inner corners (medial canthi) of the eyes.",
+      "whatItMeasures": "The breadth of the upper nasal bridge relative to the width of the eyes themselves.",
+      "limits": "Epicanthic folds (common in East Asian and Indigenous populations) naturally cover the medial canthus, altering surface appearance.",
+      "isCommunityOnly": false
+    },
+    {
+      "id": "mandibular_plane_angle",
+      "term": "Mandibular Plane Angle",
+      "plainExplanation": "The angle formed between the lower border of the mandible and the cranial base horizontal plane.",
+      "whatItMeasures": "The vertical facial divergence pattern (hyperdivergent 'long face' versus hypodivergent 'short face').",
+      "limits": "True measurement requires clinical cephalometric radiographs (X-rays); surface photo assessments are approximations.",
+      "isCommunityOnly": false
+    },
+    {
+      "id": "mentolabial_sulcus",
+      "term": "Mentolabial Sulcus",
+      "plainExplanation": "The horizontal groove or depression situated between the lower lip and the anterior projection of the chin.",
+      "whatItMeasures": "Lower facial profile curvature and soft tissue chin definition.",
+      "limits": "Directly influenced by tooth alignment (overbite/underbite) and active mentalis muscle contraction.",
+      "isCommunityOnly": false
+    },
+    {
+      "id": "infraorbital_support",
+      "term": "Infraorbital Rim & Vector",
+      "plainExplanation": "The anterior projection of the lower eye socket bone relative to the front surface of the eyeball.",
+      "whatItMeasures": "Positive vector (bone extends forward of the cornea) versus negative vector (bone sits slightly behind).",
+      "limits": "A negative vector is a common, harmless genetic trait that can create natural under-eye shadowing; it is not a sign of poor health.",
+      "isCommunityOnly": false
+    },
+    {
+      "id": "trichion",
+      "term": "Trichion",
+      "plainExplanation": "The anatomical point located at the midpoint of the anterior hairline on the forehead.",
+      "whatItMeasures": "The upper boundary of the classical upper facial third.",
+      "limits": "Naturally shifts with chronological hairline maturation, hair whorls, styling, or hair loss.",
+      "isCommunityOnly": false
+    },
+    {
+      "id": "nasion",
+      "term": "Nasion",
+      "plainExplanation": "The deepest depression at the root of the nose, marking the junction of the frontal and nasal bones.",
+      "whatItMeasures": "The cephalometric dividing landmark between the upper and middle facial skeleton.",
+      "limits": "Can be obscured by low brow hair or spectacles.",
+      "isCommunityOnly": false
+    },
+    {
+      "id": "subnasale",
+      "term": "Subnasale",
+      "plainExplanation": "The point where the columella of the nose meets the upper lip in the central vertical plane.",
+      "whatItMeasures": "The anatomical dividing point between the middle and lower facial thirds.",
+      "limits": "Sensitive to facial expressions and natural nasal base soft tissue variations.",
+      "isCommunityOnly": false
+    },
+    {
+      "id": "gnathion",
+      "term": "Gnathion",
+      "plainExplanation": "The lowest and most anterior point on the contour of the chin symphysis.",
+      "whatItMeasures": "The lower anatomical boundary of total facial height.",
+      "limits": "Easily distorted by upward head tilt and neck muscle positioning.",
+      "isCommunityOnly": false
+    },
+    {
+      "id": "zygomatic_projection",
+      "term": "Zygomatic Projection",
+      "plainExplanation": "The outward and forward prominence of the cheekbone arches (malar bones).",
+      "whatItMeasures": "Midface bone architecture and three-dimensional cheek contour.",
+      "limits": "Heavily influenced by the volume and position of the overlying malar fat pads.",
+      "isCommunityOnly": false
+    },
+    {
+      "id": "ramus_height",
+      "term": "Mandibular Ramus Height",
+      "plainExplanation": "The vertical length of the posterior branch of the lower jaw, from the ear joint down to the jaw angle.",
+      "whatItMeasures": "The vertical dimension of the rear jaw, influencing jawline slope from the side view.",
+      "limits": "A longer or shorter ramus is genetically determined; both configurations are functionally healthy.",
+      "isCommunityOnly": false
+    },
+    {
+      "id": "facial_index",
+      "term": "Total Facial Index",
+      "plainExplanation": "The mathematical ratio of total facial height (nasion to gnathion) divided by bizygomatic width.",
+      "whatItMeasures": "An anthropological classification grouping faces into broad, medium, or narrow silhouettes.",
+      "limits": "A descriptive anthropological categorisation, not an aesthetic evaluation or health grade.",
+      "isCommunityOnly": false
+    },
+    {
+      "id": "nasofrontal_angle",
+      "term": "Nasofrontal Angle",
+      "plainExplanation": "The angle formed in profile between the slope of the forehead and the bridge of the nose.",
+      "whatItMeasures": "The transitional angle between the cranial vault and the nasal dorsum.",
+      "limits": "Dependent on both the prominence of the supraorbital brow ridge and nasal bone projection.",
+      "isCommunityOnly": false
+    },
+    {
+      "id": "lip_incompetence",
+      "term": "Lip Incompetence",
+      "plainExplanation": "The clinical condition where lips remain open at rest and require conscious muscular effort to seal together.",
+      "whatItMeasures": "A clinical orthodontic marker of dentofacial alignment, nasal airway resistance, or vertical maxillary excess.",
+      "limits": "Mild resting lip separation is common and benign unless accompanied by persistent mouth breathing or dental flaring.",
+      "isCommunityOnly": false
+    },
+    {
+      "id": "focal_distortion",
+      "term": "Focal Length Distortion",
+      "plainExplanation": "The optical perspective distortion produced when photographing objects with wide-angle lenses at short distances.",
+      "whatItMeasures": "A photographic artifact: close smartphone selfies bulbously inflate central features (nose) while flattening peripheral features (ears).",
+      "limits": "An artifact of camera physics and lens distance, NOT an intrinsic feature of your physical anatomy.",
+      "isCommunityOnly": false
+    },
+    {
+      "id": "skin_clarity_index",
+      "term": "Skin Clarity Index",
+      "plainExplanation": "An algorithmic visual estimate of skin surface tone consistency, uniform coloration, and surface clarity.",
+      "whatItMeasures": "Surface photographic clarity and skin texture on the day of the scan.",
+      "limits": "Varies significantly with ambient lighting, camera sensor noise, recent cleansing, and temporary redness. Not a clinical dermatology diagnosis.",
+      "isCommunityOnly": false
+    },
+    {
+      "id": "golden_ratio_claims",
+      "term": "Golden Ratio (Phi) Claims",
+      "plainExplanation": "The popular claim that human facial beauty is governed by a universal mathematical ratio of 1:1.618.",
+      "whatItMeasures": "A classical geometric theory frequently misapplied to human biology and anatomy.",
+      "limits": "Rigorous peer-reviewed anthropometric research demonstrates that human attractiveness does not conform to a single mathematical ratio. Real beauty spans diverse cultural and biological variety.",
+      "isCommunityOnly": false
+    },
+    {
+      "id": "psl",
+      "term": "PSL (Rating System)",
+      "plainExplanation": "An acronym for 'Photo-Shoot-Looks', an anonymous internet forum grading system rating facial appearance on an arbitrary 1-8 scale.",
+      "whatItMeasures": "A community convention with no scientific validity. Conflates internet subculture trends with pseudo-objective evaluation.",
+      "limits": "Carries zero scientific, medical, or psychological validity. Promotes toxic fixation and body dysmorphic rumination. Lumora does not calculate or use PSL scores.",
+      "isCommunityOnly": true
+    },
+    {
+      "id": "tiers",
+      "term": "Tiers (Tier Lists)",
+      "plainExplanation": "Internet gaming-style classifications assigning people to letter ranks (e.g. S-Tier, A-Tier, Chad, Sub-five, Stacy).",
+      "whatItMeasures": "A community convention with no scientific validity. Gamifies and dehumanises complex human genetics into simplistic categories.",
+      "limits": "Completely unscientific, socially reductive, and misleading. Human beings are not video game assets with competitive tiers. Lumora strictly rejects tier classifications.",
+      "isCommunityOnly": true
+    },
+    {
+      "id": "ratings",
+      "term": "Aesthetic Number Ratings (1-10 Scales)",
+      "plainExplanation": "Arbitrary numeric scores attempting to assign a single number to the rich, multi-dimensional human face.",
+      "whatItMeasures": "A community convention with no scientific validity. Entirely subjective, unstable across viewers, and biased by lighting and culture.",
+      "limits": "Scientific anthropometry evaluates anatomical harmony, functional health, and symmetry, never an arbitrary number rating. Lumora measures photo quality and skin clarity, never attractiveness tiers.",
+      "isCommunityOnly": true
+    }
+  ]
+}

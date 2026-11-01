@@ -4,12 +4,14 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import com.example.data.local.dao.BookmarkDao
 import com.example.data.local.dao.ChatDao
 import com.example.data.local.dao.HabitDao
 import com.example.data.local.dao.MetricNoiseDao
 import com.example.data.local.dao.ReminderPrefDao
 import com.example.data.local.dao.ScanDao
 import com.example.data.local.dao.ScanDraftDao
+import com.example.data.local.entity.ArticleBookmarkEntity
 import com.example.data.local.entity.ChatMessageEntity
 import com.example.data.local.entity.ChatThreadEntity
 import com.example.data.local.entity.HabitEntity
@@ -28,9 +30,10 @@ import com.example.data.local.entity.ScanEntity
         HabitEntity::class,
         HabitLogEntity::class,
         ReminderPrefEntity::class,
-        ScanDraftEntity::class
+        ScanDraftEntity::class,
+        ArticleBookmarkEntity::class
     ],
-    version = 1,
+    version = 2,
     exportSchema = false
 )
 abstract class LumoraDatabase : RoomDatabase() {
@@ -40,6 +43,7 @@ abstract class LumoraDatabase : RoomDatabase() {
     abstract fun habitDao(): HabitDao
     abstract fun reminderPrefDao(): ReminderPrefDao
     abstract fun scanDraftDao(): ScanDraftDao
+    abstract fun bookmarkDao(): BookmarkDao
 
     companion object {
         @Volatile
@@ -51,7 +55,7 @@ abstract class LumoraDatabase : RoomDatabase() {
                     context.applicationContext,
                     LumoraDatabase::class.java,
                     "lumora.db"
-                ).build()
+                ).fallbackToDestructiveMigration().build()
                 INSTANCE = instance
                 instance
             }

@@ -76,4 +76,11 @@ sealed class Route(val route: String) {
     data object NotificationSettings : Route("notification_settings")
     data object Appearance : Route("appearance")
     data object About : Route("about")
+
+    // Knowledge Base & Glossary
+    data object Library : Route("library")
+    data object ArticleDetail : Route("library/article/{articleId}") {
+        fun createRoute(articleId: String) = "library/article/$articleId"
+    }
+    data object Glossary : Route("glossary")
 }

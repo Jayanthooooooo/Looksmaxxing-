@@ -1,0 +1,10 @@
+package com.example.data.local.entity
+
+import androidx.room.Entity
+import androidx.room.PrimaryKey
+
+@Entity(tableName = "article_bookmarks")
+data class ArticleBookmarkEntity(
+    @PrimaryKey val articleId: String,
+    val bookmarkedAt: Long = System.currentTimeMillis()
+)

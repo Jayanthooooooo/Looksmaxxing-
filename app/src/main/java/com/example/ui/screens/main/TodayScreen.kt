@@ -21,8 +21,10 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowForwardIos
 import androidx.compose.material.icons.filled.CameraAlt
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.MenuBook
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -41,6 +43,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.data.local.entity.HabitLogEntity
 import com.example.domain.model.ScanResult
+import com.example.ui.theme.Fraunces
 import com.example.ui.theme.GoldEyebrow
 import com.example.ui.theme.LumoraColors
 import com.example.ui.theme.PlusJakartaSans
@@ -83,6 +86,7 @@ fun TodayScreen(
     onLatestScanClick: (String) -> Unit,
     onCoachClick: () -> Unit,
     onPlanClick: () -> Unit,
+    onLibraryClick: () -> Unit = {},
     modifier: Modifier = Modifier,
     isOffline: Boolean = false,
     isEmailUnverified: Boolean = false
@@ -387,6 +391,79 @@ fun TodayScreen(
                     onToggle = {
                         onToggleQuest(quest.id, selectedDateStr, !isDone)
                     }
+                )
+            }
+        }
+
+        Spacer(modifier = Modifier.height(24.dp))
+
+        // Library & Glossary entry card
+        Surface(
+            onClick = onLibraryClick,
+            shape = RoundedCornerShape(20.dp),
+            color = Color(0x18D9C59B),
+            border = BorderStroke(1.dp, Color(0x44D9C59B)),
+            modifier = Modifier
+                .fillMaxWidth()
+                .testTag("home_library_card")
+        ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(18.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(14.dp),
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .size(44.dp)
+                            .clip(CircleShape)
+                            .background(Color(0x33D9C59B)),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.MenuBook,
+                            contentDescription = null,
+                            tint = LumoraColors.ChampagneGold,
+                            modifier = Modifier.size(22.dp)
+                        )
+                    }
+                    Column {
+                        Text(
+                            text = "KNOWLEDGE BASE",
+                            fontFamily = PlusJakartaSans,
+                            fontWeight = FontWeight.SemiBold,
+                            fontSize = 11.sp,
+                            letterSpacing = 1.2.sp,
+                            color = LumoraColors.ChampagneGold
+                        )
+                        Spacer(modifier = Modifier.height(2.dp))
+                        Text(
+                            text = "Evidence Library & Glossary",
+                            fontFamily = Fraunces,
+                            fontSize = 17.sp,
+                            color = Color(0xFFF4F4F6)
+                        )
+                        Spacer(modifier = Modifier.height(2.dp))
+                        Text(
+                            text = "Science-backed skin, posture, hair & debunked myths.",
+                            fontFamily = PlusJakartaSans,
+                            fontSize = 12.sp,
+                            color = LumoraColors.DarkOnSurfaceMuted
+                        )
+                    }
+                }
+
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.ArrowForwardIos,
+                    contentDescription = "Open Library",
+                    tint = LumoraColors.ChampagneGold,
+                    modifier = Modifier.size(16.dp)
                 )
             }
         }

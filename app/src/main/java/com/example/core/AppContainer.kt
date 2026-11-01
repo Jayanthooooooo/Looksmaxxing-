@@ -45,6 +45,10 @@ class AppContainer(val context: Context) {
     val dataExportRepository: com.example.data.repo.DataExportRepository by lazy {
         com.example.data.repo.DataExportRepository(context, database, photoVault, preferencesDataStore, dispatchers)
     }
+
+    val libraryRepository: com.example.data.repo.LibraryRepository by lazy {
+        com.example.data.repo.LibraryRepository(context, database.bookmarkDao(), dispatchers)
+    }
 }
 
 

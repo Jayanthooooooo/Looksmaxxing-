@@ -47,6 +47,9 @@ import android.graphics.Bitmap
 import com.example.ui.screens.coach.ChatHistoryScreen
 import com.example.ui.screens.coach.ReportReplySheet
 import com.example.ui.screens.coach.CoachViewModel
+import com.example.ui.screens.library.ArticleDetailScreen
+import com.example.ui.screens.library.GlossaryScreen
+import com.example.ui.screens.library.LibraryScreen
 import com.example.ui.screens.main.CoachScreen
 import com.example.ui.screens.main.MainScaffold
 import com.example.ui.screens.main.MainTab
@@ -438,7 +441,8 @@ fun AppNavGraph(
                             onScanClick = { navController.navigate(Route.ScanHub.route) },
                             onLatestScanClick = { scanId -> navController.navigate(Route.Results.createRoute(scanId)) },
                             onCoachClick = { currentMainTab = MainTab.COACH },
-                            onPlanClick = { navController.navigate(Route.Plan.route) }
+                            onPlanClick = { navController.navigate(Route.Plan.route) },
+                            onLibraryClick = { navController.navigate(Route.Library.route) }
                         )
                     }
 
@@ -978,6 +982,70 @@ fun AppNavGraph(
         // About
         composable(Route.About.route) {
             AboutScreen(onBackClick = { navController.popBackStack() })
+        }
+
+        // Knowledge Library
+        composable(Route.Library.route) {
+            val articles by container.libraryRepository.articles.collectAsState()
+            val bookmarkedIds by container.libraryRepository.bookmarkedArticleIds.collectAsState(initial = emptyList())
+            LaunchedEffect(Unit) {
+                container.libraryRepository.loadLibrary()
+            }
+
+            LibraryScreen(
+                articles = articles,
+                bookmarkedIds = bookmarkedIds.toSet(),
+                isTeenMode = userProfile?.isTeen == true,
+                onArticleClick = { articleId ->
+                    navController.navigate(Route.ArticleDetail.createRoute(articleId))
+                },
+                onGlossaryClick = { navController.navigate(Route.Glossary.route) },
+                onToggleBookmark = { articleId ->
+                    scope.launch { container.libraryRepository.toggleBookmark(articleId) }
+                },
+                onBackClick = { navController.popBackStack() }
+            )
+        }
+
+        // Article Detail
+        composable(
+            route = Route.ArticleDetail.route,
+            arguments = listOf(navArgument("articleId") { type = NavType.StringType })
+        ) { backStackEntry ->
+            val articleId = backStackEntry.arguments?.getString("articleId") ?: ""
+            val articles by container.libraryRepository.articles.collectAsState()
+            val isBookmarked by container.libraryRepository.observeIsBookmarked(articleId).collectAsState(initial = false)
+
+            LaunchedEffect(articleId) {
+                if (articles.isEmpty()) {
+                    container.libraryRepository.loadLibrary()
+                }
+            }
+
+            val article = articles.firstOrNull { it.id == articleId }
+            if (article != null) {
+                ArticleDetailScreen(
+                    article = article,
+                    isBookmarked = isBookmarked,
+                    onToggleBookmark = {
+                        scope.launch { container.libraryRepository.toggleBookmark(articleId) }
+                    },
+                    onBackClick = { navController.popBackStack() }
+                )
+            }
+        }
+
+        // Glossary
+        composable(Route.Glossary.route) {
+            val terms by container.libraryRepository.glossary.collectAsState()
+            LaunchedEffect(Unit) {
+                container.libraryRepository.loadLibrary()
+            }
+
+            GlossaryScreen(
+                terms = terms,
+                onBackClick = { navController.popBackStack() }
+            )
         }
     }
 
