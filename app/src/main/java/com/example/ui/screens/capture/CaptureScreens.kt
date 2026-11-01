@@ -37,12 +37,21 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CameraAlt
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.FlipCameraAndroid
+import androidx.compose.material.icons.filled.PhotoLibrary
 import androidx.compose.material.icons.filled.Warning
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -51,7 +60,9 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -69,14 +80,24 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.nativeCanvas
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.semantics.LiveRegionMode
+import androidx.compose.ui.semantics.liveRegion
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
+import com.example.ui.theme.Fraunces
+import com.example.ui.theme.GoldEyebrow
+import com.example.ui.theme.PlusJakartaSans
+import com.example.ui.theme.SerifHeadline
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageProxy
@@ -329,12 +350,11 @@ fun CameraRationaleScreen(
     }
 }
 
-@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun LiveCaptureScreen(
     kind: String, // "front" or "side"
     onScanCaptured: () -> Unit,
-    onToggleMirror: () -> Unit,
+    onToggleMirror: () -> Unit = {},
     onCloseClick: () -> Unit,
     modifier: Modifier = Modifier,
     isMirrored: Boolean = true
@@ -349,10 +369,10 @@ fun LiveCaptureScreen(
     var gateExpression by remember { mutableStateOf(true) }
     var gateSteady by remember { mutableStateOf(true) }
     var consecutiveFramesHeld by remember { mutableIntStateOf(0) }
-    var guidanceText by remember { mutableStateOf("Position face in oval") }
     var detectedFaceBounds by remember { mutableStateOf<Rect?>(null) }
     var currentLandmarks by remember { mutableStateOf<Map<Int, Point3D>>(emptyMap()) }
     var currentBitmap by remember { mutableStateOf<Bitmap?>(null) }
+    var showCaptureAnywayDialog by remember { mutableStateOf(false) }
 
     val faceMeshEngine = remember { MlKitFaceMeshEngine() }
     val qualityEvaluator = remember { CaptureQualityEvaluator() }
@@ -374,38 +394,110 @@ fun LiveCaptureScreen(
 
     val allGatesReady = gateHeadAngle && gateLight && gateDistance && gateExpression && gateSteady
 
+    fun performCapture(forced: Boolean = false) {
+        if (isCapturingBurst) return
+        val bitmapToUse = currentBitmap ?: return
+        isCapturingBurst = true
+        scope.launch {
+            val finalLandmarks = if (frameBuffer.isNotEmpty()) {
+                val sorted = frameBuffer.sortedByDescending { it.qualityScore }
+                val keepCount = (sorted.size * 0.75f).toInt().coerceAtLeast(1)
+                val bestFrames = sorted.take(keepCount)
+                landmarkAggregator.aggregateMedianBurst(bestFrames.map { it.landmarks })
+            } else {
+                currentLandmarks
+            }
+            val bestBitmap = frameBuffer.maxByOrNull { it.qualityScore }?.bitmap ?: bitmapToUse
+
+            ScanDraftHolder.capturedBitmap = bestBitmap
+            ScanDraftHolder.aggregatedLandmarks = finalLandmarks
+            ScanDraftHolder.faceBounds = detectedFaceBounds
+            ScanDraftHolder.scanKind = kind
+            val baseReport = qualityEvaluator.computeOverallQualityReport(
+                GateEvaluation(gateHeadAngle),
+                GateEvaluation(gateDistance),
+                GateEvaluation(gateLight),
+                GateEvaluation(gateExpression),
+                GateEvaluation(gateSteady),
+                if (currentLandmarks.isNotEmpty()) 1 else 0
+            )
+            ScanDraftHolder.qualityReport = if (forced) {
+                baseReport.copy(
+                    flags = baseReport.flags + "Manual capture before all quality gates passed"
+                )
+            } else {
+                baseReport
+            }
+            onScanCaptured()
+        }
+    }
+
     LaunchedEffect(consecutiveFramesHeld) {
         if (consecutiveFramesHeld >= AppConfig.HOLD_FRAMES_REQUIRED && !isCapturingBurst && currentBitmap != null) {
-            isCapturingBurst = true
-            scope.launch {
-                val finalLandmarks = if (frameBuffer.isNotEmpty()) {
-                    val sorted = frameBuffer.sortedByDescending { it.qualityScore }
-                    val keepCount = (sorted.size * 0.75f).toInt().coerceAtLeast(1)
-                    val bestFrames = sorted.take(keepCount)
-                    landmarkAggregator.aggregateMedianBurst(bestFrames.map { it.landmarks })
-                } else {
-                    currentLandmarks
-                }
-                val bestBitmap = frameBuffer.maxByOrNull { it.qualityScore }?.bitmap ?: currentBitmap!!
+            performCapture(forced = false)
+        }
+    }
 
-                ScanDraftHolder.capturedBitmap = bestBitmap
-                ScanDraftHolder.aggregatedLandmarks = finalLandmarks
-                ScanDraftHolder.faceBounds = detectedFaceBounds
-                ScanDraftHolder.scanKind = kind
-                ScanDraftHolder.qualityReport = qualityEvaluator.computeOverallQualityReport(
-                    GateEvaluation(gateHeadAngle),
-                    GateEvaluation(gateDistance),
-                    GateEvaluation(gateLight),
-                    GateEvaluation(gateExpression),
-                    GateEvaluation(gateSteady),
-                    if (currentLandmarks.isNotEmpty()) 1 else 0
-                )
-                onScanCaptured()
+    val photoPickerLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.PickVisualMedia()
+    ) { uri ->
+        if (uri != null) {
+            scope.launch {
+                val bmp = decodeGalleryUriToBitmap(context, uri)
+                if (bmp != null) {
+                    val result = faceMeshEngine.analyse(bmp)
+                    ScanDraftHolder.capturedBitmap = bmp
+                    ScanDraftHolder.aggregatedLandmarks = result.landmarks
+                    ScanDraftHolder.faceBounds = Rect(0, 0, bmp.width, bmp.height)
+                    ScanDraftHolder.scanKind = kind
+                    ScanDraftHolder.qualityReport = QualityReport(
+                        score = if (result.faceCount == 1) 90 else 0,
+                        flags = if (result.faceCount == 0) listOf("No face detected in gallery photo") else emptyList(),
+                        perGate = emptyMap()
+                    )
+                    onScanCaptured()
+                }
             }
         }
     }
 
-    Box(modifier = modifier.fillMaxSize().background(Color.Black).testTag("live_capture_screen")) {
+    // Priority instruction: Frame -> Angle -> Light -> Neutral / Still
+    val (instructionText, italicWord) = remember(gateDistance, gateHeadAngle, gateLight, gateExpression, gateSteady) {
+        when {
+            !gateDistance -> "Centre your face" to "face"
+            !gateHeadAngle -> "Look straight at the camera" to "camera"
+            !gateLight -> "Face the light — one side is in shadow" to "light"
+            !gateExpression || !gateSteady -> "Hold still" to "Hold"
+            else -> "Hold still" to "Hold"
+        }
+    }
+
+    // Announce instruction changes for TalkBack
+    val accessibilityManager = remember {
+        context.getSystemService(Context.ACCESSIBILITY_SERVICE) as? android.view.accessibility.AccessibilityManager
+    }
+    var lastAnnouncedText by remember { mutableStateOf("") }
+    LaunchedEffect(instructionText) {
+        if (instructionText != lastAnnouncedText) {
+            lastAnnouncedText = instructionText
+            if (accessibilityManager?.isEnabled == true) {
+                val event = android.view.accessibility.AccessibilityEvent.obtain(
+                    android.view.accessibility.AccessibilityEvent.TYPE_ANNOUNCEMENT
+                ).apply {
+                    text.add(instructionText)
+                }
+                accessibilityManager.sendAccessibilityEvent(event)
+            }
+        }
+    }
+
+    Box(
+        modifier = modifier
+            .fillMaxSize()
+            .background(Color.Black)
+            .testTag("live_capture_screen")
+    ) {
+        // Full-screen camera preview
         AndroidView(
             factory = { ctx ->
                 PreviewView(ctx).apply {
@@ -436,13 +528,11 @@ fun LiveCaptureScreen(
                                             currentLandmarks = result.landmarks
 
                                             if (result.faceCount == 0) {
-                                                guidanceText = "No face detected. Move into view."
                                                 gateHeadAngle = false
                                                 gateDistance = false
                                                 gateLight = false
                                                 consecutiveFramesHeld = 0
                                             } else if (result.faceCount > 1) {
-                                                guidanceText = "Multiple faces detected."
                                                 gateHeadAngle = false
                                                 consecutiveFramesHeld = 0
                                             } else {
@@ -466,14 +556,9 @@ fun LiveCaptureScreen(
                                                 gateExpression = exprEval.isReady
                                                 gateSteady = steadyEval.isReady
 
-                                                val failing = listOfNotNull(poseEval.flag, distEval.flag, lightEval.flag).firstOrNull()
-                                                if (failing != null) {
-                                                    guidanceText = failing
-                                                    consecutiveFramesHeld = 0
-                                                } else {
-                                                    guidanceText = "Hold steady... scanning"
+                                                val allReady = gateHeadAngle && gateLight && gateDistance && gateExpression && gateSteady
+                                                if (allReady) {
                                                     consecutiveFramesHeld++
-                                                    
                                                     val qualityReport = qualityEvaluator.computeOverallQualityReport(
                                                         GateEvaluation(poseEval.isReady),
                                                         GateEvaluation(distEval.isReady),
@@ -482,11 +567,12 @@ fun LiveCaptureScreen(
                                                         GateEvaluation(steadyEval.isReady),
                                                         1
                                                     )
-                                                    
                                                     frameBuffer.add(FrameData(result.landmarks, bitmap, qualityReport.score))
                                                     if (frameBuffer.size > AppConfig.BURST_FRAME_COUNT) {
                                                         frameBuffer.removeAt(0)
                                                     }
+                                                } else {
+                                                    consecutiveFramesHeld = 0
                                                 }
                                             }
                                         }
@@ -505,213 +591,372 @@ fun LiveCaptureScreen(
             }
         )
 
-        val infiniteTransition = rememberInfiniteTransition(label = "scan_pulse")
-        val pulseScale by infiniteTransition.animateFloat(
-            initialValue = 1f,
-            targetValue = 1.05f,
-            animationSpec = infiniteRepeatable(
-                animation = tween(2000, easing = FastOutSlowInEasing),
-                repeatMode = RepeatMode.Reverse
-            ),
-            label = "pulse_scale"
-        )
-        val scanLineY by infiniteTransition.animateFloat(
-            initialValue = 0f,
-            targetValue = 1f,
-            animationSpec = infiniteRepeatable(
-                animation = tween(3000, easing = LinearEasing),
-                repeatMode = RepeatMode.Restart
-            ),
-            label = "scan_line"
-        )
-
+        // Face guide: thin white-70% oval outline centred on screen with tick marks at top, bottom, left, right
         Canvas(modifier = Modifier.fillMaxSize()) {
             val canvasWidth = size.width
             val canvasHeight = size.height
-            val ovalWidth = canvasWidth * 0.6f * pulseScale
-            val ovalHeight = canvasHeight * 0.5f * pulseScale
+
+            val ovalWidth = canvasWidth * 0.68f
+            val ovalHeight = canvasHeight * 0.44f
             val left = (canvasWidth - ovalWidth) / 2f
             val top = (canvasHeight - ovalHeight) / 2f
+            val right = left + ovalWidth
+            val bottom = top + ovalHeight
+            val centerX = canvasWidth / 2f
+            val centerY = canvasHeight / 2f
 
-            val strokeColor = if (allGatesReady) LumoraColors.SuccessMint else Color.White.copy(alpha = 0.4f)
-            
-            // Draw pulsing oval
+            val guideColor = Color.White.copy(alpha = 0.70f)
+            val strokeWidthPx = 1.5.dp.toPx()
+            val tickLenPx = 12.dp.toPx()
+
+            // Oval outline
             drawOval(
-                brush = Brush.sweepGradient(
-                    colors = if (allGatesReady) {
-                        listOf(LumoraColors.SecondaryCyan, LumoraColors.SuccessMint, LumoraColors.SecondaryCyan)
-                    } else {
-                        listOf(Color.White.copy(alpha = 0.2f), Color.White.copy(alpha = 0.2f))
-                    }
-                ),
-                topLeft = androidx.compose.ui.geometry.Offset(left, top),
-                size = androidx.compose.ui.geometry.Size(ovalWidth, ovalHeight),
-                style = Stroke(width = 3.dp.toPx())
+                color = guideColor,
+                topLeft = Offset(left, top),
+                size = Size(ovalWidth, ovalHeight),
+                style = Stroke(width = strokeWidthPx)
             )
 
-            // Scan line
-            if (allGatesReady) {
-                drawLine(
-                    brush = Brush.horizontalGradient(
-                        colors = listOf(Color.Transparent, LumoraColors.SecondaryCyan, Color.Transparent)
-                    ),
-                    start = androidx.compose.ui.geometry.Offset(left, top + ovalHeight * scanLineY),
-                    end = androidx.compose.ui.geometry.Offset(left + ovalWidth, top + ovalHeight * scanLineY),
-                    strokeWidth = 2.dp.toPx()
-                )
-            }
-            
-            // Mesh dots (simulated for UI)
-            if (currentLandmarks.isNotEmpty()) {
-                currentLandmarks.values.forEach { pt ->
-                    // Simplified: map pt to canvas. In real app, use better mapping.
-                    // For now, just decorative dots if ready
-                    if (allGatesReady) {
-                        drawCircle(
-                            color = LumoraColors.SecondaryCyan.copy(alpha = 0.5f),
-                            radius = 1.dp.toPx(),
-                            center = androidx.compose.ui.geometry.Offset(
-                                left + (pt.x * ovalWidth),
-                                top + (pt.y * ovalHeight)
-                            )
-                        )
-                    }
-                }
-            }
+            // Top tick
+            drawLine(
+                color = guideColor,
+                start = Offset(centerX, top - tickLenPx / 2f),
+                end = Offset(centerX, top + tickLenPx / 2f),
+                strokeWidth = strokeWidthPx
+            )
+            // Bottom tick
+            drawLine(
+                color = guideColor,
+                start = Offset(centerX, bottom - tickLenPx / 2f),
+                end = Offset(centerX, bottom + tickLenPx / 2f),
+                strokeWidth = strokeWidthPx
+            )
+            // Left tick
+            drawLine(
+                color = guideColor,
+                start = Offset(left - tickLenPx / 2f, centerY),
+                end = Offset(left + tickLenPx / 2f, centerY),
+                strokeWidth = strokeWidthPx
+            )
+            // Right tick
+            drawLine(
+                color = guideColor,
+                start = Offset(right - tickLenPx / 2f, centerY),
+                end = Offset(right + tickLenPx / 2f, centerY),
+                strokeWidth = strokeWidthPx
+            )
         }
 
-        // Countdown overlay
-        if (consecutiveFramesHeld > 0 && !allGatesReady) {
-             // If hold started but lost a gate, maybe show warning? 
-             // But usually it resets.
-        } else if (consecutiveFramesHeld > 0) {
-            val progress = (consecutiveFramesHeld.toFloat() / AppConfig.HOLD_FRAMES_REQUIRED).coerceIn(0f, 1f)
-            if (progress > 0.1f) {
-                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    val remaining = ((1f - progress) * 3 + 1).toInt()
-                    Text(
-                        text = "$remaining",
-                        style = MaterialTheme.typography.displayLarge.copy(
-                            fontSize = 120.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = LumoraColors.SecondaryCyan.copy(alpha = 0.4f * progress)
-                        )
-                    )
-                }
-            }
-        }
-
+        // Top row: round X close button on left; on right "Upload photos" pill + 3-dash step indicator
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(top = 40.dp, start = 16.dp, end = 16.dp),
+                .padding(top = 44.dp, start = 20.dp, end = 20.dp),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            QuietTextButton(
-                text = "Cancel",
-                onClick = onCloseClick,
-                testTag = "live_capture_cancel"
-            )
-
             IconButton(
-                onClick = onToggleMirror,
+                onClick = onCloseClick,
                 modifier = Modifier
+                    .size(40.dp)
                     .clip(CircleShape)
-                    .background(Color.Black.copy(alpha = 0.5f))
-                    .testTag("mirror_toggle_button")
+                    .background(Color(0x66000000))
+                    .border(1.dp, Color.White.copy(alpha = 0.2f), CircleShape)
+                    .testTag("live_capture_cancel")
             ) {
                 Icon(
-                    imageVector = Icons.Default.FlipCameraAndroid,
-                    contentDescription = "Toggle mirror preview",
-                    tint = Color.White
+                    imageVector = Icons.Default.Close,
+                    contentDescription = "Close",
+                    tint = Color.White,
+                    modifier = Modifier.size(20.dp)
                 )
+            }
+
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(10.dp)
+            ) {
+                Surface(
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(20.dp))
+                        .border(1.dp, Color.White.copy(alpha = 0.2f), RoundedCornerShape(20.dp))
+                        .clickable {
+                            photoPickerLauncher.launch(
+                                PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+                            )
+                        }
+                        .testTag("upload_photos_button"),
+                    color = Color(0x66000000)
+                ) {
+                    Row(
+                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.PhotoLibrary,
+                            contentDescription = null,
+                            tint = LumoraColors.ChampagneGold,
+                            modifier = Modifier.size(16.dp)
+                        )
+                        Spacer(modifier = Modifier.width(6.dp))
+                        Text(
+                            text = "Upload photos",
+                            fontFamily = PlusJakartaSans,
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.Medium,
+                            color = Color.White
+                        )
+                    }
+                }
+
+                // 3-dash step indicator (current step gold)
+                val currentStep = if (kind == "side") 1 else 0
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(4.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    for (stepIndex in 0..2) {
+                        Box(
+                            modifier = Modifier
+                                .width(14.dp)
+                                .height(3.dp)
+                                .clip(RoundedCornerShape(1.5.dp))
+                                .background(
+                                    if (stepIndex == currentStep) LumoraColors.ChampagneGold
+                                    else Color.White.copy(alpha = 0.25f)
+                                )
+                        )
+                    }
+                }
             }
         }
 
+        // Bottom area over a soft dark gradient
         Column(
             modifier = Modifier
                 .align(Alignment.BottomCenter)
                 .fillMaxWidth()
-                .background(Color.Black.copy(alpha = 0.7f))
-                .padding(20.dp),
+                .background(
+                    Brush.verticalGradient(
+                        colors = listOf(
+                            Color.Transparent,
+                            Color(0x990B0B0F),
+                            Color(0xEE0B0B0F),
+                            Color(0xFF0B0B0F)
+                        )
+                    )
+                )
+                .padding(horizontal = 20.dp)
+                .padding(top = 28.dp, bottom = 36.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text(
-                text = guidanceText,
-                style = MaterialTheme.typography.titleMedium,
-                color = Color.White,
-                textAlign = TextAlign.Center
+            GoldEyebrow(
+                text = if (kind == "side") "STEP 2 OF 4 · SIDE" else "STEP 1 OF 4 · FRONT"
             )
-            Spacer(modifier = Modifier.height(12.dp))
 
-            if (consecutiveFramesHeld > 0) {
-                LinearProgressIndicator(
-                    progress = { (consecutiveFramesHeld.toFloat() / AppConfig.HOLD_FRAMES_REQUIRED).coerceIn(0f, 1f) },
-                    modifier = Modifier.fillMaxWidth(0.6f).height(4.dp).clip(RoundedCornerShape(2.dp)),
-                    color = LumoraColors.LightSuccess,
-                    trackColor = Color.White.copy(alpha = 0.2f)
-                )
-                Spacer(modifier = Modifier.height(12.dp))
-            }
+            Spacer(modifier = Modifier.height(10.dp))
 
-            FlowRow(
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                verticalArrangement = Arrangement.spacedBy(6.dp)
+            SerifHeadline(
+                text = instructionText,
+                italicWord = italicWord,
+                fontSize = 22.sp,
+                lineHeight = 28.sp,
+                textAlign = TextAlign.Center,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .semantics {
+                        liveRegion = LiveRegionMode.Polite
+                    }
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // 5 small chips in one row: Frame, Angle, Light, Neutral, Still
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(6.dp),
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                GateChip(label = if (kind == "front") "Head Angle" else "Profile Angle", isReady = gateHeadAngle)
-                GateChip(label = "Lighting", isReady = gateLight)
-                GateChip(label = "Distance", isReady = gateDistance)
-                GateChip(label = "Expression", isReady = gateExpression)
-                GateChip(label = "Steady", isReady = gateSteady)
+                CaptureQualityChip(label = "Frame", isPassing = gateDistance, modifier = Modifier.weight(1f))
+                CaptureQualityChip(label = "Angle", isPassing = gateHeadAngle, modifier = Modifier.weight(1f))
+                CaptureQualityChip(label = "Light", isPassing = gateLight, modifier = Modifier.weight(1f))
+                CaptureQualityChip(label = "Neutral", isPassing = gateExpression, modifier = Modifier.weight(1f))
+                CaptureQualityChip(label = "Still", isPassing = gateSteady, modifier = Modifier.weight(1f))
             }
 
             Spacer(modifier = Modifier.height(20.dp))
 
-            IconButton(
-                onClick = {
-                    if (currentBitmap != null) {
-                        isCapturingBurst = true
-                        scope.launch {
-                            val finalLandmarks = if (frameBuffer.isNotEmpty()) {
-                                val sorted = frameBuffer.sortedByDescending { it.qualityScore }
-                                val keepCount = (sorted.size * 0.75f).toInt().coerceAtLeast(1)
-                                val bestFrames = sorted.take(keepCount)
-                                landmarkAggregator.aggregateMedianBurst(bestFrames.map { it.landmarks })
-                            } else {
-                                currentLandmarks
-                            }
-                            val bestBitmap = frameBuffer.maxByOrNull { it.qualityScore }?.bitmap ?: currentBitmap
-
-                            ScanDraftHolder.capturedBitmap = bestBitmap
-                            ScanDraftHolder.aggregatedLandmarks = finalLandmarks
-                            ScanDraftHolder.faceBounds = detectedFaceBounds
-                            ScanDraftHolder.scanKind = kind
-                            ScanDraftHolder.qualityReport = qualityEvaluator.computeOverallQualityReport(
-                                GateEvaluation(gateHeadAngle),
-                                GateEvaluation(gateDistance),
-                                GateEvaluation(gateLight),
-                                GateEvaluation(gateExpression),
-                                GateEvaluation(gateSteady),
-                                if (currentLandmarks.isNotEmpty()) 1 else 0
-                            )
-                            onScanCaptured()
-                        }
-                    }
-                },
-                modifier = Modifier
-                    .size(72.dp)
-                    .clip(CircleShape)
-                    .background(if (allGatesReady) LumoraColors.LightSuccess else Color.White)
-                    .testTag("shutter_button")
-            ) {
-                Box(
+            if (consecutiveFramesHeld > 0) {
+                val progress = (consecutiveFramesHeld.toFloat() / AppConfig.HOLD_FRAMES_REQUIRED).coerceIn(0f, 1f)
+                LinearProgressIndicator(
+                    progress = { progress },
                     modifier = Modifier
-                        .size(60.dp)
-                        .clip(CircleShape)
-                        .border(3.dp, Color.Black, CircleShape)
+                        .fillMaxWidth(0.6f)
+                        .height(3.dp)
+                        .clip(RoundedCornerShape(1.5.dp)),
+                    color = LumoraColors.ChampagneGold,
+                    trackColor = Color.White.copy(alpha = 0.15f)
                 )
+                Spacer(modifier = Modifier.height(12.dp))
             }
+
+            // Full-width light "Capture" button with camera icon (fade in when all 5 gates pass)
+            AnimatedVisibility(
+                visible = allGatesReady,
+                enter = fadeIn(animationSpec = tween(300)),
+                exit = fadeOut(animationSpec = tween(200))
+            ) {
+                Button(
+                    onClick = { performCapture(forced = false) },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(52.dp)
+                        .testTag("shutter_button"),
+                    shape = RoundedCornerShape(16.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color(0xFFF5F5F7),
+                        contentColor = Color(0xFF0B0B0F)
+                    )
+                ) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.Center
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.CameraAlt,
+                            contentDescription = null,
+                            tint = Color(0xFF0B0B0F),
+                            modifier = Modifier.size(20.dp)
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(
+                            text = "Capture",
+                            fontFamily = PlusJakartaSans,
+                            fontWeight = FontWeight.SemiBold,
+                            fontSize = 16.sp,
+                            color = Color(0xFF0B0B0F)
+                        )
+                    }
+                }
+            }
+
+            // Small "Capture anyway" text button when gates haven't all passed
+            if (!allGatesReady) {
+                TextButton(
+                    onClick = { showCaptureAnywayDialog = true },
+                    modifier = Modifier.testTag("capture_anyway_button")
+                ) {
+                    Text(
+                        text = "Capture anyway",
+                        fontFamily = PlusJakartaSans,
+                        fontSize = 13.sp,
+                        color = LumoraColors.ChampagneGold.copy(alpha = 0.85f),
+                        textDecoration = TextDecoration.Underline
+                    )
+                }
+            }
+        }
+    }
+
+    if (showCaptureAnywayDialog) {
+        AlertDialog(
+            onDismissRequest = { showCaptureAnywayDialog = false },
+            title = {
+                Text(
+                    text = "Capture anyway?",
+                    fontFamily = Fraunces,
+                    fontWeight = FontWeight.Normal,
+                    fontSize = 18.sp,
+                    color = Color(0xFFF4F4F6)
+                )
+            },
+            text = {
+                Text(
+                    text = "Results will be less reliable because facial framing, lighting, or angle has not passed quality checks.",
+                    fontFamily = PlusJakartaSans,
+                    fontSize = 14.sp,
+                    color = Color(0xFFC0C0CA)
+                )
+            },
+            containerColor = Color(0xFF16161F),
+            confirmButton = {
+                Button(
+                    onClick = {
+                        showCaptureAnywayDialog = false
+                        performCapture(forced = true)
+                    },
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color(0xFFF5F5F7),
+                        contentColor = Color(0xFF0B0B0F)
+                    ),
+                    shape = RoundedCornerShape(12.dp)
+                ) {
+                    Text(
+                        text = "Capture anyway",
+                        fontFamily = PlusJakartaSans,
+                        fontWeight = FontWeight.SemiBold,
+                        color = Color(0xFF0B0B0F)
+                    )
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showCaptureAnywayDialog = false }) {
+                    Text(
+                        text = "Cancel",
+                        fontFamily = PlusJakartaSans,
+                        color = Color.White.copy(alpha = 0.7f)
+                    )
+                }
+            }
+        )
+    }
+}
+
+@Composable
+private fun CaptureQualityChip(
+    label: String,
+    isPassing: Boolean,
+    modifier: Modifier = Modifier
+) {
+    Surface(
+        modifier = modifier
+            .clip(RoundedCornerShape(12.dp))
+            .border(
+                width = 1.dp,
+                color = if (isPassing) Color.White.copy(alpha = 0.35f) else Color.White.copy(alpha = 0.08f),
+                shape = RoundedCornerShape(12.dp)
+            ),
+        color = if (isPassing) Color(0x33282834) else Color(0x2214141C)
+    ) {
+        Row(
+            modifier = Modifier.padding(horizontal = 4.dp, vertical = 7.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Center
+        ) {
+            Box(
+                modifier = Modifier
+                    .size(5.dp)
+                    .clip(CircleShape)
+                    .background(if (isPassing) LumoraColors.ChampagneGold else Color(0xFF6E6E78))
+            )
+            Spacer(modifier = Modifier.width(3.dp))
+            if (isPassing) {
+                Icon(
+                    imageVector = Icons.Default.Check,
+                    contentDescription = null,
+                    tint = Color.White,
+                    modifier = Modifier.size(11.dp)
+                )
+                Spacer(modifier = Modifier.width(2.dp))
+            }
+            Text(
+                text = label,
+                fontFamily = PlusJakartaSans,
+                fontSize = 11.sp,
+                fontWeight = if (isPassing) FontWeight.SemiBold else FontWeight.Normal,
+                color = if (isPassing) Color(0xFFF7F7F8) else Color(0xFF7E7E88),
+                maxLines = 1
+            )
         }
     }
 }
