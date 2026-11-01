@@ -33,7 +33,7 @@ import com.example.data.local.entity.ScanEntity
         ScanDraftEntity::class,
         ArticleBookmarkEntity::class
     ],
-    version = 2,
+    version = 3,
     exportSchema = false
 )
 abstract class LumoraDatabase : RoomDatabase() {

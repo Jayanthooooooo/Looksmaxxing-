@@ -26,7 +26,8 @@ data class ChatMessageEntity(
     val role: String, // "user", "assistant", "system"
     val text: String,
     val createdAt: Long,
-    val reported: Boolean = false
+    val reported: Boolean = false,
+    val sourceIds: String = ""
 )
 
 @Entity(tableName = "habits")

@@ -60,6 +60,22 @@ class LibraryRepository(
         _articles.value.firstOrNull { it.id == id }
     }
 
+    private var retriever: com.example.domain.retrieval.KnowledgeRetriever? = null
+
+    suspend fun getRetriever(): com.example.domain.retrieval.KnowledgeRetriever = withContext(dispatchers.io) {
+        retriever?.let { return@withContext it }
+        if (_articles.value.isEmpty() || _glossary.value.isEmpty()) {
+            loadLibrary()
+        }
+        val r = com.example.domain.retrieval.KnowledgeRetriever(_articles.value, _glossary.value)
+        retriever = r
+        r
+    }
+
+    suspend fun searchKnowledge(query: String, limit: Int = 3): List<com.example.domain.retrieval.RetrievedKnowledge> = withContext(dispatchers.io) {
+        getRetriever().retrieve(query, limit)
+    }
+
     companion object {
         fun parseLibraryJson(jsonString: String): Pair<List<LibraryArticle>, List<GlossaryTerm>> {
             val root = JSONObject(jsonString)

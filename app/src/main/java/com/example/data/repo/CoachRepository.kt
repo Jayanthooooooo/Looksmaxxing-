@@ -35,7 +35,8 @@ class CoachRepository(
         .writeTimeout(AiConfig.TIMEOUT_SECONDS, TimeUnit.SECONDS)
         .build(),
     private val baseUrl: String = "https://generativelanguage.googleapis.com",
-    private val apiKeyProvider: () -> String = { com.example.BuildConfig.GEMINI_API_KEY }
+    private val apiKeyProvider: () -> String = { com.example.BuildConfig.GEMINI_API_KEY },
+    private val libraryRepository: LibraryRepository? = null
 ) {
 
     fun observeThreads(): Flow<List<ChatThreadEntity>> = chatDao.observeAllThreads()
@@ -73,17 +74,22 @@ class CoachRepository(
         }
     }
 
-    suspend fun saveAssistantMessage(threadId: String, text: String): String = withContext(dispatchers.io) {
+    suspend fun saveAssistantMessage(threadId: String, text: String, sourceIds: String = ""): String = withContext(dispatchers.io) {
         val msgId = "msg_${UUID.randomUUID()}"
         val assistantMsg = ChatMessageEntity(
             id = msgId,
             threadId = threadId,
             role = "assistant",
             text = text,
-            createdAt = System.currentTimeMillis()
+            createdAt = System.currentTimeMillis(),
+            sourceIds = sourceIds
         )
         chatDao.insertMessage(assistantMsg)
         msgId
+    }
+
+    suspend fun retrieveRelevantSources(query: String, limit: Int = 3): List<com.example.domain.retrieval.RetrievedKnowledge> {
+        return libraryRepository?.searchKnowledge(query, limit) ?: emptyList()
     }
 
     suspend fun reportReply(messageId: String, reason: String, note: String): Outcome<Unit> = withContext(dispatchers.io) {
@@ -95,11 +101,50 @@ class CoachRepository(
         }
     }
 
+    private fun buildContextBlock(sources: List<com.example.domain.retrieval.RetrievedKnowledge>): String {
+        if (sources.isEmpty()) {
+            return "NO SPECIFIC ARTICLES RETRIEVED (Answer cautiously, rely on established facts, and explicitly state scientific evidence is limited)."
+        }
+        return buildString {
+            sources.forEachIndexed { index, item ->
+                appendLine("=== KNOWLEDGE SOURCE ${index + 1}: ${item.title} ===")
+                if (item.article != null) {
+                    val a = item.article
+                    appendLine("Category: ${a.category}")
+                    appendLine("Evidence Level: ${a.evidenceLevel.label} (${a.evidenceLevel.badgeText})")
+                    appendLine("Summary: ${a.summary}")
+                    appendLine("What to do / Practical steps:")
+                    a.whatToDo.forEach { appendLine("- $it") }
+                    appendLine("Risks & Side Effects:")
+                    a.risks.forEach { appendLine("- $it") }
+                    appendLine("When to see a professional:")
+                    a.seeAProfessionalIf.forEach { appendLine("- $it") }
+                    appendLine("Anatomical Changeability: ${a.changeability.name}")
+                    appendLine("Educational note: ${a.disclaimer}")
+                } else if (item.glossaryTerm != null) {
+                    val g = item.glossaryTerm
+                    appendLine("Type: Scientific / Anatomical Glossary Term")
+                    appendLine("Term: ${g.term}")
+                    appendLine("Plain explanation: ${g.plainExplanation}")
+                    appendLine("What it measures: ${g.whatItMeasures}")
+                    appendLine("Biological limits: ${g.limits}")
+                    if (g.isCommunityOnly) {
+                        appendLine("STATUS: Internet community convention only — has ZERO scientific or anatomical validity.")
+                    }
+                }
+                appendLine()
+            }
+        }
+    }
+
     fun streamCoachResponse(
         threadId: String,
         userPrompt: String,
         latestScan: ScanResult?,
-        isPro: Boolean
+        isPro: Boolean,
+        isTeen: Boolean = false,
+        answerMode: String = "SHORT",
+        retrievedSources: List<com.example.domain.retrieval.RetrievedKnowledge> = emptyList()
     ): Flow<String> = flow {
         val apiKey = apiKeyProvider()
         if (apiKey.isBlank() || apiKey == "MY_GEMINI_API_KEY" || apiKey == "GEMINI_API_KEY") {
@@ -125,7 +170,29 @@ class CoachRepository(
             ChatThreadEntity(id = threadId, title = threadTitle, updatedAt = now)
         )
 
-        // 2. Personalised system instruction
+        // 2. Retrieve sources if not already supplied
+        val sources = if (retrievedSources.isNotEmpty()) {
+            retrievedSources
+        } else {
+            libraryRepository?.searchKnowledge(userPrompt, 3) ?: emptyList()
+        }
+
+        val contextBlock = buildContextBlock(sources)
+
+        val teenGuidance = if (isTeen) {
+            """
+            TEEN SAFETY RULES (User is under 18):
+            - Never recommend active medical ingredients (such as high-strength retinoids, harsh acid peels, or oral medications) without advising them to consult a parent or dermatologist.
+            - Emphasize body neutrality, growth stage patience, and gentle foundational hygiene.
+            """.trimIndent()
+        } else ""
+
+        val lengthGuidance = if (answerMode.equals("SHORT", ignoreCase = true)) {
+            "CONCISENESS: User selected SHORT mode. Keep answers concise, direct, and under 3 short paragraphs or bullet points."
+        } else {
+            "DETAIL: User selected DETAILED mode. Provide thorough, well-explained step-by-step guidance with rationale and timelines."
+        }
+
         val scanContext = if (latestScan != null) {
             val overallScore = latestScan.indices["overall"] ?: (
                 ((latestScan.indices["proportions"] ?: 70) * 0.4f +
@@ -146,14 +213,32 @@ class CoachRepository(
         }
 
         val systemPrompt = """
-            You are the Lumora AI Beauty & Grooming Coach.
-            Deliver supportive advice on facial aesthetics, grooming, skincare, posture, and style.
+            You are the Lumora AI Beauty, Grooming & Aesthetics Coach.
+            Deliver supportive, evidence-grounded advice on facial aesthetics, grooming, skincare, posture, and style.
             
-            RULES:
-            1. Never provide medical diagnoses or medical advice.
-            2. Never use shaming or negative language (e.g. "flaw", "ugly", "bad").
-            3. Distinguish between unchangeable bone structure and changeable presentation factors (grooming, skincare, posture, style).
-            4. Keep responses concise, well-structured, and empathetic.
+            CONTEXT:
+            $contextBlock
+            
+            CRITICAL SYSTEM INSTRUCTIONS:
+            1. GROUND IN CONTEXT: Answer using the CONTEXT block first.
+            2. STATE EVIDENCE IN PLAIN WORDS: Always state the evidence level in plain words (Strong / Moderate / Limited / Myth / Not Recommended).
+            3. CAUTION OUTSIDE CONTEXT: If the question is outside the CONTEXT, answer cautiously and explicitly state that evidence is limited.
+            4. NO INVENTED STUDIES: Never invent studies, clinical trials, sample sizes, or fake statistics.
+            5. SEPARATE STRUCTURE FROM PRESENTATION: Always clearly separate unchangeable bone structure (cannot change through habits) from presentation, posture, skincare, and grooming (can change).
+            6. NOT_RECOMMENDED PRACTICES: For bone smashing, DIY fillers or injections, anabolic steroids, SARMs, unregulated hormones or peptides, and extreme dieting:
+               - Refuse to give how-to steps or execution instructions.
+               - Clearly explain the severe physical and health risks.
+               - Suggest safer, sustainable alternatives (e.g. natural grooming, nutrition, fitness, professional care).
+               - Strongly advise seeing a licensed medical professional or dermatologist.
+            7. PSL / TIERS / "RATE MY FACE":
+               - If asked about PSL ratings, tier rankings, or numeric attractiveness ratings, explain that these have zero scientific basis and are arbitrary internet community conventions that this app does not use.
+               - Offer constructive, evidence-based alternatives for grooming, skincare, lighting, or presentation instead.
+            8. DISTRESS & APPEARANCE ANXIETY:
+               - If the user expresses distress, feelings of ugliness, or dysmorphia, respond with empathy and reassurance, and suggest speaking with a mental health professional or trusted person.
+            9. SAFETY: Never provide medical diagnoses. Never use shaming wording.
+            
+            $teenGuidance
+            $lengthGuidance
             
             $scanContext
         """.trimIndent()

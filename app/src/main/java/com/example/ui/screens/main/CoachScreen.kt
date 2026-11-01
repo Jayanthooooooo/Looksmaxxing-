@@ -47,17 +47,26 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import com.example.ui.components.EmptyState
 import com.example.ui.components.PrimaryButton
 import com.example.ui.components.StreamingMessageBubble
 import com.example.ui.theme.LumoraColors
+
+data class CoachSourceChip(
+    val id: String,
+    val title: String,
+    val isGlossary: Boolean = false
+)
 
 data class ChatMessage(
     val id: String,
     val role: String, // "user", "assistant"
     val text: String,
     val isStreaming: Boolean = false,
-    val isError: Boolean = false
+    val isError: Boolean = false,
+    val sources: List<CoachSourceChip> = emptyList()
 )
 
 @OptIn(ExperimentalLayoutApi::class)
@@ -72,6 +81,10 @@ fun CoachScreen(
     onUpgradeClick: () -> Unit,
     modifier: Modifier = Modifier,
     onRetryMessage: (() -> Unit)? = null,
+    onNavigateToArticle: (String) -> Unit = {},
+    onNavigateToGlossary: () -> Unit = {},
+    answerMode: String = "SHORT",
+    onToggleAnswerMode: (String) -> Unit = {},
 
     isCloudAiConsentGranted: Boolean = true,
     isGenerating: Boolean = false,
@@ -111,15 +124,15 @@ fun CoachScreen(
             .fillMaxSize()
             .testTag("coach_screen")
     ) {
-        // Coach top bar with history button and limit meter
+        // Coach top bar with mode toggle and history button
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 20.dp, vertical = 16.dp),
+                .padding(horizontal = 20.dp, vertical = 12.dp),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Column {
+            Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = "Lumora AI Coach",
                     style = MaterialTheme.typography.headlineSmall,
@@ -133,18 +146,66 @@ fun CoachScreen(
                     letterSpacing = 1.sp
                 )
             }
-            IconButton(
-                onClick = onHistoryClick,
-                modifier = Modifier
-                    .clip(CircleShape)
-                    .background(Color.White.copy(alpha = 0.05f))
-                    .testTag("chat_history_button")
+
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                Icon(
-                    imageVector = Icons.Default.History,
-                    contentDescription = "Chat history",
-                    tint = Color.White
-                )
+                // Short / Detailed Answer Mode Quick Toggle
+                Row(
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(16.dp))
+                        .background(Color.White.copy(alpha = 0.08f))
+                        .border(1.dp, Color.White.copy(alpha = 0.12f), RoundedCornerShape(16.dp))
+                        .padding(2.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    val isShort = answerMode.equals("SHORT", ignoreCase = true)
+                    Box(
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(14.dp))
+                            .background(if (isShort) LumoraColors.GoldAccent else Color.Transparent)
+                            .clickable { onToggleAnswerMode("SHORT") }
+                            .padding(horizontal = 8.dp, vertical = 4.dp)
+                            .testTag("coach_mode_short")
+                    ) {
+                        Text(
+                            text = "Short",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = if (isShort) Color.Black else Color.White.copy(alpha = 0.7f),
+                            fontWeight = if (isShort) FontWeight.Bold else FontWeight.Normal
+                        )
+                    }
+                    Box(
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(14.dp))
+                            .background(if (!isShort) LumoraColors.GoldAccent else Color.Transparent)
+                            .clickable { onToggleAnswerMode("DETAILED") }
+                            .padding(horizontal = 8.dp, vertical = 4.dp)
+                            .testTag("coach_mode_detailed")
+                    ) {
+                        Text(
+                            text = "Detailed",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = if (!isShort) Color.Black else Color.White.copy(alpha = 0.7f),
+                            fontWeight = if (!isShort) FontWeight.Bold else FontWeight.Normal
+                        )
+                    }
+                }
+
+                IconButton(
+                    onClick = onHistoryClick,
+                    modifier = Modifier
+                        .clip(CircleShape)
+                        .background(Color.White.copy(alpha = 0.05f))
+                        .testTag("chat_history_button")
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.History,
+                        contentDescription = "Chat history",
+                        tint = Color.White
+                    )
+                }
             }
         }
 
@@ -169,21 +230,23 @@ fun CoachScreen(
                     color = MaterialTheme.colorScheme.onSurface
                 )
                 Spacer(modifier = Modifier.height(12.dp))
-                val suggestions = listOf(
-                    "How do I build a simple gentle routine?",
-                    "What affects my symmetry reading?",
-                    "How should I interpret typical ranges?",
-                    "Can habits change bone structure?"
+                val suggestionItems = listOf(
+                    "Myth-buster" to "Myth-buster: what are common beauty and facial myths that do not work?",
+                    "How do I build a simple gentle routine?" to "How do I build a simple gentle routine?",
+                    "What affects my symmetry reading?" to "What affects my symmetry reading?",
+                    "How should I interpret typical ranges?" to "How should I interpret typical ranges?",
+                    "Can habits change bone structure?" to "Can habits change bone structure?"
                 )
                 FlowRow(
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    suggestions.forEach { suggestion ->
+                    suggestionItems.forEach { (label, prompt) ->
                         FilterChip(
                             selected = false,
-                            onClick = { onSendMessage(suggestion) },
-                            label = { Text(suggestion) }
+                            onClick = { onSendMessage(prompt) },
+                            label = { Text(label) },
+                            modifier = Modifier.testTag("suggestion_${label.lowercase().replace(" ", "_").take(15)}")
                         )
                     }
                 }
@@ -202,6 +265,14 @@ fun CoachScreen(
                         text = msg.text,
                         isStreaming = msg.isStreaming,
                         isError = msg.isError,
+                        sources = msg.sources,
+                        onSourceClick = { id, isGlossary ->
+                            if (isGlossary) {
+                                onNavigateToGlossary()
+                            } else {
+                                onNavigateToArticle(id)
+                            }
+                        },
                         onReport = { onReportMessage(msg.id) },
                         onRetry = onRetryMessage
                     )

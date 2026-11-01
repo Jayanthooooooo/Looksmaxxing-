@@ -47,6 +47,9 @@ class PreferencesDataStore(private val context: Context) {
         val COACH_DAILY_DATE = stringPreferencesKey("coach_daily_date")
         val COACH_DAILY_COUNT = intPreferencesKey("coach_daily_count")
 
+        // Coach answer mode: "SHORT", "DETAILED"
+        val COACH_ANSWER_MODE = stringPreferencesKey("coach_answer_mode")
+
         // Cached working model
         val WORKING_MODEL = stringPreferencesKey("working_model")
     }
@@ -150,6 +153,12 @@ class PreferencesDataStore(private val context: Context) {
             prefs[COACH_DAILY_COUNT] = newCount
         }
         return newCount
+    }
+
+    val coachAnswerModeFlow: Flow<String> = context.dataStore.data.map { it[COACH_ANSWER_MODE] ?: "SHORT" }
+
+    suspend fun setCoachAnswerMode(mode: String) {
+        context.dataStore.edit { it[COACH_ANSWER_MODE] = mode }
     }
 
     suspend fun clearSessionKeys() {

@@ -34,7 +34,12 @@ class AppContainer(val context: Context) {
     }
 
     val coachRepository: com.example.data.repo.CoachRepository by lazy {
-        com.example.data.repo.CoachRepository(database.chatDao(), preferencesDataStore, dispatchers)
+        com.example.data.repo.CoachRepository(
+            database.chatDao(),
+            preferencesDataStore,
+            dispatchers,
+            libraryRepository = libraryRepository
+        )
     }
 
 

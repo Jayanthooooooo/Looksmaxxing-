@@ -16,6 +16,7 @@ object LumoraColors {
     val ChampagneGold = Color(0xFFD9C59B)
     val ChampagneGoldLight = Color(0xFFEDE0C8)
     val ChampagneGoldDark = Color(0xFFB5A075)
+    val GoldAccent = ChampagneGold
 
     // Legacy/Semantic mapping for seamless compatibility
     val VioletPrimary = ChampagneGold
