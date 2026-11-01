@@ -62,6 +62,10 @@ class AppContainer(val context: Context) {
     val postureRepository: com.example.data.repo.PostureRepository by lazy {
         com.example.data.repo.PostureRepository(context, database.postureDao(), dispatchers)
     }
+
+    val skinToolsRepository: com.example.data.repo.SkinToolsRepository by lazy {
+        com.example.data.repo.SkinToolsRepository(context)
+    }
 }
 
 

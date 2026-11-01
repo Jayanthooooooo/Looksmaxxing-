@@ -386,9 +386,119 @@ fun LiveCaptureScreen(
     val cameraProviderFuture = remember { ProcessCameraProvider.getInstance(context) }
     val cameraExecutor = remember { Executors.newSingleThreadExecutor() }
 
+    var cameraError by remember { mutableStateOf<String?>(null) }
+    var previewViewRef by remember { mutableStateOf<PreviewView?>(null) }
+
     DisposableEffect(Unit) {
         onDispose {
             cameraExecutor.shutdown()
+            try {
+                if (cameraProviderFuture.isDone) {
+                    cameraProviderFuture.get().unbindAll()
+                }
+            } catch (e: Exception) {
+                Logger.e("Camera unbind error", e)
+            }
+        }
+    }
+
+    LaunchedEffect(isMirrored, lifecycleOwner, previewViewRef) {
+        val previewView = previewViewRef ?: return@LaunchedEffect
+        try {
+            val cameraProvider = cameraProviderFuture.get()
+            val cameraSelector = if (isMirrored) CameraSelector.DEFAULT_FRONT_CAMERA else CameraSelector.DEFAULT_BACK_CAMERA
+
+            val targetSelector = if (cameraProvider.hasCamera(cameraSelector)) {
+                cameraSelector
+            } else if (cameraProvider.hasCamera(CameraSelector.DEFAULT_BACK_CAMERA)) {
+                CameraSelector.DEFAULT_BACK_CAMERA
+            } else if (cameraProvider.hasCamera(CameraSelector.DEFAULT_FRONT_CAMERA)) {
+                CameraSelector.DEFAULT_FRONT_CAMERA
+            } else {
+                cameraError = "Camera hardware is unavailable on this device."
+                return@LaunchedEffect
+            }
+
+            val preview = Preview.Builder().build().also {
+                it.setSurfaceProvider(previewView.surfaceProvider)
+            }
+
+            val imageAnalyzer = ImageAnalysis.Builder()
+                .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
+                .setOutputImageFormat(ImageAnalysis.OUTPUT_IMAGE_FORMAT_RGBA_8888)
+                .build()
+                .also { analyzer ->
+                    analyzer.setAnalyzer(cameraExecutor) { imageProxy ->
+                        val mediaImage = imageProxy.image
+                        if (mediaImage != null && !isCapturingBurst) {
+                            val bitmap = imageProxy.toBitmap()
+                            if (bitmap != null) {
+                                currentBitmap = bitmap
+                                scope.launch(Dispatchers.Default) {
+                                    val result = faceMeshEngine.analyse(bitmap)
+                                    currentLandmarks = result.landmarks
+
+                                    if (result.faceCount == 0) {
+                                        gateHeadAngle = false
+                                        gateDistance = false
+                                        gateLight = false
+                                        consecutiveFramesHeld = 0
+                                    } else if (result.faceCount > 1) {
+                                        gateHeadAngle = false
+                                        consecutiveFramesHeld = 0
+                                    } else {
+                                        val bounds = Rect(
+                                            (bitmap.width * 0.25f).toInt(),
+                                            (bitmap.height * 0.2f).toInt(),
+                                            (bitmap.width * 0.75f).toInt(),
+                                            (bitmap.height * 0.8f).toInt()
+                                        )
+                                        detectedFaceBounds = bounds
+
+                                        val poseEval = qualityEvaluator.evaluatePose(0f, 0f, 0f, kind == "side")
+                                        val distEval = qualityEvaluator.evaluateDistance(bounds, bitmap.width, bitmap.height)
+                                        val lightEval = qualityEvaluator.evaluateLighting(120f, 5f)
+                                        val exprEval = qualityEvaluator.evaluateExpression(0.9f, 0.9f, 0.1f)
+                                        val steadyEval = qualityEvaluator.evaluateStillness(listOf(0f), listOf(0f))
+
+                                        gateHeadAngle = poseEval.isReady
+                                        gateDistance = distEval.isReady
+                                        gateLight = lightEval.isReady
+                                        gateExpression = exprEval.isReady
+                                        gateSteady = steadyEval.isReady
+
+                                        val allReady = gateHeadAngle && gateLight && gateDistance && gateExpression && gateSteady
+                                        if (allReady) {
+                                            consecutiveFramesHeld++
+                                            val qualityReport = qualityEvaluator.computeOverallQualityReport(
+                                                GateEvaluation(poseEval.isReady),
+                                                GateEvaluation(distEval.isReady),
+                                                GateEvaluation(lightEval.isReady),
+                                                GateEvaluation(exprEval.isReady),
+                                                GateEvaluation(steadyEval.isReady),
+                                                1
+                                            )
+                                            frameBuffer.add(FrameData(result.landmarks, bitmap, qualityReport.score))
+                                            if (frameBuffer.size > AppConfig.BURST_FRAME_COUNT) {
+                                                frameBuffer.removeAt(0)
+                                            }
+                                        } else {
+                                            consecutiveFramesHeld = 0
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        imageProxy.close()
+                    }
+                }
+
+            cameraProvider.unbindAll()
+            cameraProvider.bindToLifecycle(lifecycleOwner, targetSelector, preview, imageAnalyzer)
+            cameraError = null
+        } catch (e: Exception) {
+            Logger.e("CameraX setup error", e)
+            cameraError = "Camera unavailable or hardware connection error."
         }
     }
 
@@ -502,94 +612,72 @@ fun LiveCaptureScreen(
             factory = { ctx ->
                 PreviewView(ctx).apply {
                     scaleType = PreviewView.ScaleType.FILL_CENTER
+                    previewViewRef = this
                 }
             },
-            modifier = Modifier.fillMaxSize(),
-            update = { previewView ->
-                try {
-                    val cameraProvider = cameraProviderFuture.get()
-                    val preview = Preview.Builder().build().also {
-                        it.setSurfaceProvider(previewView.surfaceProvider)
+            modifier = Modifier.fillMaxSize()
+        )
+
+        if (cameraError != null) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color(0xEE0B0B0F))
+                    .padding(32.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                Card(
+                    colors = CardDefaults.cardColors(containerColor = Color(0xFF1C1C26)),
+                    shape = RoundedCornerShape(20.dp),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Column(
+                        modifier = Modifier.padding(24.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Warning,
+                            contentDescription = null,
+                            tint = LumoraColors.WarningAmber,
+                            modifier = Modifier.size(48.dp)
+                        )
+                        Spacer(modifier = Modifier.height(16.dp))
+                        Text(
+                            text = "Camera Unavailable",
+                            fontFamily = Fraunces,
+                            fontSize = 20.sp,
+                            fontWeight = FontWeight.SemiBold,
+                            color = Color.White,
+                            textAlign = TextAlign.Center
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text(
+                            text = cameraError ?: "Unable to connect to camera hardware.",
+                            fontFamily = PlusJakartaSans,
+                            fontSize = 14.sp,
+                            color = Color.White.copy(alpha = 0.7f),
+                            textAlign = TextAlign.Center
+                        )
+                        Spacer(modifier = Modifier.height(24.dp))
+                        PrimaryButton(
+                            text = "Upload photo from gallery",
+                            onClick = {
+                                photoPickerLauncher.launch(
+                                    PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+                                )
+                            },
+                            testTag = "camera_error_gallery_button"
+                        )
+                        Spacer(modifier = Modifier.height(12.dp))
+                        QuietTextButton(
+                            text = "Close",
+                            onClick = onCloseClick,
+                            modifier = Modifier.fillMaxWidth()
+                        )
                     }
-
-                    val imageAnalyzer = ImageAnalysis.Builder()
-                        .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
-                        .setOutputImageFormat(ImageAnalysis.OUTPUT_IMAGE_FORMAT_RGBA_8888)
-                        .build()
-                        .also { analyzer ->
-                            analyzer.setAnalyzer(cameraExecutor) { imageProxy ->
-                                val mediaImage = imageProxy.image
-                                if (mediaImage != null && !isCapturingBurst) {
-                                    val bitmap = imageProxy.toBitmap()
-                                    if (bitmap != null) {
-                                        currentBitmap = bitmap
-                                        scope.launch(Dispatchers.Default) {
-                                            val result = faceMeshEngine.analyse(bitmap)
-                                            currentLandmarks = result.landmarks
-
-                                            if (result.faceCount == 0) {
-                                                gateHeadAngle = false
-                                                gateDistance = false
-                                                gateLight = false
-                                                consecutiveFramesHeld = 0
-                                            } else if (result.faceCount > 1) {
-                                                gateHeadAngle = false
-                                                consecutiveFramesHeld = 0
-                                            } else {
-                                                val bounds = Rect(
-                                                    (bitmap.width * 0.25f).toInt(),
-                                                    (bitmap.height * 0.2f).toInt(),
-                                                    (bitmap.width * 0.75f).toInt(),
-                                                    (bitmap.height * 0.8f).toInt()
-                                                )
-                                                detectedFaceBounds = bounds
-
-                                                val poseEval = qualityEvaluator.evaluatePose(0f, 0f, 0f, kind == "side")
-                                                val distEval = qualityEvaluator.evaluateDistance(bounds, bitmap.width, bitmap.height)
-                                                val lightEval = qualityEvaluator.evaluateLighting(120f, 5f)
-                                                val exprEval = qualityEvaluator.evaluateExpression(0.9f, 0.9f, 0.1f)
-                                                val steadyEval = qualityEvaluator.evaluateStillness(listOf(0f), listOf(0f))
-
-                                                gateHeadAngle = poseEval.isReady
-                                                gateDistance = distEval.isReady
-                                                gateLight = lightEval.isReady
-                                                gateExpression = exprEval.isReady
-                                                gateSteady = steadyEval.isReady
-
-                                                val allReady = gateHeadAngle && gateLight && gateDistance && gateExpression && gateSteady
-                                                if (allReady) {
-                                                    consecutiveFramesHeld++
-                                                    val qualityReport = qualityEvaluator.computeOverallQualityReport(
-                                                        GateEvaluation(poseEval.isReady),
-                                                        GateEvaluation(distEval.isReady),
-                                                        GateEvaluation(lightEval.isReady),
-                                                        GateEvaluation(exprEval.isReady),
-                                                        GateEvaluation(steadyEval.isReady),
-                                                        1
-                                                    )
-                                                    frameBuffer.add(FrameData(result.landmarks, bitmap, qualityReport.score))
-                                                    if (frameBuffer.size > AppConfig.BURST_FRAME_COUNT) {
-                                                        frameBuffer.removeAt(0)
-                                                    }
-                                                } else {
-                                                    consecutiveFramesHeld = 0
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                                imageProxy.close()
-                            }
-                        }
-
-                    val cameraSelector = if (isMirrored) CameraSelector.DEFAULT_FRONT_CAMERA else CameraSelector.DEFAULT_BACK_CAMERA
-                    cameraProvider.unbindAll()
-                    cameraProvider.bindToLifecycle(lifecycleOwner, cameraSelector, preview, imageAnalyzer)
-                } catch (e: Exception) {
-                    Logger.e("CameraX setup error", e)
                 }
             }
-        )
+        }
 
         // Face guide: thin white-70% oval outline centred on screen with tick marks at top, bottom, left, right
         Canvas(modifier = Modifier.fillMaxSize()) {

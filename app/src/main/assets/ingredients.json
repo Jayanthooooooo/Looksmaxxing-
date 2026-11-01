@@ -1,0 +1,551 @@
+{
+  "ingredients": [
+    {
+      "id": "retinol",
+      "name": "Retinol",
+      "category": "Retinoid",
+      "whatItDoes": "Promotes cellular turnover, smooths fine lines, and unclogs pores.",
+      "bestTime": "PM",
+      "startFrequency": "1-2 nights per week, gradually increasing.",
+      "commonIrritation": "Dryness, redness, flaking, and skin purging during initial weeks.",
+      "isTeenRestricted": true,
+      "isPregnancyRestricted": true
+    },
+    {
+      "id": "retinaldehyde",
+      "name": "Retinaldehyde (Retinal)",
+      "category": "Retinoid",
+      "whatItDoes": "Potent retinoid precursor that converts to retinoic acid to boost collagen and refine texture.",
+      "bestTime": "PM",
+      "startFrequency": "1-2 nights per week.",
+      "commonIrritation": "Mild peeling, erythema, and sensitivity.",
+      "isTeenRestricted": true,
+      "isPregnancyRestricted": true
+    },
+    {
+      "id": "tretinoin",
+      "name": "Tretinoin",
+      "category": "Retinoid",
+      "whatItDoes": "Prescription-strength retinoic acid for acne and photoaging.",
+      "bestTime": "PM",
+      "startFrequency": "2-3 nights per week as tolerated.",
+      "commonIrritation": "Significant peeling, dryness, and barrier disruption.",
+      "isTeenRestricted": true,
+      "isPregnancyRestricted": true
+    },
+    {
+      "id": "glycolic_acid",
+      "name": "Glycolic Acid (AHA)",
+      "category": "Exfoliant",
+      "whatItDoes": "Exfoliates dead skin cells on the surface to brighten tone and smooth texture.",
+      "bestTime": "PM",
+      "startFrequency": "1-2 times per week.",
+      "commonIrritation": "Stinging, redness, increased sun sensitivity.",
+      "isTeenRestricted": true,
+      "isPregnancyRestricted": false
+    },
+    {
+      "id": "lactic_acid",
+      "name": "Lactic Acid (AHA)",
+      "category": "Exfoliant",
+      "whatItDoes": "Gentle AHA that exfoliates surface skin while boosting hydration.",
+      "bestTime": "PM",
+      "startFrequency": "2-3 times per week.",
+      "commonIrritation": "Mild tingling upon application.",
+      "isTeenRestricted": false,
+      "isPregnancyRestricted": false
+    },
+    {
+      "id": "mandelic_acid",
+      "name": "Mandelic Acid (AHA)",
+      "category": "Exfoliant",
+      "whatItDoes": "Large-molecule AHA ideal for sensitive or hyperpigmentation-prone skin.",
+      "bestTime": "PM",
+      "startFrequency": "2-3 times per week.",
+      "commonIrritation": "Minimal irritation; rare redness.",
+      "isTeenRestricted": false,
+      "isPregnancyRestricted": false
+    },
+    {
+      "id": "salicylic_acid",
+      "name": "Salicylic Acid (BHA)",
+      "category": "Exfoliant",
+      "whatItDoes": "Oil-soluble acid that penetrates deep into pores to dissolve sebum and clear breakouts.",
+      "bestTime": "PM",
+      "startFrequency": "2-3 times per week.",
+      "commonIrritation": "Dryness and mild tightness.",
+      "isTeenRestricted": false,
+      "isPregnancyRestricted": false
+    },
+    {
+      "id": "benzoyl_peroxide",
+      "name": "Benzoyl Peroxide",
+      "category": "Acne Active",
+      "whatItDoes": "Kills acne-causing bacteria and reduces inflammation in clogged pores.",
+      "bestTime": "AM or PM",
+      "startFrequency": "2-3 times per week.",
+      "commonIrritation": "Dryness, bleaching of fabrics, stinging.",
+      "isTeenRestricted": true,
+      "isPregnancyRestricted": false
+    },
+    {
+      "id": "vitamin_c",
+      "name": "L-Ascorbic Acid (Vitamin C)",
+      "category": "Antioxidant",
+      "whatItDoes": "Neutralizes free radicals, brightens hyperpigmentation, and supports collagen synthesis.",
+      "bestTime": "AM",
+      "startFrequency": "Daily in the morning under sunscreen.",
+      "commonIrritation": "Tingling, oxidation/browning if unformulated well.",
+      "isTeenRestricted": false,
+      "isPregnancyRestricted": false
+    },
+    {
+      "id": "vitamin_c_derivative",
+      "name": "Ethyl Ascorbic Acid (Vitamin C Derivative)",
+      "category": "Antioxidant",
+      "whatItDoes": "Stable, non-acidic vitamin C derivative that brightens and defends against environmental stress.",
+      "bestTime": "AM",
+      "startFrequency": "Daily.",
+      "commonIrritation": "Very low risk of irritation.",
+      "isTeenRestricted": false,
+      "isPregnancyRestricted": false
+    },
+    {
+      "id": "niacinamide",
+      "name": "Niacinamide (Vitamin B3)",
+      "category": "Barrier Support",
+      "whatItDoes": "Strengthens skin barrier, regulates sebum production, and calms redness.",
+      "bestTime": "Either",
+      "startFrequency": "Daily (AM & PM).",
+      "commonIrritation": "Mild flushing at high (>10%) concentrations.",
+      "isTeenRestricted": false,
+      "isPregnancyRestricted": false
+    },
+    {
+      "id": "azelaic_acid",
+      "name": "Azelaic Acid",
+      "category": "Targeted Active",
+      "whatItDoes": "Reduces rosacea redness, calms inflammatory breakouts, and fades dark spots.",
+      "bestTime": "Either",
+      "startFrequency": "1-2 times daily.",
+      "commonIrritation": "Initial itching or tingling during first 10 minutes.",
+      "isTeenRestricted": false,
+      "isPregnancyRestricted": false
+    },
+    {
+      "id": "hyaluronic_acid",
+      "name": "Hyaluronic Acid",
+      "category": "Hydrator",
+      "whatItDoes": "Draws water into skin cells to plump and deeply hydrate.",
+      "bestTime": "Either",
+      "startFrequency": "Daily (AM & PM).",
+      "commonIrritation": "Tightness if applied to completely dry skin in arid climates.",
+      "isTeenRestricted": false,
+      "isPregnancyRestricted": false
+    },
+    {
+      "id": "ceramides",
+      "name": "Ceramides",
+      "category": "Barrier Support",
+      "whatItDoes": "Replenishes essential skin lipids to lock in moisture and repair damaged moisture barrier.",
+      "bestTime": "Either",
+      "startFrequency": "Daily (AM & PM).",
+      "commonIrritation": "None. Suitable for all skin types.",
+      "isTeenRestricted": false,
+      "isPregnancyRestricted": false
+    },
+    {
+      "id": "glycerin",
+      "name": "Glycerin",
+      "category": "Hydrator",
+      "whatItDoes": "Classic humectant that pulls moisture into the stratum corneum.",
+      "bestTime": "Either",
+      "startFrequency": "Daily.",
+      "commonIrritation": "None.",
+      "isTeenRestricted": false,
+      "isPregnancyRestricted": false
+    },
+    {
+      "id": "panthenol",
+      "name": "Panthenol (Vitamin B5)",
+      "category": "Soothing",
+      "whatItDoes": "Soothes irritated skin, speeds up barrier repair, and holds hydration.",
+      "bestTime": "Either",
+      "startFrequency": "Daily.",
+      "commonIrritation": "None.",
+      "isTeenRestricted": false,
+      "isPregnancyRestricted": false
+    },
+    {
+      "id": "centella_asiatica",
+      "name": "Centella Asiatica (Cica)",
+      "category": "Soothing",
+      "whatItDoes": "Calms inflammation, reduces redness, and promotes wound healing.",
+      "bestTime": "Either",
+      "startFrequency": "Daily.",
+      "commonIrritation": "None.",
+      "isTeenRestricted": false,
+      "isPregnancyRestricted": false
+    },
+    {
+      "id": "squalane",
+      "name": "Squalane",
+      "category": "Moisturizer",
+      "whatItDoes": "Lightweight, non-comedogenic plant oil that seals in moisture without clogging pores.",
+      "bestTime": "Either",
+      "startFrequency": "Daily.",
+      "commonIrritation": "None.",
+      "isTeenRestricted": false,
+      "isPregnancyRestricted": false
+    },
+    {
+      "id": "copper_peptides",
+      "name": "Copper Peptides",
+      "category": "Peptides",
+      "whatItDoes": "Supports tissue repair and collagen signaling for firmer skin.",
+      "bestTime": "PM",
+      "startFrequency": "Daily or alternate nights.",
+      "commonIrritation": "Mild redness if combined with strong acids.",
+      "isTeenRestricted": false,
+      "isPregnancyRestricted": false
+    },
+    {
+      "id": "signal_peptides",
+      "name": "Matrixyl / Signal Peptides",
+      "category": "Peptides",
+      "whatItDoes": "Stimulates collagen production and smooths fine expression lines.",
+      "bestTime": "Either",
+      "startFrequency": "Daily.",
+      "commonIrritation": "None.",
+      "isTeenRestricted": false,
+      "isPregnancyRestricted": false
+    },
+    {
+      "id": "chemical_sunscreen",
+      "name": "Chemical Sunscreen Filters",
+      "category": "Sunscreen",
+      "whatItDoes": "Absorbs UV rays and converts them into harmless heat.",
+      "bestTime": "AM",
+      "startFrequency": "Every morning as final routine step.",
+      "commonIrritation": "Eye stinging if formula migrates.",
+      "isTeenRestricted": false,
+      "isPregnancyRestricted": false
+    },
+    {
+      "id": "physical_sunscreen",
+      "name": "Mineral Sunscreen (Zinc Oxide / Titanium Dioxide)",
+      "category": "Sunscreen",
+      "whatItDoes": "Reflects and scatters UVA/UVB rays; gentle for sensitive or post-procedure skin.",
+      "bestTime": "AM",
+      "startFrequency": "Every morning as final routine step.",
+      "commonIrritation": "White cast on deeper skin tones.",
+      "isTeenRestricted": false,
+      "isPregnancyRestricted": false
+    },
+    {
+      "id": "alpha_arbutin",
+      "name": "Alpha Arbutin",
+      "category": "Brightener",
+      "whatItDoes": "Inhibits tyrosinase to fade hyperpigmentation and age spots.",
+      "bestTime": "Either",
+      "startFrequency": "Daily (AM & PM).",
+      "commonIrritation": "Low risk; rare mild redness.",
+      "isTeenRestricted": false,
+      "isPregnancyRestricted": false
+    },
+    {
+      "id": "tranexamic_acid",
+      "name": "Tranexamic Acid",
+      "category": "Brightener",
+      "whatItDoes": "Targets stubborn melasma and post-inflammatory erythema (red marks).",
+      "bestTime": "Either",
+      "startFrequency": "Daily.",
+      "commonIrritation": "Very gentle.",
+      "isTeenRestricted": false,
+      "isPregnancyRestricted": false
+    },
+    {
+      "id": "kojic_acid",
+      "name": "Kojic Acid",
+      "category": "Brightener",
+      "whatItDoes": "Brightens sun spots and uneven tone.",
+      "bestTime": "PM",
+      "startFrequency": "2-3 times per week.",
+      "commonIrritation": "Contact dermatitis risk at higher percentages.",
+      "isTeenRestricted": false,
+      "isPregnancyRestricted": false
+    },
+    {
+      "id": "hydroquinone",
+      "name": "Hydroquinone",
+      "category": "Prescription Brightener",
+      "whatItDoes": "Potent tyrosinase inhibitor for severe melasma.",
+      "bestTime": "PM",
+      "startFrequency": "Use strictly under physician guidance.",
+      "commonIrritation": "Dryness, redness, ochronosis risk with prolonged unmonitored use.",
+      "isTeenRestricted": true,
+      "isPregnancyRestricted": true
+    },
+    {
+      "id": "bakuchiol",
+      "name": "Bakuchiol",
+      "category": "Botanical Active",
+      "whatItDoes": "Plant-derived alternative to retinol that supports smooth texture without irritation.",
+      "bestTime": "Either",
+      "startFrequency": "Daily.",
+      "commonIrritation": "Extremely low.",
+      "isTeenRestricted": false,
+      "isPregnancyRestricted": false
+    },
+    {
+      "id": "tocopherol",
+      "name": "Tocopherol (Vitamin E)",
+      "category": "Antioxidant",
+      "whatItDoes": "Nourishes lipid barrier and works synergistically with Vitamin C.",
+      "bestTime": "Either",
+      "startFrequency": "Daily.",
+      "commonIrritation": "Can be heavy for very acne-prone skin.",
+      "isTeenRestricted": false,
+      "isPregnancyRestricted": false
+    },
+    {
+      "id": "allantoin",
+      "name": "Allantoin",
+      "category": "Soothing",
+      "whatItDoes": "Protectant that soothes chapped or raw skin.",
+      "bestTime": "Either",
+      "startFrequency": "Daily.",
+      "commonIrritation": "None.",
+      "isTeenRestricted": false,
+      "isPregnancyRestricted": false
+    },
+    {
+      "id": "green_tea_extract",
+      "name": "Green Tea Extract (EGCG)",
+      "category": "Antioxidant",
+      "whatItDoes": "Calms sebum production and shields against free radical damage.",
+      "bestTime": "Either",
+      "startFrequency": "Daily.",
+      "commonIrritation": "None.",
+      "isTeenRestricted": false,
+      "isPregnancyRestricted": false
+    },
+    {
+      "id": "resveratrol",
+      "name": "Resveratrol",
+      "category": "Antioxidant",
+      "whatItDoes": "Potent polyphenol antioxidant that calms skin stress.",
+      "bestTime": "PM",
+      "startFrequency": "Daily.",
+      "commonIrritation": "Low.",
+      "isTeenRestricted": false,
+      "isPregnancyRestricted": false
+    },
+    {
+      "id": "ferulic_acid",
+      "name": "Ferulic Acid",
+      "category": "Antioxidant",
+      "whatItDoes": "Stabilizes Vitamin C and E while doubling their antioxidant defense.",
+      "bestTime": "AM",
+      "startFrequency": "Daily in AM.",
+      "commonIrritation": "Low; mild scent.",
+      "isTeenRestricted": false,
+      "isPregnancyRestricted": false
+    },
+    {
+      "id": "physical_scrub",
+      "name": "Physical Scrub / Facial Exfoliant",
+      "category": "Exfoliant",
+      "whatItDoes": "Manually buffs away surface dead skin.",
+      "bestTime": "PM",
+      "startFrequency": "1 time per week maximum.",
+      "commonIrritation": "Micro-tears, barrier damage if scrubbed harshly.",
+      "isTeenRestricted": false,
+      "isPregnancyRestricted": false
+    },
+    {
+      "id": "pha",
+      "name": "PHA (Polyhydroxy Acid)",
+      "category": "Exfoliant",
+      "whatItDoes": "Ultra-gentle exfoliation suitable even for sensitive skin or eczema.",
+      "bestTime": "Either",
+      "startFrequency": "3-4 times per week.",
+      "commonIrritation": "Very low.",
+      "isTeenRestricted": false,
+      "isPregnancyRestricted": false
+    },
+    {
+      "id": "sulfur",
+      "name": "Sulfur",
+      "category": "Acne Active",
+      "whatItDoes": "Absorbs excess oil and clears dead skin cells to unbind blocked pores.",
+      "bestTime": "PM",
+      "startFrequency": "2-3 times per week.",
+      "commonIrritation": "Drying; characteristic sulfur odor.",
+      "isTeenRestricted": false,
+      "isPregnancyRestricted": false
+    },
+    {
+      "id": "tea_tree_oil",
+      "name": "Tea Tree Oil",
+      "category": "Botanical Active",
+      "whatItDoes": "Natural antimicrobial properties that help reduce mild blemishes.",
+      "bestTime": "PM",
+      "startFrequency": "Diluted 1-2 times per week.",
+      "commonIrritation": "High allergic contact dermatitis risk if applied undiluted.",
+      "isTeenRestricted": false,
+      "isPregnancyRestricted": false
+    },
+    {
+      "id": "urea",
+      "name": "Urea",
+      "category": "Hydrator / Keratolytic",
+      "whatItDoes": "Binds moisture and gently softens rough, flaky patches.",
+      "bestTime": "Either",
+      "startFrequency": "Daily at low (<5%) concentrations.",
+      "commonIrritation": "Stinging on compromised skin barrier.",
+      "isTeenRestricted": false,
+      "isPregnancyRestricted": false
+    },
+    {
+      "id": "polyglutamic_acid",
+      "name": "Polyglutamic Acid",
+      "category": "Hydrator",
+      "whatItDoes": "Holds 4x more moisture than Hyaluronic Acid for surface plumping.",
+      "bestTime": "Either",
+      "startFrequency": "Daily.",
+      "commonIrritation": "None.",
+      "isTeenRestricted": false,
+      "isPregnancyRestricted": false
+    },
+    {
+      "id": "licorice_root",
+      "name": "Licorice Root Extract",
+      "category": "Soothing / Brightener",
+      "whatItDoes": "Glabridin compound calms inflammation and evens tone.",
+      "bestTime": "Either",
+      "startFrequency": "Daily.",
+      "commonIrritation": "None.",
+      "isTeenRestricted": false,
+      "isPregnancyRestricted": false
+    },
+    {
+      "id": "rosehip_oil",
+      "name": "Rosehip Seed Oil",
+      "category": "Moisturizer",
+      "whatItDoes": "Nourishes skin with essential fatty acids and pro-vitamin A.",
+      "bestTime": "PM",
+      "startFrequency": "Daily as last step.",
+      "commonIrritation": "Low; test if prone to fungal acne.",
+      "isTeenRestricted": false,
+      "isPregnancyRestricted": false
+    }
+  ],
+  "conflictRules": [
+    {
+      "id1": "retinol",
+      "id2": "vitamin_c",
+      "status": "Better separated",
+      "reason": "Retinol and L-Ascorbic Acid work best at different pH levels; applying both together increases peeling and redness risk.",
+      "saferWay": "Use Vitamin C in your AM routine for antioxidant protection and Retinol in your PM routine."
+    },
+    {
+      "id1": "retinol",
+      "id2": "glycolic_acid",
+      "status": "Better separated",
+      "reason": "Both accelerate skin cell exfoliation. Combining them can compromise the skin barrier.",
+      "saferWay": "Alternate nights: Glycolic Acid on Night A, Retinol on Night B."
+    },
+    {
+      "id1": "retinol",
+      "id2": "salicylic_acid",
+      "status": "Better separated",
+      "reason": "Salicylic acid and Retinol together can cause severe dryness and barrier disruption.",
+      "saferWay": "Use Salicylic Acid in the morning or on non-retinol nights."
+    },
+    {
+      "id1": "retinol",
+      "id2": "benzoyl_peroxide",
+      "status": "Better separated",
+      "reason": "Benzoyl peroxide oxidizes retinol, reducing its effectiveness and aggravating skin irritation.",
+      "saferWay": "Use Benzoyl Peroxide in AM (or wash form) and Retinol in PM, or alternate days."
+    },
+    {
+      "id1": "benzoyl_peroxide",
+      "id2": "salicylic_acid",
+      "status": "Use with care",
+      "reason": "Combining two strong anti-acne agents can cause extreme dryness and flaking.",
+      "saferWay": "Use a gentle BHA wash in AM and Benzoyl Peroxide spot treatment in PM, or alternate days."
+    },
+    {
+      "id1": "vitamin_c",
+      "id2": "glycolic_acid",
+      "status": "Use with care",
+      "reason": "High-potency AHA can destabilize L-Ascorbic Acid and increase stinging.",
+      "saferWay": "Apply Vitamin C in the morning and Glycolic Acid at night."
+    },
+    {
+      "id1": "vitamin_c",
+      "id2": "niacinamide",
+      "status": "Fine together",
+      "reason": "Modern formulations are compatible; together they enhance skin brightening and antioxidant defense.",
+      "saferWay": "Apply Vitamin C first, allow to absorb for 2 minutes, then apply Niacinamide."
+    },
+    {
+      "id1": "copper_peptides",
+      "id2": "retinol",
+      "status": "Use with care",
+      "reason": "Copper ions can oxidize retinoids and degrade peptide efficacy when mixed directly.",
+      "saferWay": "Use Copper Peptides in AM and Retinol in PM."
+    },
+    {
+      "id1": "copper_peptides",
+      "id2": "vitamin_c",
+      "status": "Better separated",
+      "reason": "Direct L-Ascorbic Acid can chelate copper ions and reduce peptide potency.",
+      "saferWay": "Use Vitamin C in AM and Copper Peptides in PM routine."
+    },
+    {
+      "id1": "azelaic_acid",
+      "id2": "niacinamide",
+      "status": "Fine together",
+      "reason": "Excellent synergistic pair for reducing redness, rosacea, and post-breakout marks.",
+      "saferWay": "Apply Niacinamide serum first followed by Azelaic Acid."
+    },
+    {
+      "id1": "glycolic_acid",
+      "id2": "salicylic_acid",
+      "status": "Use with care",
+      "reason": "Layering AHA and BHA leave-on treatments can over-exfoliate and sting.",
+      "saferWay": "Use a combination AHA/BHA formulated product or alternate usage days."
+    },
+    {
+      "id1": "bakuchiol",
+      "id2": "hyaluronic_acid",
+      "status": "Fine together",
+      "reason": "Highly compatible hydrating and anti-aging pair.",
+      "saferWay": "Apply Hyaluronic Acid to damp skin first, then layer Bakuchiol."
+    },
+    {
+      "id1": "hyaluronic_acid",
+      "id2": "ceramides",
+      "status": "Fine together",
+      "reason": "Gold-standard barrier repairing combo; HA pulls moisture in, Ceramides lock it in.",
+      "saferWay": "Apply HA serum on damp skin and seal with Ceramide moisturizer."
+    },
+    {
+      "id1": "retinol",
+      "id2": "tretinoin",
+      "status": "Better separated",
+      "reason": "Do not combine multiple retinoids simultaneously; this leads to severe retinoid dermatitis.",
+      "saferWay": "Choose only one retinoid suitable for your skin."
+    },
+    {
+      "id1": "benzoyl_peroxide",
+      "id2": "tretinoin",
+      "status": "Better separated",
+      "reason": "Benzoyl peroxide can degrade tretinoin molecules unless using a specially encapsulated formulation.",
+      "saferWay": "Apply Benzoyl Peroxide in AM and Tretinoin at night."
+    }
+  ]
+}

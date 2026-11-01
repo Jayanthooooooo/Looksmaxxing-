@@ -710,7 +710,7 @@ fun AppNavGraph(
             }
             SkinResultsScreen(
                 scan = demoScan,
-                onRoutineBuilderClick = { navController.navigate(Route.Routine.route) },
+                onRoutineBuilderClick = { navController.navigate(Route.SkinTools.route) },
                 onBackClick = { navController.popBackStack() }
             )
         }
@@ -1008,6 +1008,7 @@ fun AppNavGraph(
                 onGlossaryClick = { navController.navigate(Route.Glossary.route) },
                 onFaceShapeClick = { navController.navigate(Route.FaceShapeStyle.route) },
                 onPostureClick = { navController.navigate(Route.PostureAnalysis.route) },
+                onSkinToolsClick = { navController.navigate(Route.SkinTools.route) },
                 onToggleBookmark = { articleId ->
                     scope.launch { container.libraryRepository.toggleBookmark(articleId) }
                 },
@@ -1028,6 +1029,15 @@ fun AppNavGraph(
         composable(Route.PostureAnalysis.route) {
             val viewModel: PostureAnalysisViewModel = androidx.lifecycle.viewmodel.compose.viewModel()
             PostureAnalysisScreen(
+                viewModel = viewModel,
+                onBackClick = { navController.popBackStack() }
+            )
+        }
+
+        // Skin Tools & Ingredient Conflict Checker
+        composable(Route.SkinTools.route) {
+            val viewModel: com.example.ui.screens.skintools.SkinToolsViewModel = androidx.lifecycle.viewmodel.compose.viewModel()
+            com.example.ui.screens.skintools.SkinToolsScreen(
                 viewModel = viewModel,
                 onBackClick = { navController.popBackStack() }
             )

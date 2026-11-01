@@ -34,6 +34,7 @@ import androidx.compose.material.icons.filled.HelpOutline
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.MenuBook
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.Science
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -77,6 +78,7 @@ fun LibraryScreen(
     onGlossaryClick: () -> Unit,
     onFaceShapeClick: () -> Unit,
     onPostureClick: () -> Unit = {},
+    onSkinToolsClick: () -> Unit = {},
     onToggleBookmark: (String) -> Unit,
     onBackClick: () -> Unit,
     modifier: Modifier = Modifier
@@ -392,6 +394,79 @@ fun LibraryScreen(
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowForwardIos,
                             contentDescription = "Open Posture Check",
+                            tint = LumoraColors.ChampagneGold,
+                            modifier = Modifier.size(16.dp)
+                        )
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(12.dp))
+
+                // Skin Tools banner card
+                Surface(
+                    onClick = onSkinToolsClick,
+                    shape = RoundedCornerShape(20.dp),
+                    color = Color(0x18D9C59B),
+                    border = BorderStroke(1.dp, Color(0x44D9C59B)),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .testTag("library_skin_tools_card")
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(18.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(14.dp),
+                            modifier = Modifier.weight(1f)
+                        ) {
+                            Box(
+                                modifier = Modifier
+                                    .size(44.dp)
+                                    .clip(CircleShape)
+                                    .background(Color(0x33D9C59B)),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Science,
+                                    contentDescription = null,
+                                    tint = LumoraColors.ChampagneGold,
+                                    modifier = Modifier.size(22.dp)
+                                )
+                            }
+                            Column {
+                                Text(
+                                    text = "SKIN TOOLS & CONFLICT CHECKER",
+                                    fontFamily = PlusJakartaSans,
+                                    fontWeight = FontWeight.SemiBold,
+                                    fontSize = 11.sp,
+                                    letterSpacing = 1.2.sp,
+                                    color = LumoraColors.ChampagneGold
+                                )
+                                Spacer(modifier = Modifier.height(2.dp))
+                                Text(
+                                    text = "Ingredient Conflicts & Routine",
+                                    fontFamily = Fraunces,
+                                    fontSize = 18.sp,
+                                    color = Color(0xFFF4F4F6)
+                                )
+                                Spacer(modifier = Modifier.height(2.dp))
+                                Text(
+                                    text = "Active pair analyzer, AM/PM builder & UV shield.",
+                                    fontFamily = PlusJakartaSans,
+                                    fontSize = 12.sp,
+                                    color = LumoraColors.DarkOnSurfaceMuted
+                                )
+                            }
+                        }
+
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ArrowForwardIos,
+                            contentDescription = "Open Skin Tools",
                             tint = LumoraColors.ChampagneGold,
                             modifier = Modifier.size(16.dp)
                         )
