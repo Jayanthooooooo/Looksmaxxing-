@@ -27,6 +27,14 @@ class HabitRepository(
         return habitDao.observeLogsForDate(dateStr)
     }
 
+    fun observeAllLogs(): Flow<List<HabitLogEntity>> {
+        return habitDao.observeAllLogs()
+    }
+
+    fun observeAllCompletedLogs(): Flow<List<HabitLogEntity>> {
+        return habitDao.observeAllCompletedLogs()
+    }
+
     suspend fun toggleHabit(habitId: String, dateStr: String, done: Boolean) = withContext(dispatchers.io) {
         val updatedLog = HabitLogEntity(
             date = dateStr,

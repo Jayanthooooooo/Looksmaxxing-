@@ -75,6 +75,10 @@ class Stage5RealDataUnitTest {
             habitsList.clear()
         }
 
+        override fun observeAllLogs(): Flow<List<HabitLogEntity>> {
+            return flowOf(logsList)
+        }
+
         override fun observeLogsForDate(date: String): Flow<List<HabitLogEntity>> {
             return flowOf(logsList.filter { it.date == date })
         }
@@ -86,6 +90,10 @@ class Stage5RealDataUnitTest {
         override suspend fun insertOrUpdateLog(log: HabitLogEntity) {
             logsList.removeAll { it.date == log.date && it.habitId == log.habitId }
             logsList.add(log)
+        }
+
+        override fun observeAllCompletedLogs(): Flow<List<HabitLogEntity>> {
+            return flowOf(logsList.filter { it.done })
         }
 
         override suspend fun getAllCompletedLogs(): List<HabitLogEntity> {

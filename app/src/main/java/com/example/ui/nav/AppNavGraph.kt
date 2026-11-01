@@ -117,6 +117,7 @@ fun AppNavGraph(
 
     val activeHabits by container.habitRepository.observeActiveHabits().collectAsState(initial = emptyList())
     val todayLogs by container.habitRepository.observeLogsForDate(container.habitRepository.todayDateString).collectAsState(initial = emptyList())
+    val allHabitLogs by container.habitRepository.observeAllLogs().collectAsState(initial = emptyList())
     var streakDays by remember { mutableStateOf(0) }
 
     // Load profile and habits when session is Ready (non-blocking for initial splash rendering)
@@ -413,10 +414,6 @@ fun AppNavGraph(
             ) {
                 when (currentMainTab) {
                     MainTab.TODAY -> {
-                        val habitList = activeHabits.map { habit ->
-                            val isDone = todayLogs.find { it.habitId == habit.id }?.done ?: false
-                            habit.label to isDone
-                        }
                         val latestScan = activeScans.firstOrNull()
                         val daysSinceLastScan = latestScan?.let {
                             val diffMs = System.currentTimeMillis() - it.createdAt
@@ -427,21 +424,17 @@ fun AppNavGraph(
                             latestScan = latestScan,
                             daysSinceLastScan = daysSinceLastScan,
                             streakDays = streakDays,
-                            habits = habitList,
-                            onToggleHabit = { habitLabel, done ->
-                                val matchingHabit = activeHabits.find { it.label == habitLabel }
-                                if (matchingHabit != null) {
-                                    scope.launch {
-                                        container.habitRepository.toggleHabit(
-                                            matchingHabit.id,
-                                            container.habitRepository.todayDateString,
-                                            done
-                                        )
-                                        streakDays = container.habitRepository.calculateStreakDays()
-                                    }
+                            todayLogs = allHabitLogs,
+                            onToggleQuest = { questId, dateStr, done ->
+                                scope.launch {
+                                    container.habitRepository.toggleHabit(
+                                        questId,
+                                        dateStr,
+                                        done
+                                    )
+                                    streakDays = container.habitRepository.calculateStreakDays()
                                 }
                             },
-
                             onScanClick = { navController.navigate(Route.ScanHub.route) },
                             onLatestScanClick = { scanId -> navController.navigate(Route.Results.createRoute(scanId)) },
                             onCoachClick = { currentMainTab = MainTab.COACH },
@@ -451,8 +444,11 @@ fun AppNavGraph(
 
                     MainTab.PROGRESS -> ProgressScreen(
                         scans = activeScans,
-                        onScanClick = { scanId -> navController.navigate(Route.ScanDetails.createRoute(scanId)) },
-                        onCompareClick = { navController.navigate(Route.Compare.route) }
+                        completedLogs = allHabitLogs,
+                        onScanClick = { navController.navigate(Route.ScanHub.route) },
+                        onViewScanClick = { scanId -> navController.navigate(Route.ScanDetails.createRoute(scanId)) },
+                        onCompareClick = { navController.navigate(Route.Compare.route) },
+                        onMethodologyClick = { navController.navigate(Route.Legal.createRoute("methodology")) }
                     )
                     MainTab.COACH -> CoachScreen(
                         messages = coachUiState.messages,
@@ -471,12 +467,20 @@ fun AppNavGraph(
                     )
 
                     MainTab.YOU -> YouScreen(
-                        displayName = userProfile.displayName,
+                        userProfile = userProfile,
                         email = container.authRepository.currentUser?.email ?: "",
                         isPro = isPro,
                         onNavigateToSettings = { navController.navigate(Route.Settings.route) },
                         onNavigateToPrivacyCentre = { navController.navigate(Route.PrivacyCentre.route) },
-                        onNavigateToSubscription = { navController.navigate(Route.Subscription.route) }
+                        onNavigateToDeleteAccount = { navController.navigate(Route.DeleteAccount.route) },
+                        onSignOut = {
+                            scope.launch {
+                                container.authRepository.signOut()
+                                navController.navigate(Route.Welcome.route) {
+                                    popUpTo(0) { inclusive = true }
+                                }
+                            }
+                        }
                     )
                 }
             }

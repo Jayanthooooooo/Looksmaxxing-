@@ -1,19 +1,38 @@
 package com.example.ui.screens.main
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForwardIos
-import androidx.compose.material.icons.filled.CardMembership
+import androidx.compose.material.icons.automirrored.filled.ExitToApp
+import androidx.compose.material.icons.filled.BrightnessLow
+import androidx.compose.material.icons.filled.DeleteForever
+import androidx.compose.material.icons.filled.FavoriteBorder
+import androidx.compose.material.icons.filled.Grain
 import androidx.compose.material.icons.filled.Lock
-import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material3.*
+import androidx.compose.material.icons.filled.Spa
+import androidx.compose.material.icons.filled.WaterDrop
+import androidx.compose.material.icons.filled.WbSunny
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -22,131 +41,417 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.ui.components.GlassCard
-import com.example.ui.components.MenuNavigationCard
-import com.example.ui.components.PrivacyBadge
+import com.example.domain.model.UserProfile
+import com.example.ui.theme.Fraunces
+import com.example.ui.theme.GoldEyebrow
 import com.example.ui.theme.LumoraColors
+import com.example.ui.theme.PlusJakartaSans
 
 @Composable
 fun YouScreen(
-    displayName: String,
+    userProfile: UserProfile,
     email: String,
     isPro: Boolean,
     onNavigateToSettings: () -> Unit,
     onNavigateToPrivacyCentre: () -> Unit,
-    onNavigateToSubscription: () -> Unit,
+    onNavigateToDeleteAccount: () -> Unit,
+    onSignOut: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val displayName = userProfile.displayName.ifBlank { "Lumora User" }
+    val initial = displayName.trim().firstOrNull()?.uppercase() ?: "L"
+
+    val genderText = when (userProfile.referenceRangePref.lowercase()) {
+        "female_typical" -> "Female"
+        "male_typical" -> "Male"
+        "neutral" -> "Neutral"
+        else -> "Neutral"
+    }
+    val birthYearText = userProfile.birthYear?.toString() ?: "—"
+    val heightText = userProfile.heightCm?.let { "${it.toInt()} cm" } ?: "—"
+
+    val (skinTypeTitle, skinTypeIcon) = when (userProfile.skinType.lowercase()) {
+        "normal", "balanced" -> "Balanced" to Icons.Default.WbSunny
+        "oily" -> "Oily / shine" to Icons.Default.WaterDrop
+        "acne" -> "Acne-prone" to Icons.Default.Grain
+        "dry" -> "Dry / dehydrated" to Icons.Default.Spa
+        "sensitive" -> "Sensitive / redness" to Icons.Default.FavoriteBorder
+        "marks" -> "Dark spots / scars" to Icons.Default.BrightnessLow
+        else -> "Balanced" to Icons.Default.WbSunny
+    }
+
+    val firstConcern = userProfile.concerns.firstOrNull()
+    val concernTitle = if (firstConcern != null) {
+        firstConcern.replace("_", " ").replaceFirstChar { it.uppercase() }
+    } else {
+        "Daily hydration & barrier"
+    }
+
     Column(
         modifier = modifier
             .fillMaxSize()
             .verticalScroll(rememberScrollState())
-            .padding(20.dp)
+            .padding(horizontal = 20.dp, vertical = 16.dp)
             .testTag("you_screen")
     ) {
-        Text(
-            text = "Your Profile",
-            style = MaterialTheme.typography.headlineMedium.copy(
-                fontWeight = FontWeight.Bold,
-                color = Color.White
-            )
-        )
+        // Eyebrow "PROFILE"
+        GoldEyebrow(text = "PROFILE")
+        Spacer(modifier = Modifier.height(20.dp))
+
+        // Large circle avatar with the user's initial in serif
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(18.dp)
+        ) {
+            Box(
+                modifier = Modifier
+                    .size(72.dp)
+                    .clip(CircleShape)
+                    .background(Color(0x28D9C59B))
+                    .border(1.5.dp, LumoraColors.ChampagneGold, CircleShape),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = initial,
+                    fontFamily = Fraunces,
+                    fontSize = 32.sp,
+                    fontWeight = FontWeight.Normal,
+                    color = LumoraColors.ChampagneGold
+                )
+            }
+
+            Column(modifier = Modifier.weight(1f)) {
+                // Name in serif
+                Text(
+                    text = displayName,
+                    fontFamily = Fraunces,
+                    fontSize = 22.sp,
+                    fontWeight = FontWeight.Normal,
+                    color = Color(0xFFF4F4F6)
+                )
+
+                if (email.isNotBlank()) {
+                    Spacer(modifier = Modifier.height(3.dp))
+                    // Email below in 60% opacity muted text
+                    Text(
+                        text = email,
+                        fontFamily = PlusJakartaSans,
+                        fontSize = 13.sp,
+                        color = Color(0x99F4F4F6)
+                    )
+                }
+            }
+        }
+
+        Spacer(modifier = Modifier.height(18.dp))
+
+        // Two chips: FREE and RANK: NEWBIE
+        Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+            // Tier chip
+            Surface(
+                shape = RoundedCornerShape(10.dp),
+                color = if (isPro) Color(0x28D9C59B) else Color(0x18FFFFFF),
+                border = BorderStroke(1.dp, if (isPro) LumoraColors.ChampagneGold else Color.White.copy(alpha = 0.12f))
+            ) {
+                Text(
+                    text = if (isPro) "PRO" else "FREE",
+                    fontFamily = PlusJakartaSans,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 11.sp,
+                    letterSpacing = 1.sp,
+                    color = if (isPro) LumoraColors.ChampagneGold else Color(0xFFF4F4F6),
+                    modifier = Modifier.padding(horizontal = 14.dp, vertical = 6.dp)
+                )
+            }
+
+            // Rank chip
+            Surface(
+                shape = RoundedCornerShape(10.dp),
+                color = Color(0x24D9C59B),
+                border = BorderStroke(1.dp, LumoraColors.ChampagneGold)
+            ) {
+                Text(
+                    text = "RANK: NEWBIE",
+                    fontFamily = PlusJakartaSans,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 11.sp,
+                    letterSpacing = 1.sp,
+                    color = LumoraColors.ChampagneGold,
+                    modifier = Modifier.padding(horizontal = 14.dp, vertical = 6.dp)
+                )
+            }
+        }
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        // Profile card
-        GlassCard(
-            modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(28.dp)
+        // "ABOUT YOU" card with 3 columns: GENDER, BIRTH YEAR, HEIGHT (serif values)
+        Surface(
+            shape = RoundedCornerShape(20.dp),
+            color = Color(0x14FFFFFF),
+            border = BorderStroke(1.dp, Color.White.copy(alpha = 0.10f)),
+            modifier = Modifier.fillMaxWidth()
         ) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Box(
-                    modifier = Modifier
-                        .size(64.dp)
-                        .clip(CircleShape)
-                        .background(LumoraColors.PrimaryGradient),
-                    contentAlignment = Alignment.Center
+            Column(modifier = Modifier.padding(20.dp)) {
+                GoldEyebrow(text = "ABOUT YOU")
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    Icon(
-                        imageVector = Icons.Default.Person,
-                        contentDescription = null,
-                        tint = Color.White,
-                        modifier = Modifier.size(32.dp)
-                    )
-                }
-                Spacer(modifier = Modifier.width(20.dp))
-                Column {
-                    Text(
-                        text = if (displayName.isNotBlank()) displayName else "Lumora User",
-                        style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
-                        color = Color.White
-                    )
-                    if (email.isNotBlank()) {
-                        Text(
-                            text = email,
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = Color.White.copy(alpha = 0.5f)
-                        )
-                    }
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Box(
-                        modifier = Modifier
-                            .clip(RoundedCornerShape(8.dp))
-                            .background(if (isPro) LumoraColors.PrimaryGradient else androidx.compose.ui.graphics.SolidColor(Color.White.copy(alpha = 0.1f)))
-                            .padding(horizontal = 10.dp, vertical = 4.dp)
+                    Column(
+                        modifier = Modifier.weight(1f),
+                        horizontalAlignment = Alignment.Start
                     ) {
                         Text(
-                            text = if (isPro) "PRO MEMBER" else "FREE TIER",
-                            style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold),
-                            color = if (isPro) Color.White else Color.White.copy(alpha = 0.6f)
+                            text = "GENDER",
+                            fontFamily = PlusJakartaSans,
+                            fontSize = 10.sp,
+                            fontWeight = FontWeight.SemiBold,
+                            letterSpacing = 1.2.sp,
+                            color = Color(0x99F4F4F6)
+                        )
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Text(
+                            text = genderText,
+                            fontFamily = Fraunces,
+                            fontSize = 18.sp,
+                            color = Color(0xFFF4F4F6)
+                        )
+                    }
+
+                    Column(
+                        modifier = Modifier.weight(1f),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Text(
+                            text = "BIRTH YEAR",
+                            fontFamily = PlusJakartaSans,
+                            fontSize = 10.sp,
+                            fontWeight = FontWeight.SemiBold,
+                            letterSpacing = 1.2.sp,
+                            color = Color(0x99F4F4F6)
+                        )
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Text(
+                            text = birthYearText,
+                            fontFamily = Fraunces,
+                            fontSize = 18.sp,
+                            color = Color(0xFFF4F4F6)
+                        )
+                    }
+
+                    Column(
+                        modifier = Modifier.weight(1f),
+                        horizontalAlignment = Alignment.End
+                    ) {
+                        Text(
+                            text = "HEIGHT",
+                            fontFamily = PlusJakartaSans,
+                            fontSize = 10.sp,
+                            fontWeight = FontWeight.SemiBold,
+                            letterSpacing = 1.2.sp,
+                            color = Color(0x99F4F4F6)
+                        )
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Text(
+                            text = heightText,
+                            fontFamily = Fraunces,
+                            fontSize = 18.sp,
+                            color = Color(0xFFF4F4F6)
                         )
                     }
                 }
             }
         }
 
-        Spacer(modifier = Modifier.height(32.dp))
+        Spacer(modifier = Modifier.height(16.dp))
 
-        Text(
-            text = "Management & Security",
-            style = MaterialTheme.typography.titleSmall,
-            color = Color.White.copy(alpha = 0.4f),
-            letterSpacing = 1.sp
-        )
-        Spacer(modifier = Modifier.height(12.dp))
+        // "SKIN" card with 2 rows: skin type and skin concern, each with an icon
+        Surface(
+            shape = RoundedCornerShape(20.dp),
+            color = Color(0x14FFFFFF),
+            border = BorderStroke(1.dp, Color.White.copy(alpha = 0.10f)),
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Column(modifier = Modifier.padding(20.dp)) {
+                GoldEyebrow(text = "SKIN")
+                Spacer(modifier = Modifier.height(14.dp))
 
-        Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-            MenuNavigationCard(
-                title = "Privacy Centre",
-                subtitle = "Photo retention, biometric lock, data export",
+                // Row 1: Skin type
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(14.dp)
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .size(36.dp)
+                            .clip(CircleShape)
+                            .background(Color(0x22D9C59B)),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            imageVector = skinTypeIcon,
+                            contentDescription = null,
+                            tint = LumoraColors.ChampagneGold,
+                            modifier = Modifier.size(18.dp)
+                        )
+                    }
+
+                    Column {
+                        Text(
+                            text = "Skin type",
+                            fontFamily = PlusJakartaSans,
+                            fontSize = 11.sp,
+                            color = Color(0x99F4F4F6)
+                        )
+                        Text(
+                            text = skinTypeTitle,
+                            fontFamily = PlusJakartaSans,
+                            fontWeight = FontWeight.SemiBold,
+                            fontSize = 14.sp,
+                            color = Color(0xFFF4F4F6)
+                        )
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(12.dp))
+                HorizontalDivider(color = Color.White.copy(alpha = 0.08f), thickness = 1.dp)
+                Spacer(modifier = Modifier.height(12.dp))
+
+                // Row 2: Skin concern
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(14.dp)
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .size(36.dp)
+                            .clip(CircleShape)
+                            .background(Color(0x22D9C59B)),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Spa,
+                            contentDescription = null,
+                            tint = LumoraColors.ChampagneGold,
+                            modifier = Modifier.size(18.dp)
+                        )
+                    }
+
+                    Column {
+                        Text(
+                            text = "Skin concern",
+                            fontFamily = PlusJakartaSans,
+                            fontSize = 11.sp,
+                            color = Color(0x99F4F4F6)
+                        )
+                        Text(
+                            text = concernTitle,
+                            fontFamily = PlusJakartaSans,
+                            fontWeight = FontWeight.SemiBold,
+                            fontSize = 14.sp,
+                            color = Color(0xFFF4F4F6)
+                        )
+                    }
+                }
+            }
+        }
+
+        Spacer(modifier = Modifier.height(24.dp))
+
+        // Below: Settings, Privacy centre, Delete account, Sign out rows (all must work)
+        Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+            // Settings row
+            ActionMenuRow(
+                title = "Settings",
+                icon = Icons.Default.Settings,
+                onClick = onNavigateToSettings,
+                testTag = "menu_settings"
+            )
+
+            // Privacy centre row
+            ActionMenuRow(
+                title = "Privacy centre",
                 icon = Icons.Default.Lock,
                 onClick = onNavigateToPrivacyCentre,
                 testTag = "menu_privacy_centre"
             )
 
-            MenuNavigationCard(
-                title = "Subscription & Plans",
-                subtitle = if (isPro) "Active Lumora Pro plan" else "View Pro features and pricing",
-                icon = Icons.Default.CardMembership,
-                onClick = onNavigateToSubscription,
-                testTag = "menu_subscription"
+            // Delete account row
+            ActionMenuRow(
+                title = "Delete account",
+                icon = Icons.Default.DeleteForever,
+                textColor = Color(0xFFF87171),
+                iconTint = Color(0xFFF87171),
+                onClick = onNavigateToDeleteAccount,
+                testTag = "menu_delete_account"
             )
 
-            MenuNavigationCard(
-                title = "Settings",
-                subtitle = "Appearance, notifications, legal, sign out",
-                icon = Icons.Default.Settings,
-                onClick = onNavigateToSettings,
-                testTag = "menu_settings"
+            // Sign out row
+            ActionMenuRow(
+                title = "Sign out",
+                icon = Icons.AutoMirrored.Filled.ExitToApp,
+                textColor = Color(0x99F4F4F6),
+                iconTint = Color(0x99F4F4F6),
+                onClick = onSignOut,
+                testTag = "menu_sign_out"
             )
         }
 
-        Spacer(modifier = Modifier.height(32.dp))
-        PrivacyBadge()
         Spacer(modifier = Modifier.height(40.dp))
+    }
+}
+
+@Composable
+private fun ActionMenuRow(
+    title: String,
+    icon: ImageVector,
+    onClick: () -> Unit,
+    testTag: String,
+    textColor: Color = Color(0xFFF4F4F6),
+    iconTint: Color = LumoraColors.ChampagneGold
+) {
+    Surface(
+        onClick = onClick,
+        shape = RoundedCornerShape(18.dp),
+        color = Color(0x14FFFFFF),
+        border = BorderStroke(1.dp, Color.White.copy(alpha = 0.08f)),
+        modifier = Modifier.fillMaxWidth().testTag(testTag)
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 18.dp, vertical = 16.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(14.dp)
+        ) {
+            Icon(
+                imageVector = icon,
+                contentDescription = null,
+                tint = iconTint,
+                modifier = Modifier.size(20.dp)
+            )
+            Text(
+                text = title,
+                fontFamily = PlusJakartaSans,
+                fontWeight = FontWeight.Medium,
+                fontSize = 14.sp,
+                color = textColor,
+                modifier = Modifier.weight(1f)
+            )
+            Icon(
+                imageVector = Icons.AutoMirrored.Filled.ArrowForwardIos,
+                contentDescription = null,
+                tint = Color(0x66F4F4F6),
+                modifier = Modifier.size(14.dp)
+            )
+        }
     }
 }

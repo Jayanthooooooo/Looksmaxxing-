@@ -78,6 +78,9 @@ interface HabitDao {
     @Query("DELETE FROM habits")
     suspend fun clearAllHabits()
 
+    @Query("SELECT * FROM habit_logs")
+    fun observeAllLogs(): Flow<List<HabitLogEntity>>
+
     @Query("SELECT * FROM habit_logs WHERE date = :date")
     fun observeLogsForDate(date: String): Flow<List<HabitLogEntity>>
 
@@ -86,6 +89,9 @@ interface HabitDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertOrUpdateLog(log: HabitLogEntity)
+
+    @Query("SELECT * FROM habit_logs WHERE done = 1 ORDER BY date DESC")
+    fun observeAllCompletedLogs(): Flow<List<HabitLogEntity>>
 
     @Query("SELECT * FROM habit_logs WHERE done = 1 ORDER BY date DESC")
     suspend fun getAllCompletedLogs(): List<HabitLogEntity>
