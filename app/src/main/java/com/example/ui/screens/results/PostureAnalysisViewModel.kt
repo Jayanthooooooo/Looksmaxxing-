@@ -7,12 +7,12 @@ import androidx.lifecycle.viewModelScope
 import com.example.LumoraApp
 import com.example.data.local.entity.PostureLogEntity
 import com.example.data.repo.PostureExerciseData
+import com.example.face.posture.MlKitPoseLandmarkExtractor
+import com.example.face.posture.PoseLandmarkExtractor
 import com.example.face.posture.PostureAnalysisResult
 import com.example.face.posture.PostureBand
 import com.example.face.posture.PostureConfidence
 import com.example.face.posture.PostureEngine
-import com.example.face.posture.PostureLandmarkPoint
-import com.example.face.posture.PosturePoseInput
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -29,7 +29,10 @@ sealed interface PostureUiState {
     data class Error(val message: String) : PostureUiState
 }
 
-class PostureAnalysisViewModel(application: Application) : AndroidViewModel(application) {
+class PostureAnalysisViewModel @JvmOverloads constructor(
+    application: Application,
+    private val extractor: PoseLandmarkExtractor = MlKitPoseLandmarkExtractor()
+) : AndroidViewModel(application) {
     private val app = application as LumoraApp
     private val repo = app.container.postureRepository
     private val habitRepo = app.container.habitRepository
@@ -48,40 +51,64 @@ class PostureAnalysisViewModel(application: Application) : AndroidViewModel(appl
         viewModelScope.launch {
             val exercises = repo.loadExerciseData()
             repo.observePostureHistory.collect { history ->
-                val sampleInput = PosturePoseInput(
-                    ear = PostureLandmarkPoint(180f, 130f, 0.9f),
-                    shoulder = PostureLandmarkPoint(100f, 220f, 0.9f),
-                    hip = PostureLandmarkPoint(100f, 480f, 0.9f)
-                )
-                val analysis = PostureEngine.analyze(sampleInput)
-
                 val current = _uiState.value
-                val bitmap = if (current is PostureUiState.Success) current.currentBitmap else null
+                if (current is PostureUiState.Success) {
+                    _uiState.value = current.copy(history = history)
+                } else {
+                    val initialAnalysis = if (history.isNotEmpty()) {
+                        val latest = history.first()
+                        val bandEnum = PostureBand.values().firstOrNull { it.displayName.equals(latest.bandName, ignoreCase = true) }
+                        PostureAnalysisResult(
+                            band = bandEnum,
+                            craniovertebralAngle = latest.craniovertebralAngle,
+                            forwardOffsetRatio = latest.forwardOffsetRatio,
+                            confidence = PostureConfidence.HIGH,
+                            reasoning = "Latest saved posture check (${latest.bandName})."
+                        )
+                    } else {
+                        PostureAnalysisResult(
+                            band = null,
+                            craniovertebralAngle = 0f,
+                            forwardOffsetRatio = 0f,
+                            confidence = PostureConfidence.LOW,
+                            reasoning = "Take a side photo to check your posture."
+                        )
+                    }
 
-                _uiState.value = PostureUiState.Success(
-                    analysis = analysis,
-                    exerciseData = exercises,
-                    history = history,
-                    currentBitmap = bitmap
-                )
+                    _uiState.value = PostureUiState.Success(
+                        analysis = initialAnalysis,
+                        exerciseData = exercises,
+                        history = history,
+                        currentBitmap = null
+                    )
+                }
             }
         }
     }
 
     fun processSideBitmap(bitmap: Bitmap) {
         viewModelScope.launch {
-            val input = PosturePoseInput(
-                ear = PostureLandmarkPoint(bitmap.width * 0.55f, bitmap.height * 0.25f, 0.92f),
-                shoulder = PostureLandmarkPoint(bitmap.width * 0.45f, bitmap.height * 0.42f, 0.92f),
-                hip = PostureLandmarkPoint(bitmap.width * 0.45f, bitmap.height * 0.75f, 0.92f)
-            )
-            val analysis = PostureEngine.analyze(input)
+            val poseInput = extractor.extractPoseLandmarks(bitmap)
 
-            if (analysis.errorMessage == null && analysis.band != null) {
-                repo.savePostureCheck(
-                    craniovertebralAngle = analysis.craniovertebralAngle,
-                    forwardOffsetRatio = analysis.forwardOffsetRatio,
-                    bandName = analysis.band.displayName
+            val analysis = if (poseInput != null) {
+                val res = PostureEngine.analyze(poseInput)
+                if (res.errorMessage == null && res.band != null) {
+                    repo.savePostureCheck(
+                        craniovertebralAngle = res.craniovertebralAngle,
+                        forwardOffsetRatio = res.forwardOffsetRatio,
+                        bandName = res.band.displayName
+                    )
+                }
+                res
+            } else {
+                PostureAnalysisResult(
+                    band = null,
+                    craniovertebralAngle = 0f,
+                    forwardOffsetRatio = 0f,
+                    confidence = PostureConfidence.LOW,
+                    reasoning = "Landmark detection could not identify ear, shoulder, or hip points clearly.",
+                    errorMessage = "Not enough data",
+                    retakeTip = "Stand side-on, camera at chest height, 2 metres away, arms relaxed, shoulders and ears visible."
                 )
             }
 
@@ -99,10 +126,6 @@ class PostureAnalysisViewModel(application: Application) : AndroidViewModel(appl
 
     fun add4WeekPlanToHabits() {
         viewModelScope.launch {
-            val exData = repo.loadExerciseData()
-            val chinTuckEx = exData.exercises.firstOrNull { it.id == "chin_tucks" }
-            val screenResetEx = exData.exercises.firstOrNull { it.id == "screen_break_resets" }
-
             val habitList = listOf(
                 com.example.data.local.entity.HabitEntity(
                     id = "habit_chin_tucks",
