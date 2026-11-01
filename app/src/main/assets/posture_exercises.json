@@ -1,0 +1,185 @@
+{
+  "version": "1.0",
+  "disclaimer": "Posture routines may help improve ergonomic awareness and muscle balance, changing how the face and neck read in photos without altering underlying bone structure. Stop immediately if you feel pain, numbness, or dizziness. Consult a doctor or physiotherapist for persistent discomfort or marked asymmetry.",
+  "exercises": [
+    {
+      "id": "chin_tucks",
+      "name": "Chin Tucks",
+      "category": "Cervical Alignment",
+      "sets": "2-3",
+      "reps": "10 reps",
+      "duration": "5 sec hold",
+      "steps": [
+        "Sit or stand upright looking straight ahead with shoulders relaxed.",
+        "Gently glide your head horizontally backward, making a double chin without tilting your head down.",
+        "Hold the retracted position for 5 seconds.",
+        "Slowly release back to neutral position."
+      ],
+      "mistakesToAvoid": [
+        "Tilting chin down toward chest rather than sliding straight back.",
+        "Holding breath during retraction.",
+        "Shrugging shoulders upward."
+      ],
+      "safetyWarning": "Stop if you feel pain, numbness or dizziness."
+    },
+    {
+      "id": "wall_angels",
+      "name": "Wall Angels",
+      "category": "Scapular Stability",
+      "sets": "2",
+      "reps": "12 reps",
+      "duration": "Smooth tempo",
+      "steps": [
+        "Stand with your head, upper back, and buttocks flat against a wall.",
+        "Raise arms to 90 degrees with elbows and backs of hands pressed gently against the wall.",
+        "Slowly slide arms overhead while maintaining contact with the wall.",
+        "Lower back down smoothly to shoulder height."
+      ],
+      "mistakesToAvoid": [
+        "Arching lower back away from the wall.",
+        "Forcing hands or elbows to wall if tight."
+      ],
+      "safetyWarning": "Stop if you feel pain, numbness or dizziness."
+    },
+    {
+      "id": "thoracic_extension",
+      "name": "Thoracic Extensions",
+      "category": "Upper Back Mobility",
+      "sets": "2",
+      "reps": "10 reps",
+      "duration": "3 sec hold",
+      "steps": [
+        "Sit in a sturdy chair with hands gently behind your head.",
+        "Lean back over the top of the chair back, extending through your upper thoracic spine.",
+        "Inhale and open chest upward toward the ceiling.",
+        "Exhale and return to upright seated posture."
+      ],
+      "mistakesToAvoid": [
+        "Hyperextending lower lumbar spine instead of mid-back.",
+        "Pulling forward on neck with hands."
+      ],
+      "safetyWarning": "Stop if you feel pain, numbness or dizziness."
+    },
+    {
+      "id": "doorway_chest_stretch",
+      "name": "Doorway Chest Stretch",
+      "category": "Pectoral Flexibility",
+      "sets": "2",
+      "reps": "1 stretch per side",
+      "duration": "20-30 seconds",
+      "steps": [
+        "Stand in a doorway with forearm placed against the doorframe at 90 degrees.",
+        "Step forward gently with one foot until you feel a comfortable stretch in your chest and shoulder.",
+        "Hold with steady deep breathing.",
+        "Switch sides and repeat."
+      ],
+      "mistakesToAvoid": [
+        "Twisting lower back away from frame.",
+        "Over-stretching into shoulder joint pain."
+      ],
+      "safetyWarning": "Stop if you feel pain, numbness or dizziness."
+    },
+    {
+      "id": "scapular_rows",
+      "name": "Scapular Rows (Band or Towel)",
+      "category": "Mid-Back Strength",
+      "sets": "3",
+      "reps": "12-15 reps",
+      "duration": "2 sec squeeze",
+      "steps": [
+        "Anchor resistance band at chest height (or pull towel taut between hands).",
+        "Pull elbows backward past ribs while squeezing shoulder blades down and together.",
+        "Hold scapular retraction for 2 seconds.",
+        "Slowly extend arms back to start."
+      ],
+      "mistakesToAvoid": [
+        "Shrugging upper traps toward ears.",
+        "Leaning back excessively with hips."
+      ],
+      "safetyWarning": "Stop if you feel pain, numbness or dizziness."
+    },
+    {
+      "id": "planks",
+      "name": "Core Plank Hold",
+      "category": "Core & Spinal Alignment",
+      "sets": "3",
+      "reps": "1 hold per set",
+      "duration": "20-45 seconds",
+      "steps": [
+        "Rest on forearms and toes, forming a straight line from ears to ankles.",
+        "Engage abdomen and glutes, keeping neck in neutral line with spine.",
+        "Hold position with continuous rhythmic breathing.",
+        "Gently lower knees to rest."
+      ],
+      "mistakesToAvoid": [
+        "Sagging hips toward floor.",
+        "Dropping head or raising chin upward."
+      ],
+      "safetyWarning": "Stop if you feel pain, numbness or dizziness."
+    },
+    {
+      "id": "hip_flexor_stretch",
+      "name": "Kneeling Hip Flexor Stretch",
+      "category": "Pelvic Alignment",
+      "sets": "2",
+      "reps": "1 per side",
+      "duration": "30 seconds",
+      "steps": [
+        "Kneel on left knee with right foot forward in a 90-degree lunge.",
+        "Tuck pelvis slightly under and shift weight forward gently until stretching front of left hip.",
+        "Keep torso upright and shoulders back.",
+        "Switch legs and repeat."
+      ],
+      "mistakesToAvoid": [
+        "Arching lower back forward excessively.",
+        "Leaning forward at hips instead of shifting pelvis."
+      ],
+      "safetyWarning": "Stop if you feel pain, numbness or dizziness."
+    },
+    {
+      "id": "screen_break_resets",
+      "name": "Screen Break Reset",
+      "category": "Ergonomic Reset",
+      "sets": "Hourly",
+      "reps": "1 min reset",
+      "duration": "60 seconds",
+      "steps": [
+        "Stand up from desk every 45-60 minutes.",
+        "Perform 5 chin tucks and 5 shoulder rolls backward.",
+        "Reach arms overhead and take 3 deep diaphragmatic breaths.",
+        "Adjust screen to eye level before resuming."
+      ],
+      "mistakesToAvoid": [
+        "Staying seated continuously over 90 minutes.",
+        "Slouching neck forward to view mobile screen."
+      ],
+      "safetyWarning": "Stop if you feel pain, numbness or dizziness."
+    }
+  ],
+  "four_week_plan": [
+    {
+      "week": 1,
+      "title": "Awareness & Cervical Relief",
+      "focus": "Establish daily chin tucks and hourly screen resets to reduce forward head strain.",
+      "dailyExercises": ["chin_tucks", "screen_break_resets"]
+    },
+    {
+      "week": 2,
+      "title": "Opening Chest & Upper Back",
+      "focus": "Incorporate doorway stretches and thoracic extensions for upper back mobility.",
+      "dailyExercises": ["chin_tucks", "doorway_chest_stretch", "thoracic_extension", "screen_break_resets"]
+    },
+    {
+      "week": 3,
+      "title": "Scapular & Core Activation",
+      "focus": "Add wall angels and scapular rows to build upper back endurance.",
+      "dailyExercises": ["chin_tucks", "wall_angels", "scapular_rows", "planks", "screen_break_resets"]
+    },
+    {
+      "week": 4,
+      "title": "Full-Body Balance Maintenance",
+      "focus": "Integrate hip flexor stretches and balanced daily posture habit logging.",
+      "dailyExercises": ["chin_tucks", "wall_angels", "scapular_rows", "planks", "hip_flexor_stretch", "screen_break_resets"]
+    }
+  ]
+}

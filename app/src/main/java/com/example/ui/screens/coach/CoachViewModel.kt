@@ -29,7 +29,8 @@ data class CoachUiState(
 
 class CoachViewModel(
     private val coachRepository: CoachRepository,
-    private val preferencesDataStore: PreferencesDataStore
+    private val preferencesDataStore: PreferencesDataStore,
+    private val postureRepository: com.example.data.repo.PostureRepository? = null
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(CoachUiState())
@@ -117,12 +118,18 @@ class CoachViewModel(
             _streamingMessage.value = ChatMessage(id = "streaming", role = "assistant", text = "Thinking...", isStreaming = true)
             updateCombinedMessages()
 
+            val latestPostureLog = postureRepository?.getLatestPostureCheck()
+            val postureContext = latestPostureLog?.let {
+                "Band: ${it.bandName}, Craniovertebral Angle: ${it.craniovertebralAngle.toInt()}°, Forward Offset: ${(it.forwardOffsetRatio * 100).toInt()}%"
+            }
+
             try {
                 coachRepository.streamCoachResponse(
                     threadId = state.currentThreadId,
                     userPrompt = userPrompt,
                     latestScan = latestScan,
-                    isPro = isPro
+                    isPro = isPro,
+                    postureContext = postureContext
                 ).collect { chunkText ->
                     lastChunkText = chunkText
                     _streamingMessage.value = ChatMessage(id = "streaming", role = "assistant", text = chunkText, isStreaming = true)

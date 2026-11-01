@@ -119,6 +119,7 @@ dependencies {
   implementation(libs.firebase.appcheck.playintegrity)
   implementation(libs.mlkit.face.detection)
   implementation(libs.mlkit.face.mesh.detection)
+  implementation(libs.mlkit.pose.detection)
   implementation(libs.play.billing.ktx)
   implementation(libs.androidx.work.runtime.ktx)
   implementation(libs.androidx.biometric)

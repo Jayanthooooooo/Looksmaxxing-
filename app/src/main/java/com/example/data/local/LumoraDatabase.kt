@@ -21,6 +21,9 @@ import com.example.data.local.entity.ReminderPrefEntity
 import com.example.data.local.entity.ScanDraftEntity
 import com.example.data.local.entity.ScanEntity
 
+import com.example.data.local.dao.PostureDao
+import com.example.data.local.entity.PostureLogEntity
+
 @Database(
     entities = [
         ScanEntity::class,
@@ -31,9 +34,10 @@ import com.example.data.local.entity.ScanEntity
         HabitLogEntity::class,
         ReminderPrefEntity::class,
         ScanDraftEntity::class,
-        ArticleBookmarkEntity::class
+        ArticleBookmarkEntity::class,
+        PostureLogEntity::class
     ],
-    version = 3,
+    version = 4,
     exportSchema = false
 )
 abstract class LumoraDatabase : RoomDatabase() {
@@ -44,6 +48,7 @@ abstract class LumoraDatabase : RoomDatabase() {
     abstract fun reminderPrefDao(): ReminderPrefDao
     abstract fun scanDraftDao(): ScanDraftDao
     abstract fun bookmarkDao(): BookmarkDao
+    abstract fun postureDao(): PostureDao
 
     companion object {
         @Volatile

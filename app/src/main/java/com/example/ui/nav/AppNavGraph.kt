@@ -67,6 +67,8 @@ import com.example.ui.screens.results.FaceShapeStyleScreen
 import com.example.ui.screens.results.FaceShapeStyleViewModel
 import com.example.ui.screens.results.MeasurementDetailScreen
 import com.example.ui.screens.results.OverlayViewerScreen
+import com.example.ui.screens.results.PostureAnalysisScreen
+import com.example.ui.screens.results.PostureAnalysisViewModel
 import com.example.ui.screens.results.ResultsScreen
 import com.example.ui.screens.results.ScanDetailsScreen
 import com.example.ui.screens.results.SkinResultsScreen
@@ -116,7 +118,7 @@ fun AppNavGraph(
     var userProfile by remember { mutableStateOf(UserProfile()) }
     val activeScans by container.scanRepository.observeAllActiveScans().collectAsState(initial = emptyList())
 
-    val coachViewModel = remember { CoachViewModel(container.coachRepository, container.preferencesDataStore) }
+    val coachViewModel = remember { CoachViewModel(container.coachRepository, container.preferencesDataStore, container.postureRepository) }
     val coachUiState by coachViewModel.uiState.collectAsState()
     var reportTargetMsgId by remember { mutableStateOf<String?>(null) }
 
@@ -642,6 +644,7 @@ fun AppNavGraph(
                     },
                     onBackClick = { navController.popBackStack() },
                     onFaceShapeClick = { navController.navigate(Route.FaceShapeStyle.route) },
+                    onPostureClick = { navController.navigate(Route.PostureAnalysis.route) },
                     hideNumbers = hideNumbers
                 )
             }
@@ -1004,6 +1007,7 @@ fun AppNavGraph(
                 },
                 onGlossaryClick = { navController.navigate(Route.Glossary.route) },
                 onFaceShapeClick = { navController.navigate(Route.FaceShapeStyle.route) },
+                onPostureClick = { navController.navigate(Route.PostureAnalysis.route) },
                 onToggleBookmark = { articleId ->
                     scope.launch { container.libraryRepository.toggleBookmark(articleId) }
                 },
@@ -1015,6 +1019,15 @@ fun AppNavGraph(
         composable(Route.FaceShapeStyle.route) {
             val viewModel: FaceShapeStyleViewModel = androidx.lifecycle.viewmodel.compose.viewModel()
             FaceShapeStyleScreen(
+                viewModel = viewModel,
+                onBackClick = { navController.popBackStack() }
+            )
+        }
+
+        // Posture Analysis
+        composable(Route.PostureAnalysis.route) {
+            val viewModel: PostureAnalysisViewModel = androidx.lifecycle.viewmodel.compose.viewModel()
+            PostureAnalysisScreen(
                 viewModel = viewModel,
                 onBackClick = { navController.popBackStack() }
             )

@@ -20,6 +20,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForwardIos
+import androidx.compose.material.icons.filled.AccessibilityNew
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Compare
 import androidx.compose.material.icons.filled.Delete
@@ -69,6 +70,7 @@ fun ResultsScreen(
     onDeleteClick: () -> Unit,
     onBackClick: () -> Unit,
     onFaceShapeClick: () -> Unit,
+    onPostureClick: () -> Unit = {},
     modifier: Modifier = Modifier,
     hideNumbers: Boolean = false
 ) {
@@ -162,6 +164,36 @@ fun ResultsScreen(
                         Text(text = "Face Shape & Style Guide", color = LumoraColors.ChampagneGold, fontSize = 12.sp, fontWeight = FontWeight.Bold)
                         Spacer(modifier = Modifier.height(2.dp))
                         Text(text = "View tailored haircuts, beard styling, glasses frames & barber summary.", color = Color.White, fontSize = 13.sp)
+                    }
+                    Icon(Icons.AutoMirrored.Filled.ArrowForwardIos, contentDescription = null, tint = Color.White.copy(alpha = 0.5f), modifier = Modifier.size(16.dp))
+                }
+            }
+
+            // Posture Analysis Entry Card
+            Card(
+                colors = CardDefaults.cardColors(containerColor = LumoraColors.DarkSurface),
+                shape = RoundedCornerShape(16.dp),
+                border = BorderStroke(1.dp, LumoraColors.ChampagneGold.copy(alpha = 0.4f)),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable { onPostureClick() }
+                    .testTag("results_posture_card")
+            ) {
+                Row(
+                    modifier = Modifier.padding(16.dp),
+                    horizontalArrangement = Arrangement.spacedBy(16.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.AccessibilityNew,
+                        contentDescription = null,
+                        tint = LumoraColors.ChampagneGold,
+                        modifier = Modifier.size(36.dp)
+                    )
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(text = "Posture Analysis (Side Photo)", color = LumoraColors.ChampagneGold, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                        Spacer(modifier = Modifier.height(2.dp))
+                        Text(text = "Check Craniovertebral angle, head offset & 8 beginner exercises.", color = Color.White, fontSize = 13.sp)
                     }
                     Icon(Icons.AutoMirrored.Filled.ArrowForwardIos, contentDescription = null, tint = Color.White.copy(alpha = 0.5f), modifier = Modifier.size(16.dp))
                 }

@@ -103,6 +103,7 @@ androidx-credentials-play-services = { group = "androidx.credentials", name = "c
 googleid = { group = "com.google.android.libraries.identity.googleid", name = "googleid", version.ref = "googleid" }
 mlkit-face-detection = { group = "com.google.mlkit", name = "face-detection", version.ref = "mlkitFaceDetection" }
 mlkit-face-mesh-detection = { group = "com.google.mlkit", name = "face-mesh-detection", version.ref = "mlkitFaceMeshDetection" }
+mlkit-pose-detection = { group = "com.google.mlkit", name = "pose-detection", version = "18.0.0-beta3" }
 play-billing-ktx = { group = "com.android.billingclient", name = "billing-ktx", version.ref = "playBilling" }
 androidx-work-runtime-ktx = { group = "androidx.work", name = "work-runtime-ktx", version.ref = "workManager" }
 androidx-biometric = { group = "androidx.biometric", name = "biometric", version.ref = "biometric" }

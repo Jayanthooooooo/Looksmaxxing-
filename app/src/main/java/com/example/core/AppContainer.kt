@@ -58,6 +58,10 @@ class AppContainer(val context: Context) {
     val styleGuideRepository: com.example.data.repo.StyleGuideRepository by lazy {
         com.example.data.repo.StyleGuideRepository(context, dispatchers)
     }
+
+    val postureRepository: com.example.data.repo.PostureRepository by lazy {
+        com.example.data.repo.PostureRepository(context, database.postureDao(), dispatchers)
+    }
 }
 
 

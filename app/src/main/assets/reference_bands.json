@@ -83,6 +83,24 @@
       "typical_min": 115.0,
       "typical_max": 130.0,
       "noise_floor": 2.0
+    },
+    "posture_craniovertebral_angle": {
+      "name": "Craniovertebral Angle",
+      "description": "Angle of tragus-to-C7/shoulder line against horizontal plane in side profile.",
+      "unit": "°",
+      "canonical_value": 52.0,
+      "typical_min": 48.0,
+      "typical_max": 65.0,
+      "noise_floor": 1.5
+    },
+    "posture_forward_offset": {
+      "name": "Forward Head Offset",
+      "description": "Horizontal ear-to-shoulder offset ratio relative to shoulder-to-hip height.",
+      "unit": "ratio",
+      "canonical_value": 0.08,
+      "typical_min": 0.02,
+      "typical_max": 0.15,
+      "noise_floor": 0.01
     }
   }
 }

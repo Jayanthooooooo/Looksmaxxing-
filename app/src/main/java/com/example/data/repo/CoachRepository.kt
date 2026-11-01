@@ -144,7 +144,8 @@ class CoachRepository(
         isPro: Boolean,
         isTeen: Boolean = false,
         answerMode: String = "SHORT",
-        retrievedSources: List<com.example.domain.retrieval.RetrievedKnowledge> = emptyList()
+        retrievedSources: List<com.example.domain.retrieval.RetrievedKnowledge> = emptyList(),
+        postureContext: String? = null
     ): Flow<String> = flow {
         val apiKey = apiKeyProvider()
         if (apiKey.isBlank() || apiKey == "MY_GEMINI_API_KEY" || apiKey == "GEMINI_API_KEY") {
@@ -212,12 +213,16 @@ class CoachRepository(
             "NO RECENT SCAN DATA AVAILABLE."
         }
 
+        val postureBlock = postureContext?.let { "\nLATEST POSTURE CHECK: $it" } ?: ""
+
         val systemPrompt = """
             You are the Lumora AI Beauty, Grooming & Aesthetics Coach.
             Deliver supportive, evidence-grounded advice on facial aesthetics, grooming, skincare, posture, and style.
             
             CONTEXT:
             $contextBlock
+            $scanContext
+            $postureBlock
             
             CRITICAL SYSTEM INSTRUCTIONS:
             1. GROUND IN CONTEXT: Answer using the CONTEXT block first.

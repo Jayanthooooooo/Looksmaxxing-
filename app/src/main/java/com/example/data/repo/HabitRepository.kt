@@ -35,6 +35,10 @@ class HabitRepository(
         return habitDao.observeAllCompletedLogs()
     }
 
+    suspend fun saveHabit(habit: HabitEntity) = withContext(dispatchers.io) {
+        habitDao.insertOrUpdateHabit(habit)
+    }
+
     suspend fun toggleHabit(habitId: String, dateStr: String, done: Boolean) = withContext(dispatchers.io) {
         val updatedLog = HabitLogEntity(
             date = dateStr,
