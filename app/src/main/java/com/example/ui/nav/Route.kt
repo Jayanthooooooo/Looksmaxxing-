@@ -83,4 +83,5 @@ sealed class Route(val route: String) {
         fun createRoute(articleId: String) = "library/article/$articleId"
     }
     data object Glossary : Route("glossary")
+    data object FaceShapeStyle : Route("face_shape_style")
 }

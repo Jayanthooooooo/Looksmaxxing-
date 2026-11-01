@@ -63,6 +63,8 @@ import com.example.ui.screens.plan.PlanScreen
 import com.example.ui.screens.plan.RoutineBuilderScreen
 import com.example.ui.screens.plan.WeeklyCheckInScreen
 import com.example.ui.screens.results.CompareScreen
+import com.example.ui.screens.results.FaceShapeStyleScreen
+import com.example.ui.screens.results.FaceShapeStyleViewModel
 import com.example.ui.screens.results.MeasurementDetailScreen
 import com.example.ui.screens.results.OverlayViewerScreen
 import com.example.ui.screens.results.ResultsScreen
@@ -639,6 +641,7 @@ fun AppNavGraph(
                         }
                     },
                     onBackClick = { navController.popBackStack() },
+                    onFaceShapeClick = { navController.navigate(Route.FaceShapeStyle.route) },
                     hideNumbers = hideNumbers
                 )
             }
@@ -1000,9 +1003,19 @@ fun AppNavGraph(
                     navController.navigate(Route.ArticleDetail.createRoute(articleId))
                 },
                 onGlossaryClick = { navController.navigate(Route.Glossary.route) },
+                onFaceShapeClick = { navController.navigate(Route.FaceShapeStyle.route) },
                 onToggleBookmark = { articleId ->
                     scope.launch { container.libraryRepository.toggleBookmark(articleId) }
                 },
+                onBackClick = { navController.popBackStack() }
+            )
+        }
+
+        // Face Shape & Style Guide
+        composable(Route.FaceShapeStyle.route) {
+            val viewModel: FaceShapeStyleViewModel = androidx.lifecycle.viewmodel.compose.viewModel()
+            FaceShapeStyleScreen(
+                viewModel = viewModel,
                 onBackClick = { navController.popBackStack() }
             )
         }

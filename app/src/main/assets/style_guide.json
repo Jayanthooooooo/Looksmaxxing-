@@ -1,0 +1,239 @@
+{
+  "version": "1.0",
+  "disclaimer": "Style recommendations describe classical proportion balancing. Personal expression, hair texture, and individual preference always override general guidelines.",
+  "shapes": [
+    {
+      "id": "oval",
+      "name": "Oval",
+      "description": "Balanced proportions where face length is roughly 1.5 times the width, with gently rounded jawline and forehead.",
+      "barber_summary": "Versatile proportions. Most cuts work well; focus on maintaining natural balance without over-elongating.",
+      "haircuts": {
+        "top": "Textured crop, slick back, quiff, or classic taper — almost any height or volume works.",
+        "sides": "Low to medium fade, taper, or classic scissor cut.",
+        "fringe": "Can wear up, down, textured, or swept to the side.",
+        "parting": "Middle, side, or none."
+      },
+      "beard_options": [
+        {
+          "style": "Clean-shaven",
+          "effect": "Highlights the natural clean lines of the jaw and balanced bone structure."
+        },
+        {
+          "style": "Light Stubble",
+          "effect": "Adds subtle texture and definition without altering proportions."
+        },
+        {
+          "style": "Short Boxed Beard",
+          "effect": "Keeps cheeks neat while adding slight presence to the lower chin if desired."
+        },
+        {
+          "style": "Full Beard",
+          "effect": "Can add perceived length if kept heavy on the chin; keep cheeks trimmed to avoid rounding."
+        }
+      ],
+      "eyebrow_tips": "Natural, medium-thick arch with clean grooming. Avoid overly thin or severe shapes.",
+      "glasses_frames": [
+        "Wayfarer",
+        "Aviator",
+        "Round",
+        "Square"
+      ],
+      "what_to_avoid": [
+        "Excessive height on top combined with very tight sides, which can over-elongate the face.",
+        "Heavy fringe that completely hides the forehead if you prefer balanced proportions."
+      ]
+    },
+    {
+      "id": "round",
+      "name": "Round",
+      "description": "Face width and length are nearly equal, with soft curves at the jaw and hairline and minimal sharp angles.",
+      "barber_summary": "Tends to benefit from height on top and tight sides to create vertical elongation.",
+      "haircuts": {
+        "top": "High pompadour, quiff, faux hawk, or high-volume textured crop to add vertical height.",
+        "sides": "Skin fade, high taper, or sharp short sides to reduce perceived width at the temples and cheeks.",
+        "fringe": "Angled or swept up; avoid blunt horizontal fringe which emphasizes width.",
+        "parting": "Deep side part to add asymmetry and angles."
+      },
+      "beard_options": [
+        {
+          "style": "Clean-shaven",
+          "effect": "Clean look; relies entirely on hair styling for angular contrast."
+        },
+        {
+          "style": "Light Stubble",
+          "effect": "Light shadow defines the cheek contours gently."
+        },
+        {
+          "style": "Goatee / Extended Goatee",
+          "effect": "Lengthens the chin visually, drawing the eye downward and reducing roundness."
+        },
+        {
+          "style": "Angular Full Beard (Trimmed Cheeks)",
+          "effect": "Keeping cheeks short and chin longer creates a sharper, more defined jawline."
+        }
+      ],
+      "eyebrow_tips": "Angular, higher-arched brows help introduce vertical lines and balance rounded curves.",
+      "glasses_frames": [
+        "Rectangular",
+        "Square",
+        "Wayfarer",
+        "Geometric"
+      ],
+      "what_to_avoid": [
+        "Very short, blunt bangs that cut straight across.",
+        "Full bushy sideburns and rounded frames that echo face roundness."
+      ]
+    },
+    {
+      "id": "square",
+      "name": "Square",
+      "description": "Strong, angular jawline with forehead and jaw width nearly matching, creating a bold, defined perimeter.",
+      "barber_summary": "Tends to benefit from softening harsh angles on the sides while keeping top clean or textured.",
+      "haircuts": {
+        "top": "Buzz cut, crew cut, textured French crop, or moderate quiff.",
+        "sides": "Taper fade or classic medium scissor cut that doesn't exaggerate the boxy jaw.",
+        "fringe": "Textured forward fringe or soft brushed back.",
+        "parting": "Classic side part."
+      },
+      "beard_options": [
+        {
+          "style": "Clean-shaven",
+          "effect": "Showcases the naturally strong jawline cleanly."
+        },
+        {
+          "style": "Light Stubble",
+          "effect": "Softens the skin while preserving masculine jaw definition."
+        },
+        {
+          "style": "Rounded / Circle Beard",
+          "effect": "Introduces curved lines that soften the sharp corners of the jaw."
+        },
+        {
+          "style": "Chin Strap / Light Goatee",
+          "effect": "Draws focus to the center of the lower face."
+        }
+      ],
+      "eyebrow_tips": "Slightly rounded or naturally groomed brows to soften strong facial angles.",
+      "glasses_frames": [
+        "Round",
+        "Oval",
+        "Aviator",
+        "Clubmaster"
+      ],
+      "what_to_avoid": [
+        "Very boxy, heavy geometric frames that amplify angular features.",
+        "Blunt, squared-off haircuts with flat tops."
+      ]
+    },
+    {
+      "id": "rectangle",
+      "name": "Rectangle / Oblong",
+      "description": "Face length is noticeably greater than width, with a straight jawline and balanced forehead/cheek proportions.",
+      "barber_summary": "Tends to benefit from width on the sides and reduced height on top to avoid lengthening.",
+      "haircuts": {
+        "top": "Side sweep, textured fringe, messy crop, or medium-length flow kept flatter on top.",
+        "sides": "Medium taper or scissors-over-comb (avoid skin fades on high sides which lengthen further).",
+        "fringe": "Forward fringe or side sweep to shorten the perceived forehead length.",
+        "parting": "Classic side part."
+      },
+      "beard_options": [
+        {
+          "style": "Clean-shaven",
+          "effect": "Clean, classic presentation; highlights length."
+        },
+        {
+          "style": "Fuller Sideburns & Stubble",
+          "effect": "Adding fullness on the cheeks and sideburns widens the face visually."
+        },
+        {
+          "style": "Medium Full Beard",
+          "effect": "Fills out the lower cheeks, balancing the vertical length."
+        }
+      ],
+      "eyebrow_tips": "Straight, horizontal grooming helps shorten the vertical appearance of the face.",
+      "glasses_frames": [
+        "Wayfarer",
+        "Aviator with brow bar",
+        "Round with wider bridge"
+      ],
+      "what_to_avoid": [
+        "High pompadours or extreme top volume that stretches the face further.",
+        "Narrow rectangular glasses."
+      ]
+    },
+    {
+      "id": "heart",
+      "name": "Heart",
+      "description": "Broader forehead and cheekbones tapering down to a narrow, pointed chin.",
+      "barber_summary": "Tends to benefit from volume around the jaw/chin and soft texture on the forehead.",
+      "haircuts": {
+        "top": "Medium-length textured mop, side-swept fringe, or medium quiff.",
+        "sides": "Medium taper or scissor cut (avoid high skin fades that accentuate a wide upper head).",
+        "fringe": "Side-swept fringe that covers part of the forehead.",
+        "parting": "Side part."
+      },
+      "beard_options": [
+        {
+          "style": "Clean-shaven",
+          "effect": "Highlights delicate chin structure."
+        },
+        {
+          "style": "Full Beard / Ducktail",
+          "effect": "Adds crucial width and substance to the narrow jaw and chin area."
+        },
+        {
+          "style": "Heavy Stubble",
+          "effect": "Fills out the lower face evenly to balance upper face width."
+        }
+      ],
+      "eyebrow_tips": "Soft, gently curved brows that do not add unnecessary upper weight.",
+      "glasses_frames": [
+        "Aviator",
+        "Round",
+        "Wayfarer",
+        "Rimless"
+      ],
+      "what_to_avoid": [
+        "Top-heavy cuts with ultra-tight sides.",
+        "Oversized top-heavy frame sunglasses."
+      ]
+    },
+    {
+      "id": "diamond",
+      "name": "Diamond",
+      "description": "Narrow forehead and jawline with wider, prominent cheekbones.",
+      "barber_summary": "Tends to benefit from width at the forehead and chin, with softer textured sides.",
+      "haircuts": {
+        "top": "Textured fringe, messy top, or forward sweep with volume at the temples.",
+        "sides": "Scissor-cut taper or medium length (avoid extreme skin fades that expose wide cheekbones).",
+        "fringe": "Forward texture to add forehead width.",
+        "parting": "Messy side part or textured crop."
+      },
+      "beard_options": [
+        {
+          "style": "Clean-shaven",
+          "effect": "Shows cheekbone definition clearly."
+        },
+        {
+          "style": "Full Beard / Chin Puff",
+          "effect": "Adds weight and fullness to the narrow chin, balancing prominent cheekbones."
+        },
+        {
+          "style": "Heavy Stubble",
+          "effect": "Softens the angular cheek transition."
+        }
+      ],
+      "eyebrow_tips": "Low, softly curved brows help soften the upper face angles.",
+      "glasses_frames": [
+        "Oval",
+        "Cat-eye",
+        "Aviator",
+        "Round with distinct top rim"
+      ],
+      "what_to_avoid": [
+        "Very tight sides paired with flat top, which exaggerates cheekbone width.",
+        "Narrow angular glasses."
+      ]
+    }
+  ]
+}

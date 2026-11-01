@@ -54,6 +54,10 @@ class AppContainer(val context: Context) {
     val libraryRepository: com.example.data.repo.LibraryRepository by lazy {
         com.example.data.repo.LibraryRepository(context, database.bookmarkDao(), dispatchers)
     }
+
+    val styleGuideRepository: com.example.data.repo.StyleGuideRepository by lazy {
+        com.example.data.repo.StyleGuideRepository(context, dispatchers)
+    }
 }
 
 

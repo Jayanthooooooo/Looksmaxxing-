@@ -28,6 +28,7 @@ import androidx.compose.material.icons.filled.BookmarkBorder
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.ErrorOutline
+import androidx.compose.material.icons.filled.Face
 import androidx.compose.material.icons.filled.HelpOutline
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.MenuBook
@@ -73,6 +74,7 @@ fun LibraryScreen(
     isTeenMode: Boolean,
     onArticleClick: (String) -> Unit,
     onGlossaryClick: () -> Unit,
+    onFaceShapeClick: () -> Unit,
     onToggleBookmark: (String) -> Unit,
     onBackClick: () -> Unit,
     modifier: Modifier = Modifier
@@ -242,6 +244,79 @@ fun LibraryScreen(
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowForwardIos,
                             contentDescription = "Open Glossary",
+                            tint = LumoraColors.ChampagneGold,
+                            modifier = Modifier.size(16.dp)
+                        )
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(12.dp))
+
+                // Face Shape & Style Guide banner card
+                Surface(
+                    onClick = onFaceShapeClick,
+                    shape = RoundedCornerShape(20.dp),
+                    color = Color(0x18D9C59B),
+                    border = BorderStroke(1.dp, Color(0x44D9C59B)),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .testTag("library_face_shape_card")
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(18.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(14.dp),
+                            modifier = Modifier.weight(1f)
+                        ) {
+                            Box(
+                                modifier = Modifier
+                                    .size(44.dp)
+                                    .clip(CircleShape)
+                                    .background(Color(0x33D9C59B)),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Face,
+                                    contentDescription = null,
+                                    tint = LumoraColors.ChampagneGold,
+                                    modifier = Modifier.size(22.dp)
+                                )
+                            }
+                            Column {
+                                Text(
+                                    text = "FACE SHAPE & STYLE GUIDE",
+                                    fontFamily = PlusJakartaSans,
+                                    fontWeight = FontWeight.SemiBold,
+                                    fontSize = 11.sp,
+                                    letterSpacing = 1.2.sp,
+                                    color = LumoraColors.ChampagneGold
+                                )
+                                Spacer(modifier = Modifier.height(2.dp))
+                                Text(
+                                    text = "Haircuts, Beards & Glasses",
+                                    fontFamily = Fraunces,
+                                    fontSize = 18.sp,
+                                    color = Color(0xFFF4F4F6)
+                                )
+                                Spacer(modifier = Modifier.height(2.dp))
+                                Text(
+                                    text = "Tailored proportions & barber summary.",
+                                    fontFamily = PlusJakartaSans,
+                                    fontSize = 12.sp,
+                                    color = LumoraColors.DarkOnSurfaceMuted
+                                )
+                            }
+                        }
+
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ArrowForwardIos,
+                            contentDescription = "Open Face Shape Guide",
                             tint = LumoraColors.ChampagneGold,
                             modifier = Modifier.size(16.dp)
                         )

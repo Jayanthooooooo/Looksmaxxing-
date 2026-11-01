@@ -1,57 +1,24 @@
-# Lumora - Black Screen Fix & Startup Robustness Plan
+# Implementation Plan - Face Shape and Style Guide
 
-This implementation plan addresses the critical issue where the Android emulator preview renders a completely black screen on startup, despite a successful build.
+1. **Face Shape Engine**:
+   - Create `reference_bands.json` in assets with provisional thresholds for Oval, Round, Square, Rectangle, Heart, Diamond.
+   - Create pure Kotlin `FaceShapeEngine.kt` to compute face ratios and classify top 2 matches with confidence levels. Validate quality / measurements.
+   - Create comprehensive unit tests (`FaceShapeEngineUnitTest.kt`) testing synthetic fixtures for each shape and edge cases.
 
-## User Review & Critical Decisions
+2. **Style Guide Data**:
+   - Create `style_guide.json` in assets containing haircuts, beard options, eyebrow tips, glasses frames, "things to avoid", and barber-ready summary lines for each face shape, following respectful wording rules.
 
-> [!IMPORTANT]
-> The following choices were confirmed during Phase 1 clarification:
-> - **Primary Diagnostic Focus**: `MainActivity` and navigation start destination checks.
-> - **Firebase Initialization Handling**: Gracefully catch exceptions and show offline guest mode / unconfigured notice.
+3. **Room & Data Layer**:
+   - Extend Room database (`LumoraDatabase` / Entity / DAO) to store face shape classification results and favorite style recommendations.
+   - Implement `StyleGuideRepository` to load and query `style_guide.json` and face shape recommendations.
 
-- **Confirmed Decision 1**: Implement robust exception handling around `FirebaseApp` initialization and session observation in `MainActivity` and `AppNavGraph`.
-- **Confirmed Decision 2**: Ensure `SplashScreen` transitions reliably within 1.5 seconds even if session observation or database state is delayed.
+4. **UI & Navigation**:
+   - Add entry cards on Results screen and Library screen without altering existing screens.
+   - Build "Face Shape and Style" screen with result chip, confidence note, plain-language explanation, tabs for Hair, Beard, Brows, Glasses, fullscreen "Show to my barber" card, and save-to-favorites functionality.
+   - Implement Teen Mode check (hide beard options & active-ingredient mentions if under 16).
 
----
+5. **AI Coach Context**:
+   - Provide saved face shape and favorites as context to the AI Coach.
 
-## 1. Overview & Core Concept
-
-- **What It Does**: Fixes startup rendering blocks by ensuring `MainActivity` and `AppNavGraph` emit visible Jetpack Compose UI without freezing on async flows or unconfigured Firebase services.
-- **Key Value**: Guarantees that the streaming emulator immediately renders the Splash or Welcome screen on startup.
-
----
-
-## 2. Technical Architecture & Analysis
-
-### Component Startup Sequence
-
-```
-[ MainActivity.onCreate ]
-       │
-       ▼ (Try / Catch AppCheck)
-[ LumoraTheme & Surface ]
-       │
-       ▼
-[ AppNavGraph (Start: Splash) ]
-       │
-       ▼ (1.5s timeout / session check)
-[ SplashScreen ──► Welcome / Main / Onboarding ]
-```
-
-### Planned Code Changes
-
-1. **`MainActivity.kt`**:
-   - Ensure `setContent` wraps UI in a visible Material3 `Surface` with explicit background color.
-   - Guard Firebase App Check and initialization inside safe `try/catch` blocks.
-
-2. **`SplashScreen.kt` / `AppNavGraph.kt`**:
-   - Add a robust timeout (e.g., 1.5 seconds) in `SplashScreen` to ensure `onNavigateNext` is always called even if session state observation lags.
-   - Handle unconfigured Firebase gracefully without blocking the UI tree.
-
----
-
-## 3. Verification Plan
-
-- **Compilation**: Run `compile_applet` to verify zero build errors.
-- **Unit Tests**: Run `gradle :app:testDebugUnitTest` to verify local Robolectric unit tests pass.
-- **UI Verification**: Verify that the streaming emulator successfully renders the Splash and Welcome screen.
+6. **Verification**:
+   - Compile applet and run unit tests.
