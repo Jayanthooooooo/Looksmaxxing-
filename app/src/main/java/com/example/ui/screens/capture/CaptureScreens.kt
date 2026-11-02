@@ -359,9 +359,27 @@ fun LiveCaptureScreen(
     modifier: Modifier = Modifier,
     isMirrored: Boolean = true
 ) {
+
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
     val scope = rememberCoroutineScope()
+
+    var hasCameraPermission by remember {
+        mutableStateOf(android.content.pm.PackageManager.PERMISSION_GRANTED == 
+            androidx.core.content.ContextCompat.checkSelfPermission(context, android.Manifest.permission.CAMERA))
+    }
+    val permissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission()
+    ) { isGranted ->
+        hasCameraPermission = isGranted
+    }
+
+    LaunchedEffect(lifecycleOwner) {
+        if (android.content.pm.PackageManager.PERMISSION_GRANTED != 
+            androidx.core.content.ContextCompat.checkSelfPermission(context, android.Manifest.permission.CAMERA)) {
+            permissionLauncher.launch(android.Manifest.permission.CAMERA)
+        }
+    }
 
     var gateHeadAngle by remember { mutableStateOf(false) }
     var gateLight by remember { mutableStateOf(false) }
@@ -431,7 +449,8 @@ fun LiveCaptureScreen(
                     analyzer.setAnalyzer(cameraExecutor) { imageProxy ->
                         val mediaImage = imageProxy.image
                         if (mediaImage != null && !isCapturingBurst) {
-                            val bitmap = imageProxy.toBitmap()
+
+                            val bitmap = imageProxy.toUprightBitmap()
                             if (bitmap != null) {
                                 currentBitmap = bitmap
                                 scope.launch(Dispatchers.Default) {
@@ -607,18 +626,27 @@ fun LiveCaptureScreen(
             .background(Color.Black)
             .testTag("live_capture_screen")
     ) {
-        // Full-screen camera preview
-        AndroidView(
-            factory = { ctx ->
-                PreviewView(ctx).apply {
-                    scaleType = PreviewView.ScaleType.FILL_CENTER
-                    previewViewRef = this
-                }
-            },
-            modifier = Modifier.fillMaxSize()
-        )
 
-        if (cameraError != null) {
+        if (!hasCameraPermission) {
+            CameraRationaleScreen(
+                onAllowCamera = { permissionLauncher.launch(android.Manifest.permission.CAMERA) },
+                onUseGallery = { /* Handle gallery fallback */ },
+                onOpenSettings = { /* Handle open settings */ }
+            )
+        } else if (cameraError != null) {
+            // Existing camera error UI
+        } else {
+            // Full-screen camera preview
+            AndroidView(
+                factory = { ctx ->
+                    PreviewView(ctx).apply {
+                        scaleType = PreviewView.ScaleType.FILL_CENTER
+                        previewViewRef = this
+                    }
+                },
+                modifier = Modifier.fillMaxSize()
+            )
+        }
             Box(
                 modifier = Modifier
                     .fillMaxSize()
@@ -821,8 +849,9 @@ fun LiveCaptureScreen(
 
         // Bottom area over a soft dark gradient
         Column(
+
+
             modifier = Modifier
-                .align(Alignment.BottomCenter)
                 .fillMaxWidth()
                 .background(
                     Brush.verticalGradient(
@@ -834,6 +863,7 @@ fun LiveCaptureScreen(
                         )
                     )
                 )
+
                 .padding(horizontal = 20.dp)
                 .padding(top = 28.dp, bottom = 36.dp),
             horizontalAlignment = Alignment.CenterHorizontally
@@ -942,63 +972,12 @@ fun LiveCaptureScreen(
                         textDecoration = TextDecoration.Underline
                     )
                 }
-            }
-        }
-    }
 
-    if (showCaptureAnywayDialog) {
-        AlertDialog(
-            onDismissRequest = { showCaptureAnywayDialog = false },
-            title = {
-                Text(
-                    text = "Capture anyway?",
-                    fontFamily = Fraunces,
-                    fontWeight = FontWeight.Normal,
-                    fontSize = 18.sp,
-                    color = Color(0xFFF4F4F6)
-                )
-            },
-            text = {
-                Text(
-                    text = "Results will be less reliable because facial framing, lighting, or angle has not passed quality checks.",
-                    fontFamily = PlusJakartaSans,
-                    fontSize = 14.sp,
-                    color = Color(0xFFC0C0CA)
-                )
-            },
-            containerColor = Color(0xFF16161F),
-            confirmButton = {
-                Button(
-                    onClick = {
-                        showCaptureAnywayDialog = false
-                        performCapture(forced = true)
-                    },
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = Color(0xFFF5F5F7),
-                        contentColor = Color(0xFF0B0B0F)
-                    ),
-                    shape = RoundedCornerShape(12.dp)
-                ) {
-                    Text(
-                        text = "Capture anyway",
-                        fontFamily = PlusJakartaSans,
-                        fontWeight = FontWeight.SemiBold,
-                        color = Color(0xFF0B0B0F)
-                    )
-                }
-            },
-            dismissButton = {
-                TextButton(onClick = { showCaptureAnywayDialog = false }) {
-                    Text(
-                        text = "Cancel",
-                        fontFamily = PlusJakartaSans,
-                        color = Color.White.copy(alpha = 0.7f)
-                    )
-                }
-            }
-        )
     }
 }
+
+
+
 
 @Composable
 private fun CaptureQualityChip(
@@ -1049,19 +1028,23 @@ private fun CaptureQualityChip(
     }
 }
 
-private fun ImageProxy.toBitmap(): Bitmap? {
+
+
+private fun ImageProxy.toUprightBitmap(): Bitmap? {
     val plane = planes[0]
     val buffer = plane.buffer
-    buffer.rewind()
-    val bytes = ByteArray(buffer.capacity())
-    buffer.get(bytes)
-    val bmp = BitmapFactory.decodeByteArray(bytes, 0, bytes.size) ?: return null
+    val pixelStride = plane.pixelStride
+    val rowStride = plane.rowStride
+    val rowPadding = rowStride - pixelStride * width
+    val bitmap = Bitmap.createBitmap(width + rowPadding / pixelStride, height, Bitmap.Config.ARGB_8888)
+    bitmap.copyPixelsFromBuffer(buffer)
+    
     val rotation = imageInfo.rotationDegrees
     if (rotation != 0) {
         val matrix = Matrix().apply { postRotate(rotation.toFloat()) }
-        return Bitmap.createBitmap(bmp, 0, 0, bmp.width, bmp.height, matrix, true)
+        return Bitmap.createBitmap(bitmap, 0, 0, width, height, matrix, true)
     }
-    return bmp
+    return bitmap
 }
 
 fun decodeGalleryUriToBitmap(context: Context, uri: Uri): Bitmap? {
@@ -1297,5 +1280,6 @@ fun ProcessingScreen(
                 QuietTextButton(text = "Cancel", onClick = onCancel, testTag = "processing_cancel_button")
             }
         }
+
     }
 }
