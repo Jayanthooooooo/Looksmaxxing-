@@ -57,8 +57,6 @@ class PostureAnalysisViewModelUnitTest {
     fun testViewModelNeverProducesResultWhenExtractionFails() = runTest {
         val app = ApplicationProvider.getApplicationContext<Application>()
         val nullViewModel = PostureAnalysisViewModel(app, FakeNullExtractor())
-        testDispatcher.scheduler.advanceUntilIdle()
-
         val mockBitmap = Bitmap.createBitmap(200, 400, Bitmap.Config.ARGB_8888)
         nullViewModel.processSideBitmap(mockBitmap)
         testDispatcher.scheduler.advanceUntilIdle()

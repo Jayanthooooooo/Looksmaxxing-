@@ -82,6 +82,12 @@ import com.example.ui.screens.settings.PaywallScreen
 import com.example.ui.screens.settings.PrivacyCentreScreen
 import com.example.ui.screens.settings.SettingsScreen
 import com.example.ui.screens.settings.SubscriptionScreen
+import androidx.compose.animation.AnimatedContentTransitionScope
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
@@ -98,6 +104,8 @@ fun AppNavGraph(
     val app = context.applicationContext as LumoraApp
     val container = app.container
     val scope = rememberCoroutineScope()
+    val density = LocalDensity.current
+    val slideOffset = with(density) { 16.dp.roundToPx() }
 
     val sessionState by container.authRepository.observeSessionState().collectAsState(initial = SessionState.Loading)
     val consentState by container.consentRepository.consentStateFlow.collectAsState(initial = ConsentState())
@@ -145,8 +153,37 @@ fun AppNavGraph(
     NavHost(
         navController = navController,
         startDestination = startDestination,
-        modifier = modifier
+        modifier = modifier,
+        enterTransition = {
+            fadeIn(animationSpec = tween(240)) + slideIntoContainer(
+                towards = AnimatedContentTransitionScope.SlideDirection.Left,
+                animationSpec = tween(240),
+                initialOffset = { slideOffset }
+            )
+        },
+        exitTransition = {
+            fadeOut(animationSpec = tween(240)) + slideOutOfContainer(
+                towards = AnimatedContentTransitionScope.SlideDirection.Left,
+                animationSpec = tween(240),
+                targetOffset = { -slideOffset }
+            )
+        },
+        popEnterTransition = {
+            fadeIn(animationSpec = tween(240)) + slideIntoContainer(
+                towards = AnimatedContentTransitionScope.SlideDirection.Right,
+                animationSpec = tween(240),
+                initialOffset = { -slideOffset }
+            )
+        },
+        popExitTransition = {
+            fadeOut(animationSpec = tween(240)) + slideOutOfContainer(
+                towards = AnimatedContentTransitionScope.SlideDirection.Right,
+                animationSpec = tween(240),
+                targetOffset = { slideOffset }
+            )
+        }
     ) {
+
         // N01 Splash
         composable(Route.Splash.route) {
             var hasNavigated by remember { mutableStateOf(false) }

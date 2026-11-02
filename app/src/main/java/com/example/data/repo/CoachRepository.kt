@@ -1,6 +1,7 @@
 package com.example.data.repo
 
 import com.example.core.AiConfig
+import com.example.core.AppConfig
 import com.example.core.AppDispatchers
 import com.example.core.Logger
 import com.example.core.Outcome
@@ -216,7 +217,8 @@ class CoachRepository(
         val postureBlock = postureContext?.let { "\nLATEST POSTURE CHECK: $it" } ?: ""
 
         val systemPrompt = """
-            You are the Lumora AI Beauty, Grooming & Aesthetics Coach.
+            ${AppConfig.SYSTEM_INSTRUCTION}
+
             Deliver supportive, evidence-grounded advice on facial aesthetics, grooming, skincare, posture, and style.
             
             CONTEXT:

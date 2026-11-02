@@ -226,7 +226,7 @@ fun PrivacyCentreScreen(
                     Divider(color = Color.White.copy(alpha = 0.05f))
                     ListSwitchRow(
                         title = "Cloud AI analysis",
-                        description = "Sends de-identified data to Google Gemini.",
+                        description = "Processes photos and messages through Google's AI service via Firebase AI Logic, strictly with your explicit consent.",
                         checked = consentState.cloudAiAnalysis,
                         onCheckedChange = { onSaveConsent(consentState.copy(cloudAiAnalysis = it)) }
                     )
@@ -624,7 +624,7 @@ fun LegalViewerScreen(
     }
 
     val content = when (docType) {
-        "privacy" -> "Lumora is privacy-first. Photos remain on this device encrypted with AES-256-GCM. Cloud AI analysis is opt-in and sends de-identified crops to Gemini. No advertising or cross-app trackers are used."
+        "privacy" -> "Lumora is privacy-first. Photos and messages are processed by Google's AI service through Firebase AI Logic, strictly with the user's explicit consent. Photos remain on this device encrypted with AES-256-GCM by default. No advertising or cross-app trackers are used."
         "terms" -> "Lumora provides photo-based facial measurement comparisons for cosmetic progress journaling. Lumora does not diagnose medical conditions. Users must be at least 13 years old."
         "methodology" -> "Measurements are derived from facial landmark positions relative to inter-ocular distance. Bands represent neoclassical conventions (Farkas et al., 1985) and are provisional conventions, not personal targets. Upper facial third is omitted due to hairline variability."
         "medical" -> "Lumora is a cosmetic photo tracking tool, not a medical device. It does not diagnose, screen, or treat skin conditions, lesions, or structural disorders. Consult a board-certified dermatologist for medical concerns."

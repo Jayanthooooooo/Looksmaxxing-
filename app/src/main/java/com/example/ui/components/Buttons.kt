@@ -15,11 +15,15 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.ui.theme.PlusJakartaSans
+import com.example.ui.util.Haptics
+import com.example.ui.util.LocalHapticsEnabled
+import com.example.ui.util.pressScaleEffect
 
 @Composable
 fun PrimaryButton(
@@ -30,17 +34,26 @@ fun PrimaryButton(
     isLoading: Boolean = false,
     testTag: String = "primary_button"
 ) {
+    val context = LocalContext.current
+    val hapticSetting = LocalHapticsEnabled.current
+
     Button(
-        onClick = onClick,
+        onClick = {
+            if (hapticSetting) {
+                Haptics.tap(context)
+            }
+            onClick()
+        },
         modifier = modifier
+            .pressScaleEffect(enabled = enabled && !isLoading)
             .fillMaxWidth()
             .height(54.dp)
             .testTag(testTag),
         enabled = enabled && !isLoading,
-        shape = RoundedCornerShape(16.dp), // 16dp radius
+        shape = RoundedCornerShape(16.dp),
         colors = ButtonDefaults.buttonColors(
-            containerColor = Color(0xFFF0F0F3), // Light grey / white
-            contentColor = Color(0xFF0B0B0F),   // Dark text
+            containerColor = Color(0xFFF0F0F3),
+            contentColor = Color(0xFF0B0B0F),
             disabledContainerColor = Color(0xFFF0F0F3).copy(alpha = 0.25f),
             disabledContentColor = Color(0xFF0B0B0F).copy(alpha = 0.4f)
         ),
@@ -75,18 +88,27 @@ fun SecondaryButton(
     isLoading: Boolean = false,
     testTag: String = "secondary_button"
 ) {
+    val context = LocalContext.current
+    val hapticSetting = LocalHapticsEnabled.current
+
     OutlinedButton(
-        onClick = onClick,
+        onClick = {
+            if (hapticSetting) {
+                Haptics.tap(context)
+            }
+            onClick()
+        },
         modifier = modifier
+            .pressScaleEffect(enabled = enabled && !isLoading)
             .fillMaxWidth()
             .height(54.dp)
             .testTag(testTag),
         enabled = enabled && !isLoading,
-        shape = RoundedCornerShape(16.dp), // 16dp radius
-        border = BorderStroke(1.dp, Color.White.copy(alpha = 0.16f)), // Thin border
+        shape = RoundedCornerShape(16.dp),
+        border = BorderStroke(1.dp, Color.White.copy(alpha = 0.16f)),
         colors = ButtonDefaults.outlinedButtonColors(
-            containerColor = Color(0x12FFFFFF), // Dark translucent
-            contentColor = Color(0xFFF4F4F6),   // Off-white text
+            containerColor = Color(0x12FFFFFF),
+            contentColor = Color(0xFFF4F4F6),
             disabledContainerColor = Color.Transparent,
             disabledContentColor = Color.White.copy(alpha = 0.25f)
         )
@@ -116,9 +138,19 @@ fun QuietTextButton(
     enabled: Boolean = true,
     testTag: String = "quiet_text_button"
 ) {
+    val context = LocalContext.current
+    val hapticSetting = LocalHapticsEnabled.current
+
     TextButton(
-        onClick = onClick,
-        modifier = modifier.testTag(testTag),
+        onClick = {
+            if (hapticSetting) {
+                Haptics.tap(context)
+            }
+            onClick()
+        },
+        modifier = modifier
+            .pressScaleEffect(enabled = enabled)
+            .testTag(testTag),
         enabled = enabled
     ) {
         Text(
@@ -126,7 +158,7 @@ fun QuietTextButton(
             fontFamily = PlusJakartaSans,
             fontWeight = FontWeight.Normal,
             fontSize = 13.sp,
-            color = Color(0x99F4F4F6) // 60% opacity muted text
+            color = Color(0x99F4F4F6)
         )
     }
 }
