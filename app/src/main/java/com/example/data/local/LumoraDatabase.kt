@@ -23,6 +23,10 @@ import com.example.data.local.entity.ScanEntity
 
 import com.example.data.local.dao.PostureDao
 import com.example.data.local.entity.PostureLogEntity
+import com.example.data.local.dao.SkillNodeDao
+import com.example.data.local.entity.SkillNodeEntity
+import com.example.data.local.dao.BarberShopDao
+import com.example.data.local.entity.BarberShopItemEntity
 
 @Database(
     entities = [
@@ -35,9 +39,11 @@ import com.example.data.local.entity.PostureLogEntity
         ReminderPrefEntity::class,
         ScanDraftEntity::class,
         ArticleBookmarkEntity::class,
-        PostureLogEntity::class
+        PostureLogEntity::class,
+        SkillNodeEntity::class,
+        BarberShopItemEntity::class
     ],
-    version = 4,
+    version = 5,
     exportSchema = false
 )
 abstract class LumoraDatabase : RoomDatabase() {
@@ -49,6 +55,8 @@ abstract class LumoraDatabase : RoomDatabase() {
     abstract fun scanDraftDao(): ScanDraftDao
     abstract fun bookmarkDao(): BookmarkDao
     abstract fun postureDao(): PostureDao
+    abstract fun skillNodeDao(): SkillNodeDao
+    abstract fun barberShopDao(): BarberShopDao
 
     companion object {
         @Volatile
