@@ -28,6 +28,9 @@ import com.example.data.local.entity.SkillNodeEntity
 import com.example.data.local.dao.BarberShopDao
 import com.example.data.local.entity.BarberShopItemEntity
 
+import androidx.room.migration.Migration
+import androidx.sqlite.db.SupportSQLiteDatabase
+
 @Database(
     entities = [
         ScanEntity::class,
@@ -43,7 +46,7 @@ import com.example.data.local.entity.BarberShopItemEntity
         SkillNodeEntity::class,
         BarberShopItemEntity::class
     ],
-    version = 5,
+    version = 6,
     exportSchema = false
 )
 abstract class LumoraDatabase : RoomDatabase() {
@@ -62,13 +65,20 @@ abstract class LumoraDatabase : RoomDatabase() {
         @Volatile
         private var INSTANCE: LumoraDatabase? = null
 
+        val MIGRATION_5_6 = object : Migration(5, 6) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE skill_nodes ADD COLUMN proofPhotoPath TEXT DEFAULT NULL")
+                db.execSQL("ALTER TABLE barber_shop_items ADD COLUMN description TEXT NOT NULL DEFAULT ''")
+            }
+        }
+
         fun getInstance(context: Context): LumoraDatabase {
             return INSTANCE ?: synchronized(this) {
                 val instance = Room.databaseBuilder(
                     context.applicationContext,
                     LumoraDatabase::class.java,
                     "lumora.db"
-                ).fallbackToDestructiveMigration().build()
+                ).addMigrations(MIGRATION_5_6).build()
                 INSTANCE = instance
                 instance
             }

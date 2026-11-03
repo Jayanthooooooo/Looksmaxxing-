@@ -51,6 +51,10 @@ object Haptics {
         }
     }
 
+    fun light(context: Context, enabled: Boolean = true) {
+        select(context, enabled)
+    }
+
     fun select(context: Context, enabled: Boolean = true) {
         vibrate(context, enabled) { vibrator ->
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {

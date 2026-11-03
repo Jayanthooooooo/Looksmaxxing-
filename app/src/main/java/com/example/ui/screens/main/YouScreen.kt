@@ -20,7 +20,9 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForwardIos
 import androidx.compose.material.icons.automirrored.filled.ExitToApp
+import androidx.compose.material.icons.filled.AccountTree
 import androidx.compose.material.icons.filled.BrightnessLow
+import androidx.compose.material.icons.filled.ContentCut
 import androidx.compose.material.icons.filled.DeleteForever
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.Grain
@@ -58,6 +60,8 @@ fun YouScreen(
     onNavigateToSettings: () -> Unit,
     onNavigateToPrivacyCentre: () -> Unit,
     onNavigateToDeleteAccount: () -> Unit,
+    onNavigateToJourney: () -> Unit = {},
+    onNavigateToBarberShop: () -> Unit = {},
     onSignOut: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -366,8 +370,24 @@ fun YouScreen(
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        // Below: Settings, Privacy centre, Delete account, Sign out rows (all must work)
+        // Below: Skill Tree, Barber Shop, Settings, Privacy centre, Delete account, Sign out rows
         Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+            // Skill Tree row
+            ActionMenuRow(
+                title = "Skill Tree",
+                icon = Icons.Default.AccountTree,
+                onClick = onNavigateToJourney,
+                testTag = "menu_skill_tree"
+            )
+
+            // Barber Shop row
+            ActionMenuRow(
+                title = "Barber Shop",
+                icon = Icons.Default.ContentCut,
+                onClick = onNavigateToBarberShop,
+                testTag = "menu_barber_shop"
+            )
+
             // Settings row
             ActionMenuRow(
                 title = "Settings",

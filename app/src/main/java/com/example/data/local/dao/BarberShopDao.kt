@@ -15,6 +15,9 @@ interface BarberShopDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertItem(item: BarberShopItemEntity)
 
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertItems(items: List<BarberShopItemEntity>)
+
     @Query("UPDATE barber_shop_items SET isEquipped = :isEquipped WHERE id = :id")
     suspend fun updateEquippedStatus(id: String, isEquipped: Boolean)
 }

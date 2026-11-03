@@ -15,6 +15,12 @@ interface SkillNodeDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertNode(node: SkillNodeEntity)
 
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertNodes(nodes: List<SkillNodeEntity>)
+
     @Query("UPDATE skill_nodes SET status = :status WHERE id = :id")
     suspend fun updateNodeStatus(id: String, status: String)
+
+    @Query("UPDATE skill_nodes SET status = :status, proofPhotoPath = :proofPhotoPath WHERE id = :id")
+    suspend fun updateNodeProofAndStatus(id: String, status: String, proofPhotoPath: String?)
 }

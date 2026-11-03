@@ -7,6 +7,7 @@ import androidx.room.PrimaryKey
 data class BarberShopItemEntity(
     @PrimaryKey val id: String,
     val name: String,
-    val type: String, // HAIRSTYLE, BEARD
-    val isEquipped: Boolean
+    val type: String, // HAIRSTYLE, BEARD, GROOMING
+    val isEquipped: Boolean = false,
+    val description: String = ""
 )

@@ -82,6 +82,12 @@ import com.example.ui.screens.settings.PaywallScreen
 import com.example.ui.screens.settings.PrivacyCentreScreen
 import com.example.ui.screens.settings.SettingsScreen
 import com.example.ui.screens.settings.SubscriptionScreen
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
+import com.example.ui.journey.JourneyViewModel
+import com.example.ui.journey.JourneyScreen
+import com.example.ui.barber.BarberShopViewModel
+import com.example.ui.barber.BarberShopScreen
 import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
@@ -515,6 +521,8 @@ fun AppNavGraph(
                         userProfile = userProfile,
                         email = container.authRepository.currentUser?.email ?: "",
                         isPro = isPro,
+                        onNavigateToJourney = { navController.navigate(Route.Journey.route) },
+                        onNavigateToBarberShop = { navController.navigate(Route.BarberShop.route) },
                         onNavigateToSettings = { navController.navigate(Route.Settings.route) },
                         onNavigateToPrivacyCentre = { navController.navigate(Route.PrivacyCentre.route) },
                         onNavigateToDeleteAccount = { navController.navigate(Route.DeleteAccount.route) },
@@ -1118,6 +1126,47 @@ fun AppNavGraph(
             GlossaryScreen(
                 terms = terms,
                 onBackClick = { navController.popBackStack() }
+            )
+        }
+
+        // Skill Tree / Journey
+        composable(Route.Journey.route) {
+            val factory = remember {
+                object : ViewModelProvider.Factory {
+                    @Suppress("UNCHECKED_CAST")
+                    override fun <T : ViewModel> create(modelClass: Class<T>): T {
+                        return JourneyViewModel(
+                            skillNodeDao = container.database.skillNodeDao(),
+                            habitDao = container.database.habitDao(),
+                            scanDao = container.database.scanDao(),
+                            photoVault = container.photoVault
+                        ) as T
+                    }
+                }
+            }
+            val viewModel: JourneyViewModel = androidx.lifecycle.viewmodel.compose.viewModel(factory = factory)
+            JourneyScreen(
+                viewModel = viewModel,
+                onNavigateBack = { navController.popBackStack() }
+            )
+        }
+
+        // Barber Shop
+        composable(Route.BarberShop.route) {
+            val factory = remember {
+                object : ViewModelProvider.Factory {
+                    @Suppress("UNCHECKED_CAST")
+                    override fun <T : ViewModel> create(modelClass: Class<T>): T {
+                        return BarberShopViewModel(
+                            barberShopDao = container.database.barberShopDao()
+                        ) as T
+                    }
+                }
+            }
+            val viewModel: BarberShopViewModel = androidx.lifecycle.viewmodel.compose.viewModel(factory = factory)
+            BarberShopScreen(
+                viewModel = viewModel,
+                onNavigateBack = { navController.popBackStack() }
             )
         }
     }

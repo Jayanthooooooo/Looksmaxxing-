@@ -86,4 +86,6 @@ sealed class Route(val route: String) {
     data object FaceShapeStyle : Route("face_shape_style")
     data object PostureAnalysis : Route("posture_analysis")
     data object SkinTools : Route("skin_tools")
+    data object Journey : Route("journey")
+    data object BarberShop : Route("barber_shop")
 }
