@@ -10,7 +10,7 @@ import com.example.data.repo.ConsentRepository
 import com.example.data.repo.ProfileRepository
 
 class AppContainer(val context: Context) {
-    val dispatchers = AppDispatchers()
+    var dispatchers = AppDispatchers()
     val clock: SystemClock = DefaultSystemClock()
     val database: LumoraDatabase by lazy { LumoraDatabase.getInstance(context) }
     val preferencesDataStore: PreferencesDataStore by lazy { PreferencesDataStore(context) }

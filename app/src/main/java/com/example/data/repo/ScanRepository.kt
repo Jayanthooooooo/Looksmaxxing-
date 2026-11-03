@@ -186,7 +186,11 @@ class ScanRepository(
             val obj = JSONObject().apply {
                 put("id", m.id)
                 put("name", m.name)
-                put("value", m.value.toDouble())
+                if (m.value != null) {
+                    put("value", m.value.toDouble())
+                } else {
+                    put("value", JSONObject.NULL)
+                }
                 put("sd", m.sd.toDouble())
                 put("unit", m.unit)
                 put("rangePosition", m.rangePosition.name)
@@ -212,10 +216,12 @@ class ScanRepository(
             while (keys.hasNext()) {
                 val key = keys.next()
                 val obj = root.getJSONObject(key)
+                val rawVal = if (obj.isNull("value")) null else obj.optDouble("value")
+                val floatVal = if (rawVal != null && !rawVal.isNaN()) rawVal.toFloat() else null
                 result[key] = MetricValue(
                     id = obj.optString("id", key),
                     name = obj.optString("name", key),
-                    value = obj.optDouble("value", 0.0).toFloat(),
+                    value = floatVal,
                     sd = obj.optDouble("sd", 0.5).toFloat(),
                     unit = obj.optString("unit", ""),
                     rangePosition = try {

@@ -36,7 +36,7 @@ data class PostureExerciseData(
 class PostureRepository(
     private val context: Context,
     private val postureDao: PostureDao,
-    private val dispatchers: AppDispatchers
+    var dispatchers: AppDispatchers
 ) {
     private var cachedData: PostureExerciseData? = null
 

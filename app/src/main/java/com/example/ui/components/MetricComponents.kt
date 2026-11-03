@@ -141,7 +141,7 @@ fun IndexRing(
 
 @Composable
 fun RangeBar(
-    value: Float,
+    value: Float?,
     min: Float,
     max: Float,
     typicalMin: Float,
@@ -185,13 +185,15 @@ fun RangeBar(
                 )
 
                 // Current value indicator
-                val thumbFrac = ((value - min) / rangeSpan).coerceIn(0f, 1f)
-                val thumbX = thumbFrac * width
-                drawCircle(
-                    color = thumbColor,
-                    radius = height * 0.9f,
-                    center = Offset(thumbX, height / 2)
-                )
+                if (value != null) {
+                    val thumbFrac = ((value - min) / rangeSpan).coerceIn(0f, 1f)
+                    val thumbX = thumbFrac * width
+                    drawCircle(
+                        color = thumbColor,
+                        radius = height * 0.9f,
+                        center = Offset(thumbX, height / 2)
+                    )
+                }
             }
         }
         Spacer(modifier = Modifier.height(4.dp))

@@ -12,8 +12,10 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
+import org.robolectric.annotation.Config
 
 @RunWith(RobolectricTestRunner::class)
+@Config(sdk = [36])
 class CaptureAndQualityUnitTest {
 
     @Test
@@ -69,11 +71,11 @@ class CaptureAndQualityUnitTest {
         assertFalse(evaluator.evaluatePose(0f, 10f, 0f, isSideScan = false).isReady)
         assertFalse(evaluator.evaluatePose(0f, 0f, 8f, isSideScan = false).isReady)
 
-        // Side scan (requires yaw 70-90 deg)
-        assertTrue(evaluator.evaluatePose(75f, 0f, 0f, isSideScan = true).isReady)
-        assertTrue(evaluator.evaluatePose(-80f, 0f, 0f, isSideScan = true).isReady)
-        assertFalse(evaluator.evaluatePose(45f, 0f, 0f, isSideScan = true).isReady)
-        assertFalse(evaluator.evaluatePose(10f, 0f, 0f, isSideScan = true).isReady)
+        // Side scan (requires yaw 35-75 deg)
+        assertTrue(evaluator.evaluatePose(45f, 0f, 0f, isSideScan = true).isReady)
+        assertTrue(evaluator.evaluatePose(-60f, 0f, 0f, isSideScan = true).isReady)
+        assertFalse(evaluator.evaluatePose(20f, 0f, 0f, isSideScan = true).isReady)
+        assertFalse(evaluator.evaluatePose(85f, 0f, 0f, isSideScan = true).isReady)
     }
 
     @Test

@@ -8,13 +8,10 @@ import com.example.face.measure.RangePositionMapper
 import com.example.face.quality.Point3D
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import kotlin.math.abs
-import org.junit.runner.RunWith
-import org.robolectric.RobolectricTestRunner
-
-@RunWith(RobolectricTestRunner::class)
 class MeasurementUnitTest {
 
     private val calculator = MeasurementCalculator()
@@ -88,7 +85,7 @@ class MeasurementUnitTest {
         assertTrue(symmetryMetric != null)
         assertTrue(
             "Asymmetric face should have reduced symmetry score < 90, was ${symmetryMetric!!.value}",
-            symmetryMetric.value < 90f
+            symmetryMetric.value != null && symmetryMetric.value!! < 90f
         )
     }
 
@@ -99,13 +96,8 @@ class MeasurementUnitTest {
         val metrics = result.getOrNull()?.metrics!!
 
         val upper = metrics["vertical_thirds_upper"]!!.value
-        val mid = metrics["vertical_thirds_middle"]!!.value
-        val lower = metrics["vertical_thirds_lower"]!!.value
-
-        assertEquals(33.3f, upper, 1.5f)
-        assertEquals(33.3f, mid, 1.5f)
-        assertEquals(33.3f, lower, 1.5f)
-        assertEquals(100f, upper + mid + lower, 2.0f)
+        assertNull(upper)
+        assertEquals("Not measured", metrics["vertical_thirds_upper"]!!.rangePositionText)
     }
 
     @Test

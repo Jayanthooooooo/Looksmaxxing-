@@ -17,7 +17,7 @@ enum class ChangeabilityTag(val label: String) {
 data class MetricValue(
     val id: String,
     val name: String,
-    val value: Float,
+    val value: Float?,
     val sd: Float,
     val unit: String,
     val rangePosition: RangePosition,

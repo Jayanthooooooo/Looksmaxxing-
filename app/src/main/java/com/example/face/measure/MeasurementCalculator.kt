@@ -11,29 +11,30 @@ import kotlin.math.roundToInt
 import kotlin.math.sqrt
 
 object MediaPipeMesh {
-    const val TRICHION_ESTIMATE = 10
-    const val GLABELLA = 151
-    const val NASION = 9
+    const val NOSE_TIP = 1
     const val SUBNASALE = 2
+    const val NASION = 9
+    const val FOREHEAD = 10
     const val STOMION_UPPER = 13
     const val STOMION_LOWER = 14
-    const val MENTON = 152
-    const val ZYGION_LEFT = 234
-    const val ZYGION_RIGHT = 454
     const val EYE_OUTER_LEFT = 33
-    const val EYE_INNER_LEFT = 133
-    const val EYE_INNER_RIGHT = 362
-    const val EYE_OUTER_RIGHT = 263
-    const val ALARE_LEFT = 102
-    const val ALARE_RIGHT = 331
-    const val CHEILION_LEFT = 61
-    const val CHEILION_RIGHT = 291
-    const val GONION_LEFT = 132
-    const val GONION_RIGHT = 361
-    const val EYE_UPPER_LEFT = 159
-    const val EYE_LOWER_LEFT = 145
-    const val BROW_INNER_LEFT = 55
     const val BROW_OUTER_LEFT = 46
+    const val BROW_INNER_LEFT = 55
+    const val CHEILION_LEFT = 61
+    const val ALARE_LEFT = 102
+    const val GONION_LEFT = 132
+    const val EYE_INNER_LEFT = 133
+    const val EYE_LOWER_LEFT = 145
+    const val GLABELLA = 151
+    const val MENTON = 152
+    const val EYE_UPPER_LEFT = 159
+    const val ZYGION_LEFT = 234
+    const val EYE_OUTER_RIGHT = 263
+    const val CHEILION_RIGHT = 291
+    const val ALARE_RIGHT = 331
+    const val GONION_RIGHT = 361
+    const val EYE_INNER_RIGHT = 362
+    const val ZYGION_RIGHT = 454
 }
 
 class MeasurementCalculator {
@@ -91,23 +92,16 @@ class MeasurementCalculator {
             return Result.failure(Exception("Missing essential anatomical landmarks"))
         }
 
-        // Upper third estimation: use trichion landmark if present, else fallback to forehead regression factor
-        val trichion = normalizedLandmarks[MediaPipeMesh.TRICHION_ESTIMATE] ?: run {
-            val faceHeightEst = dist(nasion, menton).coerceAtLeast(1f)
-            Point3D(glabella.x, glabella.y - faceHeightEst * 0.33f, glabella.z)
-        }
-
         val stomion = Point3D((stomionUpper.x + stomionLower.x) / 2f, (stomionUpper.y + stomionLower.y) / 2f, (stomionUpper.z + stomionLower.z) / 2f)
 
         // 1. Vertical Thirds
-        val upperHeight = dist(trichion, glabella).coerceAtLeast(1f)
+        // Hairline (trichion) is not detectable in 468-point face mesh without hair segmentation.
+        // Therefore, upper third cannot be measured without inventing data.
+        val upperPct: Float? = null
         val midHeight = dist(glabella, subnasale).coerceAtLeast(1f)
         val lowerHeight = dist(subnasale, menton).coerceAtLeast(1f)
-        val totalVertical = upperHeight + midHeight + lowerHeight
-
-        val upperPct = (upperHeight / totalVertical) * 100f
-        val midPct = (midHeight / totalVertical) * 100f
-        val lowerPct = (lowerHeight / totalVertical) * 100f
+        val midPct: Float? = null
+        val lowerPct: Float? = null
 
         // 2. Horizontal Fifths & Intercanthal
         val seg1 = dist(zygionLeft, eyeOuterLeft).coerceAtLeast(1f)
@@ -183,8 +177,27 @@ class MeasurementCalculator {
         val metrics = mutableMapOf<String, MetricValue>()
         val subScores = mutableMapOf<String, Float>()
 
-        fun addMetric(id: String, value: Float, sd: Float, tag: ChangeabilityTag, isProvisional: Boolean = false) {
+        fun addMetric(id: String, value: Float?, sd: Float, tag: ChangeabilityTag, isProvisional: Boolean = false) {
             val band = RangePositionMapper.DEFAULT_BANDS[id]
+            if (value == null) {
+                metrics[id] = MetricValue(
+                    id = id,
+                    name = band?.name ?: id,
+                    value = null,
+                    sd = sd,
+                    unit = band?.unit ?: "",
+                    rangePosition = RangePosition.DESCRIPTIVE,
+                    rangePositionText = "Not measured",
+                    reliability = 0f,
+                    changeability = tag,
+                    typicalMin = band?.typicalMin ?: 0f,
+                    typicalMax = band?.typicalMax ?: 0f,
+                    isProvisional = isProvisional,
+                    sourceNote = "Hairline not detectable in landmark mesh"
+                )
+                return
+            }
+
             val ideal = band?.ideal ?: value
             val tolerance = band?.tolerance ?: 1.0f
 
@@ -230,13 +243,23 @@ class MeasurementCalculator {
         addMetric("nose_to_intercanthal_ratio", noseToIntercanthalRatio, 0.03f, ChangeabilityTag.STRUCTURE)
         addMetric("face_wh_ratio", faceWhRatio, 0.04f, ChangeabilityTag.STRUCTURE)
 
-        // Group Scores (0-100)
+        // Group Scores (0-100) computed strictly from non-null measurements
         val symScore = subScores["facial_symmetry_index"] ?: symmetryScore
-        val propScore = listOfNotNull(subScores["vertical_thirds_upper"], subScores["vertical_thirds_middle"], subScores["vertical_thirds_lower"], subScores["facial_index"]).average().toFloat()
-        val eyesScore = listOfNotNull(subScores["horizontal_fifths_intercanthal"], subScores["canthal_tilt"], subScores["eye_spacing"], subScores["eye_aspect_ratio"], subScores["brow_to_eye_distance"]).average().toFloat()
-        val noseScore = listOfNotNull(subScores["nasal_index"], subScores["nose_to_intercanthal_ratio"]).average().toFloat()
-        val lipsScore = listOfNotNull(subScores["mouth_to_interpupillary_ratio"], subScores["lip_ratio"], subScores["chin_to_philtrum_ratio"]).average().toFloat()
-        val jawChinScore = listOfNotNull(subScores["jaw_angle"], subScores["lower_third_split"], subScores["jaw_to_cheekbone_ratio"]).average().toFloat()
+        val propScores = listOfNotNull(subScores["vertical_thirds_upper"], subScores["vertical_thirds_middle"], subScores["vertical_thirds_lower"], subScores["facial_index"])
+        val propScore = if (propScores.isNotEmpty()) propScores.average().toFloat() else 80f
+
+        val eyesScores = listOfNotNull(subScores["horizontal_fifths_intercanthal"], subScores["canthal_tilt"], subScores["eye_spacing"], subScores["eye_aspect_ratio"], subScores["brow_to_eye_distance"])
+        val eyesScore = if (eyesScores.isNotEmpty()) eyesScores.average().toFloat() else 80f
+
+        val noseScores = listOfNotNull(subScores["nasal_index"], subScores["nose_to_intercanthal_ratio"])
+        val noseScore = if (noseScores.isNotEmpty()) noseScores.average().toFloat() else 80f
+
+        val lipsScores = listOfNotNull(subScores["mouth_to_interpupillary_ratio"], subScores["lip_ratio"], subScores["chin_to_philtrum_ratio"])
+        val lipsScore = if (lipsScores.isNotEmpty()) lipsScores.average().toFloat() else 80f
+
+        val jawChinScores = listOfNotNull(subScores["jaw_angle"], subScores["lower_third_split"], subScores["jaw_to_cheekbone_ratio"])
+        val jawChinScore = if (jawChinScores.isNotEmpty()) jawChinScores.average().toFloat() else 80f
+
         val skinScore = 85f // placeholder or skin engine score
 
         val groupScores = mapOf(
@@ -249,16 +272,28 @@ class MeasurementCalculator {
             "skin" to skinScore
         )
 
-        // Overall Face Score = weighted mean using ScoreWeights
-        val overallScore = (
-            ScoreWeights.SYMMETRY * symScore +
-            ScoreWeights.PROPORTIONS * propScore +
-            ScoreWeights.EYES * eyesScore +
-            ScoreWeights.NOSE * noseScore +
-            ScoreWeights.LIPS * lipsScore +
-            ScoreWeights.JAW_CHIN * jawChinScore +
-            ScoreWeights.SKIN * skinScore
-        ).coerceIn(10f, 99f)
+        // Overall Face Score = weighted mean using ScoreWeights for non-null groups
+        val weights = mapOf(
+            "symmetry" to ScoreWeights.SYMMETRY,
+            "proportions" to ScoreWeights.PROPORTIONS,
+            "eyes" to ScoreWeights.EYES,
+            "nose" to ScoreWeights.NOSE,
+            "lips" to ScoreWeights.LIPS,
+            "jaw_chin" to ScoreWeights.JAW_CHIN,
+            "skin" to ScoreWeights.SKIN
+        )
+
+        var totalWeight = 0f
+        var weightedSum = 0f
+        groupScores.forEach { (group, score) ->
+            val w = weights[group] ?: 0.1f
+            weightedSum += w * score
+            totalWeight += w
+        }
+
+        val overallScore = if (totalWeight > 0f) {
+            (weightedSum / totalWeight).coerceIn(10f, 99f)
+        } else 75f
 
         return Result.success(
             CalculatedMetrics(

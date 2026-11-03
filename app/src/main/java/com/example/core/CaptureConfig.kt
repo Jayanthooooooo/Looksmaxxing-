@@ -5,8 +5,8 @@ object CaptureConfig {
     const val MAX_FRONT_PITCH_DEG = 8.0f
     const val MAX_FRONT_ROLL_DEG = 6.0f
 
-    const val MIN_SIDE_YAW_DEG = 70.0f
-    const val MAX_SIDE_YAW_DEG = 90.0f
+    const val MIN_SIDE_YAW_DEG = 35.0f
+    const val MAX_SIDE_YAW_DEG = 75.0f
 
     const val MIN_FACE_WIDTH_RATIO = 0.40f
     const val MAX_FACE_WIDTH_RATIO = 0.75f

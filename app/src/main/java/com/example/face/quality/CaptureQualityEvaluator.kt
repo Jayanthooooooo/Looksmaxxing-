@@ -20,51 +20,64 @@ class CaptureQualityEvaluator {
             if (yawOk && pitchOk && rollOk) {
                 GateEvaluation(true)
             } else {
-                GateEvaluation(false, "Head turned or tilted. Look directly at camera.")
+                GateEvaluation(false, "Look directly at the camera.")
             }
         } else {
-            val yawOk = yaw in CaptureConfig.MIN_SIDE_YAW_DEG..CaptureConfig.MAX_SIDE_YAW_DEG ||
-                        yaw in (-CaptureConfig.MAX_SIDE_YAW_DEG)..(-CaptureConfig.MIN_SIDE_YAW_DEG)
+            val yawOk = abs(yaw) in CaptureConfig.MIN_SIDE_YAW_DEG..CaptureConfig.MAX_SIDE_YAW_DEG
             val pitchOk = abs(pitch) <= 12f
             if (yawOk && pitchOk) {
                 GateEvaluation(true)
             } else {
-                GateEvaluation(false, "Turn profile until yaw is 70-90 degrees.")
+                GateEvaluation(false, "Turn profile to 45° angle.")
             }
         }
     }
 
     fun evaluateDistance(boundingBox: Rect, frameWidth: Int, frameHeight: Int): GateEvaluation {
         if (frameWidth <= 0 || frameHeight <= 0) return GateEvaluation(false, "Invalid frame")
-        val faceWidthRatio = boundingBox.width().toFloat() / frameWidth.toFloat()
+        val bWidth = boundingBox.right - boundingBox.left
+        val faceWidthRatio = bWidth.toFloat() / frameWidth.toFloat()
+
+        val cx = (boundingBox.left + boundingBox.right) / 2f
+        val cy = (boundingBox.top + boundingBox.bottom) / 2f
+        val centerDx = abs(cx - frameWidth / 2f)
+        val centerDy = abs(cy - frameHeight / 2f)
+
+        val marginCutoff = boundingBox.left < frameWidth * 0.03f ||
+                boundingBox.top < frameHeight * 0.03f ||
+                boundingBox.right > frameWidth * 0.97f ||
+                boundingBox.bottom > frameHeight * 0.97f
+
+        val centerOff = centerDx > frameWidth * 0.12f || centerDy > frameHeight * 0.12f
 
         return when {
             faceWidthRatio < CaptureConfig.MIN_FACE_WIDTH_RATIO -> GateEvaluation(false, "Move phone closer")
             faceWidthRatio > CaptureConfig.MAX_FACE_WIDTH_RATIO -> GateEvaluation(false, "Move phone slightly further")
-            boundingBox.left < 0 || boundingBox.top < 0 || boundingBox.right > frameWidth || boundingBox.bottom > frameHeight -> {
-                GateEvaluation(false, "Face cut off by frame edge")
-            }
+            marginCutoff || centerOff -> GateEvaluation(false, "Centre your face in the oval")
             else -> GateEvaluation(true)
         }
     }
 
     fun evaluateLighting(meanLuma: Float, leftRightAsymmetry: Float): GateEvaluation {
         return when {
-            meanLuma < CaptureConfig.MIN_MEAN_LUMA -> GateEvaluation(false, "Lighting too dark. Face a natural light source.")
+            meanLuma < CaptureConfig.MIN_MEAN_LUMA -> GateEvaluation(false, "Lighting too dark. Face a light source.")
             meanLuma > CaptureConfig.MAX_MEAN_LUMA -> GateEvaluation(false, "Lighting too bright or direct glare.")
-            leftRightAsymmetry > CaptureConfig.MAX_LUMA_ASYMMETRY -> GateEvaluation(false, "Uneven lighting on one side of face.")
+            leftRightAsymmetry > CaptureConfig.MAX_LUMA_ASYMMETRY -> GateEvaluation(false, "Uneven lighting. Face light evenly.")
             else -> GateEvaluation(true)
         }
     }
 
     fun evaluateExpression(leftEyeOpen: Float?, rightEyeOpen: Float?, smileProb: Float?): GateEvaluation {
-        val leftEyeOk = leftEyeOpen == null || leftEyeOpen >= CaptureConfig.MIN_EYE_OPEN_PROB
-        val rightEyeOk = rightEyeOpen == null || rightEyeOpen >= CaptureConfig.MIN_EYE_OPEN_PROB
-        val smileOk = smileProb == null || smileProb <= CaptureConfig.MAX_SMILE_PROB
+        if (leftEyeOpen == null || rightEyeOpen == null || smileProb == null) {
+            return GateEvaluation(false, "Face not clearly visible")
+        }
+        val leftEyeOk = leftEyeOpen > CaptureConfig.MIN_EYE_OPEN_PROB
+        val rightEyeOk = rightEyeOpen > CaptureConfig.MIN_EYE_OPEN_PROB
+        val smileOk = smileProb < CaptureConfig.MAX_SMILE_PROB
 
         return when {
-            !leftEyeOk || !rightEyeOk -> GateEvaluation(false, "Eyes closed or squinting.")
-            !smileOk -> GateEvaluation(false, "Relax expression into neutral resting pose.")
+            !leftEyeOk || !rightEyeOk -> GateEvaluation(false, "Open eyes naturally.")
+            !smileOk -> GateEvaluation(false, "Keep a neutral expression.")
             else -> GateEvaluation(true)
         }
     }
@@ -72,8 +85,8 @@ class CaptureQualityEvaluator {
     fun evaluateStillness(centerXHistory: List<Float>, centerYHistory: List<Float>): GateEvaluation {
         if (centerXHistory.size < 2 || centerYHistory.size < 2) return GateEvaluation(true)
 
-        val xDelta = centerXHistory.maxOrNull()!! - centerXHistory.minOrNull()!!
-        val yDelta = centerYHistory.maxOrNull()!! - centerYHistory.minOrNull()!!
+        val xDelta = (centerXHistory.maxOrNull() ?: 0f) - (centerXHistory.minOrNull() ?: 0f)
+        val yDelta = (centerYHistory.maxOrNull() ?: 0f) - (centerYHistory.minOrNull() ?: 0f)
         val maxDrift = maxOf(xDelta, yDelta)
 
         return if (maxDrift <= CaptureConfig.MAX_STILLNESS_DRIFT_RATIO) {

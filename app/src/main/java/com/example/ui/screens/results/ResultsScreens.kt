@@ -295,9 +295,16 @@ fun ResultsScreen(
             )
 
             scan.metrics.values.forEach { metric ->
+                val displayVal = if (metric.value == null) {
+                    "Not measured"
+                } else if (hideNumbers) {
+                    metric.rangePositionText
+                } else {
+                    "${metric.value} ${metric.unit} (${metric.rangePositionText})"
+                }
                 MetricRow(
                     title = metric.name,
-                    valueDescription = if (hideNumbers) metric.rangePositionText else "${metric.value} ${metric.unit} (${metric.rangePositionText})",
+                    valueDescription = displayVal,
                     rangePosition = metric.rangePosition.name,
                     changeabilityTag = metric.changeability.label,
                     onClick = { onMetricClick(metric.id) },
@@ -308,7 +315,7 @@ fun ResultsScreen(
                             max = metric.typicalMax * 1.3f,
                             typicalMin = metric.typicalMin,
                             typicalMax = metric.typicalMax,
-                            rangePositionText = metric.rangePositionText,
+                            rangePositionText = if (metric.value == null) "Not measured" else metric.rangePositionText,
                             isProvisional = metric.isProvisional
                         )
                     }
@@ -370,13 +377,13 @@ fun MeasurementDetailScreen(
             ) {
                 Column(modifier = Modifier.padding(16.dp)) {
                     Text(
-                        text = "Value: ${metric.value} ${metric.unit}",
+                        text = if (metric.value == null) "Not measured" else "Value: ${metric.value} ${metric.unit}",
                         style = MaterialTheme.typography.headlineSmall,
                         color = MaterialTheme.colorScheme.onSurface
                     )
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
-                        text = metric.rangePositionText,
+                        text = if (metric.value == null) "Hairline not detectable by face mesh" else metric.rangePositionText,
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.primary
                     )
@@ -387,7 +394,7 @@ fun MeasurementDetailScreen(
                         max = metric.typicalMax * 1.3f,
                         typicalMin = metric.typicalMin,
                         typicalMax = metric.typicalMax,
-                        rangePositionText = "Typical: ${metric.typicalMin} - ${metric.typicalMax} ${metric.unit}",
+                        rangePositionText = if (metric.value == null) "Not measured" else "Typical: ${metric.typicalMin} - ${metric.typicalMax} ${metric.unit}",
                         isProvisional = metric.isProvisional
                     )
                 }
@@ -625,8 +632,8 @@ fun CompareScreen(
 
     val deltaChecks = remember(scanA, scanB) {
         if (scanA != null && scanB != null && scanA.id != scanB.id) {
-            val baseMap = scanA.metrics.mapValues { it.value.value }
-            val currentMap = scanB.metrics.mapValues { it.value.value }
+            val baseMap = scanA.metrics.mapNotNull { (k, v) -> v.value?.let { k to it } }.toMap()
+            val currentMap = scanB.metrics.mapNotNull { (k, v) -> v.value?.let { k to it } }.toMap()
             com.example.face.measure.NoiseFloorEvaluator.evaluateAll(baseMap, currentMap)
         } else {
             emptyList()

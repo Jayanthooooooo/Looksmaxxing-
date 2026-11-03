@@ -6,6 +6,8 @@ import android.graphics.Bitmap
 import androidx.test.core.app.ApplicationProvider
 import com.example.ui.screens.results.PostureAnalysisViewModel
 import com.example.ui.screens.results.PostureUiState
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.withTimeout
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.StandardTestDispatcher
@@ -46,6 +48,14 @@ class PostureAnalysisViewModelUnitTest {
     @Before
     fun setUp() {
         Dispatchers.setMain(testDispatcher)
+        val app = ApplicationProvider.getApplicationContext<LumoraApp>()
+        val testAppDispatchers = com.example.core.AppDispatchers(
+            main = testDispatcher,
+            io = testDispatcher,
+            default = testDispatcher
+        )
+        app.container.dispatchers = testAppDispatchers
+        app.container.postureRepository.dispatchers = testAppDispatchers
     }
 
     @After
@@ -59,10 +69,16 @@ class PostureAnalysisViewModelUnitTest {
         val nullViewModel = PostureAnalysisViewModel(app, FakeNullExtractor())
         val mockBitmap = Bitmap.createBitmap(200, 400, Bitmap.Config.ARGB_8888)
         nullViewModel.processSideBitmap(mockBitmap)
-        testDispatcher.scheduler.advanceUntilIdle()
+        var nullAttempts = 0
+        while ((nullViewModel.uiState.value as? PostureUiState.Success)?.currentBitmap == null && nullAttempts < 50) {
+            Thread.sleep(50)
+            org.robolectric.shadows.ShadowLooper.idleMainLooper()
+            testDispatcher.scheduler.advanceUntilIdle()
+            nullAttempts++
+        }
 
         val nullState = nullViewModel.uiState.value as? PostureUiState.Success
-        assertNotNull(nullState)
+        assertNotNull("Actual state: ${nullViewModel.uiState.value}", nullState)
         assertEquals("Not enough data", nullState!!.analysis.errorMessage)
         assertNull(nullState.analysis.band)
         assertNotNull(nullState.analysis.retakeTip)
@@ -71,10 +87,16 @@ class PostureAnalysisViewModelUnitTest {
         testDispatcher.scheduler.advanceUntilIdle()
 
         validViewModel.processSideBitmap(mockBitmap)
-        testDispatcher.scheduler.advanceUntilIdle()
+        var attempts = 0
+        while ((validViewModel.uiState.value as? PostureUiState.Success)?.currentBitmap == null && attempts < 50) {
+            Thread.sleep(50)
+            org.robolectric.shadows.ShadowLooper.idleMainLooper()
+            testDispatcher.scheduler.advanceUntilIdle()
+            attempts++
+        }
 
         val validState = validViewModel.uiState.value as? PostureUiState.Success
-        assertNotNull(validState)
+        assertNotNull("validState is null! Actual state: ${validViewModel.uiState.value}", validState)
         assertNull(validState!!.analysis.errorMessage)
         assertNotNull(validState.analysis.band)
     }
