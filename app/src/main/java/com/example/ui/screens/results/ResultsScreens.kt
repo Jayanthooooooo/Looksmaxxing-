@@ -114,7 +114,7 @@ fun ResultsScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding)
-                .padding(horizontal = 20.dp)
+                .padding(start = 20.dp, end = 20.dp, top = 8.dp, bottom = 120.dp)
                 .verticalScroll(rememberScrollState()),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {

@@ -181,7 +181,7 @@ fun LibraryScreen(
                     .fillMaxSize()
                     .padding(paddingValues)
                     .verticalScroll(rememberScrollState())
-                    .padding(horizontal = 20.dp, vertical = 8.dp)
+                    .padding(start = 20.dp, end = 20.dp, top = 8.dp, bottom = 120.dp)
             ) {
                 // Glossary banner card
                 Surface(

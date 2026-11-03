@@ -26,7 +26,7 @@ fun JourneyScreen(viewModel: JourneyViewModel, onNavigateBack: () -> Unit) {
     val nodes by viewModel.skillNodes.collectAsState()
     val unlockedCount = nodes.count { it.status == "DONE" }
     
-    Column(modifier = Modifier.fillMaxSize().padding(16.dp).verticalScroll(rememberScrollState())) {
+    Column(modifier = Modifier.fillMaxSize().padding(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 120.dp).verticalScroll(rememberScrollState())) {
         GoldEyebrow("SKILL TREE")
         Spacer(modifier = Modifier.height(8.dp))
         Row(horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier.fillMaxWidth()) {

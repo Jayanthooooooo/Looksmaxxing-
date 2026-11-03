@@ -524,7 +524,7 @@ fun LiveCaptureScreen(
                                 meshResult.faceCount
                             )
 
-                            if (!forced && (meshResult.faceCount != 1 || meshResult.landmarks.size < 468 || report.score < 50)) {
+                            if (meshResult.faceCount != 1 || meshResult.landmarks.size < 468 || report.score < 50) {
                                 withContext(Dispatchers.Main) {
                                     isCapturing = false
                                     captureErrorMessage = if (meshResult.faceCount != 1) {
@@ -538,10 +538,29 @@ fun LiveCaptureScreen(
                                 return@launch
                             }
 
+                            val computedBounds = if (meshResult.landmarks.isNotEmpty()) {
+                                val minX = meshResult.landmarks.values.minOf { it.x }
+                                val maxX = meshResult.landmarks.values.maxOf { it.x }
+                                val minY = meshResult.landmarks.values.minOf { it.y }
+                                val maxY = meshResult.landmarks.values.maxOf { it.y }
+                                val w = (maxX - minX).coerceAtLeast(1f)
+                                val h = (maxY - minY).coerceAtLeast(1f)
+                                val padX = w * 0.05f
+                                val padY = h * 0.05f
+                                Rect(
+                                    (minX - padX).toInt().coerceIn(0, finalBitmap.width),
+                                    (minY - padY).toInt().coerceIn(0, finalBitmap.height),
+                                    (maxX + padX).toInt().coerceIn(0, finalBitmap.width),
+                                    (maxY + padY).toInt().coerceIn(0, finalBitmap.height)
+                                )
+                            } else {
+                                Rect(0, 0, finalBitmap.width, finalBitmap.height)
+                            }
+
                             withContext(Dispatchers.Main) {
                                 ScanDraftHolder.capturedBitmap = finalBitmap
                                 ScanDraftHolder.aggregatedLandmarks = meshResult.landmarks
-                                ScanDraftHolder.faceBounds = currentGate.boundingBox ?: Rect(0, 0, finalBitmap.width, finalBitmap.height)
+                                ScanDraftHolder.faceBounds = computedBounds
                                 ScanDraftHolder.scanKind = kind
                                 ScanDraftHolder.qualityReport = if (forced) {
                                     report.copy(flags = report.flags + "Manual capture before all gates passed")

@@ -11,6 +11,9 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.isImeVisible
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -95,7 +98,9 @@ fun CoachScreen(
     var inputText by remember { mutableStateOf("") }
     val listState = rememberLazyListState()
 
-    LaunchedEffect(messages.size, messages.lastOrNull()?.text) {
+    val isImeVisible = WindowInsets.isImeVisible
+
+    LaunchedEffect(messages.size, messages.lastOrNull()?.text, isImeVisible) {
         if (messages.isNotEmpty()) {
             listState.animateScrollToItem(messages.size - 1)
         }
@@ -314,19 +319,20 @@ fun CoachScreen(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
+                    .imePadding()
                     .padding(16.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 OutlinedTextField(
                     value = inputText,
                     onValueChange = { inputText = it },
-                    placeholder = { Text("Ask your coach...", color = Color.White.copy(alpha = 0.4f)) },
+                    placeholder = { Text("Ask your coach...", color = Color.White.copy(alpha = 0.6f)) },
                     modifier = Modifier.weight(1f).testTag("coach_message_input"),
                     shape = RoundedCornerShape(24.dp),
                     colors = androidx.compose.material3.OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = LumoraColors.SecondaryCyan,
-                        unfocusedBorderColor = Color.White.copy(alpha = 0.1f),
-                        cursorColor = LumoraColors.SecondaryCyan,
+                        focusedBorderColor = LumoraColors.ChampagneGold,
+                        unfocusedBorderColor = Color.White.copy(alpha = 0.2f),
+                        cursorColor = LumoraColors.ChampagneGold,
                         focusedTextColor = Color.White,
                         unfocusedTextColor = Color.White
                     ),

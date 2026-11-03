@@ -19,7 +19,7 @@ import com.example.ui.theme.SerifHeadline
 fun BarberShopScreen(viewModel: BarberShopViewModel, onNavigateBack: () -> Unit) {
     val items by viewModel.items.collectAsState()
     
-    Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
+    Column(modifier = Modifier.fillMaxSize().padding(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 120.dp)) {
         SerifHeadline("Barber shop", fontSize = 24.sp)
         
         Spacer(modifier = Modifier.height(16.dp))

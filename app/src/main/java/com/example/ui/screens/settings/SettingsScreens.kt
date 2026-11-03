@@ -20,6 +20,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.BuildConfig
 import com.example.core.AppConfig
 import com.example.domain.model.ConsentState
 import com.example.ui.components.*
@@ -64,7 +65,7 @@ fun SettingsScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding)
-                .padding(20.dp)
+                .padding(start = 20.dp, end = 20.dp, top = 20.dp, bottom = 120.dp)
                 .verticalScroll(rememberScrollState()),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
@@ -100,7 +101,7 @@ fun SettingsScreen(
                 testTag = "settings_subscription"
             )
 
-            if (onTestAiConnection != null) {
+            if (BuildConfig.DEBUG && onTestAiConnection != null) {
                 GlassCard(
                     modifier = Modifier
                         .fillMaxWidth()

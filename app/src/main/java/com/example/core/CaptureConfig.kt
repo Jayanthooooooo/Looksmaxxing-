@@ -21,7 +21,7 @@ object CaptureConfig {
     const val MIN_EYE_OPEN_PROB = 0.60f
     const val MAX_SMILE_PROB = 0.30f
 
-    const val MAX_STILLNESS_DRIFT_RATIO = 0.015f
+    const val MAX_STILLNESS_DRIFT_RATIO = 0.03f
     const val STILLNESS_WINDOW_MS = 600L
 
     const val REQUIRED_CONSECUTIVE_FRAMES = 8

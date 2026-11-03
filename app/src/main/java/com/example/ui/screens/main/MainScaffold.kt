@@ -7,11 +7,14 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.isImeVisible
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
@@ -27,7 +30,6 @@ import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationRail
 import androidx.compose.material3.NavigationRailItem
 import androidx.compose.material3.Scaffold
@@ -55,6 +57,7 @@ enum class MainTab(val label: String, val icon: ImageVector) {
     YOU("Profile", Icons.Default.Person)
 }
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun MainScaffold(
     currentTab: MainTab,
@@ -94,124 +97,120 @@ fun MainScaffold(
             }
         }
     } else {
+        val isImeVisible = WindowInsets.isImeVisible
         Scaffold(
             bottomBar = {
-                // Outer container for floating bottom bar and floating gold AI button
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .navigationBarsPadding()
-                        .padding(horizontal = 16.dp, vertical = 12.dp)
-                ) {
-                    // Floating rounded bottom bar
-                    Surface(
+                if (!isImeVisible) {
+                    Box(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(64.dp)
-                            .shadow(16.dp, RoundedCornerShape(32.dp))
-                            .testTag("main_bottom_nav"),
-                        shape = RoundedCornerShape(32.dp),
-                        color = Color(0xFF141419).copy(alpha = 0.94f),
-                        border = androidx.compose.foundation.BorderStroke(
-                            1.dp,
-                            Color.White.copy(alpha = 0.12f)
-                        )
+                            .navigationBarsPadding()
+                            .padding(horizontal = 16.dp, vertical = 12.dp)
                     ) {
-                        Row(
+                        Surface(
                             modifier = Modifier
-                                .fillMaxSize()
-                                .padding(horizontal = 10.dp),
-                            verticalAlignment = Alignment.CenterVertically
+                                .fillMaxWidth()
+                                .height(64.dp)
+                                .shadow(16.dp, RoundedCornerShape(32.dp))
+                                .testTag("main_bottom_nav"),
+                            shape = RoundedCornerShape(32.dp),
+                            color = Color(0xFF141419).copy(alpha = 0.94f),
+                            border = androidx.compose.foundation.BorderStroke(
+                                1.dp,
+                                Color.White.copy(alpha = 0.12f)
+                            )
                         ) {
-                            // Home tab
-                            NavTabButton(
-                                label = "Home",
-                                icon = Icons.Default.Home,
-                                isSelected = currentTab == MainTab.TODAY,
-                                onClick = { onTabSelected(MainTab.TODAY) },
-                                testTag = "nav_tab_today"
-                            )
-
-                            // Progress tab
-                            NavTabButton(
-                                label = "Progress",
-                                icon = Icons.AutoMirrored.Filled.ShowChart,
-                                isSelected = currentTab == MainTab.PROGRESS,
-                                onClick = { onTabSelected(MainTab.PROGRESS) },
-                                testTag = "nav_tab_progress"
-                            )
-
-                            // Profile tab
-                            NavTabButton(
-                                label = "Profile",
-                                icon = Icons.Default.Person,
-                                isSelected = currentTab == MainTab.YOU,
-                                onClick = { onTabSelected(MainTab.YOU) },
-                                testTag = "nav_tab_you"
-                            )
-
-                            Spacer(modifier = Modifier.weight(1f))
-
-                            // Separate light pill button "Scan" on the right
-                            Surface(
-                                onClick = onCenterScanClick,
-                                shape = RoundedCornerShape(20.dp),
-                                color = Color(0xFFF0F0F3), // light pill button
-                                contentColor = Color(0xFF0B0B0F),
-                                shadowElevation = 4.dp,
+                            Row(
                                 modifier = Modifier
-                                    .padding(end = 6.dp)
-                                    .testTag("center_scan_fab")
+                                    .fillMaxSize()
+                                    .padding(horizontal = 10.dp),
+                                verticalAlignment = Alignment.CenterVertically
                             ) {
-                                Row(
-                                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 9.dp),
-                                    verticalAlignment = Alignment.CenterVertically,
-                                    horizontalArrangement = Arrangement.spacedBy(6.dp)
+                                NavTabButton(
+                                    label = "Home",
+                                    icon = Icons.Default.Home,
+                                    isSelected = currentTab == MainTab.TODAY,
+                                    onClick = { onTabSelected(MainTab.TODAY) },
+                                    testTag = "nav_tab_today"
+                                )
+
+                                NavTabButton(
+                                    label = "Progress",
+                                    icon = Icons.AutoMirrored.Filled.ShowChart,
+                                    isSelected = currentTab == MainTab.PROGRESS,
+                                    onClick = { onTabSelected(MainTab.PROGRESS) },
+                                    testTag = "nav_tab_progress"
+                                )
+
+                                NavTabButton(
+                                    label = "Profile",
+                                    icon = Icons.Default.Person,
+                                    isSelected = currentTab == MainTab.YOU,
+                                    onClick = { onTabSelected(MainTab.YOU) },
+                                    testTag = "nav_tab_you"
+                                )
+
+                                Spacer(modifier = Modifier.weight(1f))
+
+                                Surface(
+                                    onClick = onCenterScanClick,
+                                    shape = RoundedCornerShape(20.dp),
+                                    color = Color(0xFFF0F0F3),
+                                    contentColor = Color(0xFF0B0B0F),
+                                    shadowElevation = 4.dp,
+                                    modifier = Modifier
+                                        .padding(end = 6.dp)
+                                        .testTag("center_scan_fab")
                                 ) {
-                                    Icon(
-                                        imageVector = Icons.Default.CameraAlt,
-                                        contentDescription = "Scan",
-                                        tint = Color(0xFF0B0B0F),
-                                        modifier = Modifier.size(18.dp)
-                                    )
-                                    Text(
-                                        text = "Scan",
-                                        fontFamily = PlusJakartaSans,
-                                        fontWeight = FontWeight.SemiBold,
-                                        fontSize = 14.sp,
-                                        color = Color(0xFF0B0B0F)
-                                    )
+                                    Row(
+                                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 9.dp),
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        horizontalArrangement = Arrangement.spacedBy(6.dp)
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.Default.CameraAlt,
+                                            contentDescription = "Scan",
+                                            tint = Color(0xFF0B0B0F),
+                                            modifier = Modifier.size(18.dp)
+                                        )
+                                        Text(
+                                            text = "Scan",
+                                            fontFamily = PlusJakartaSans,
+                                            fontWeight = FontWeight.SemiBold,
+                                            fontSize = 14.sp,
+                                            color = Color(0xFF0B0B0F)
+                                        )
+                                    }
                                 }
                             }
                         }
-                    }
 
-                    // Small round gold "AI" button floating above the bar on the right
-                    Box(
-                        modifier = Modifier
-                            .align(Alignment.TopEnd)
-                            .padding(end = 22.dp)
-                            .offset(y = (-20).dp)
-                            .size(44.dp)
-                            .shadow(8.dp, CircleShape)
-                            .clip(CircleShape)
-                            .background(Color(0xFFD9C59B)) // champagne gold
-                            .border(
-                                width = if (currentTab == MainTab.COACH) 2.dp else 1.dp,
-                                color = if (currentTab == MainTab.COACH) Color.White else Color(0xFFF2E6CE),
-                                shape = CircleShape
+                        Box(
+                            modifier = Modifier
+                                .align(Alignment.TopEnd)
+                                .padding(end = 22.dp)
+                                .offset(y = (-20).dp)
+                                .size(44.dp)
+                                .shadow(8.dp, CircleShape)
+                                .clip(CircleShape)
+                                .background(Color(0xFFD9C59B))
+                                .border(
+                                    width = if (currentTab == MainTab.COACH) 2.dp else 1.dp,
+                                    color = if (currentTab == MainTab.COACH) Color.White else Color(0xFFF2E6CE),
+                                    shape = CircleShape
+                                )
+                                .clickable { onTabSelected(MainTab.COACH) }
+                                .testTag("nav_tab_coach"),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                text = "AI",
+                                fontFamily = PlusJakartaSans,
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 14.sp,
+                                color = Color(0xFF0B0B0F)
                             )
-                            .clickable { onTabSelected(MainTab.COACH) }
-                            .testTag("nav_tab_coach"),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(
-                            text = "AI",
-                            fontFamily = PlusJakartaSans,
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 14.sp,
-                            color = Color(0xFF0B0B0F)
-                        )
+                        }
                     }
                 }
             },

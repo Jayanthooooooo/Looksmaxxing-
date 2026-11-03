@@ -136,7 +136,7 @@ fun TodayScreen(
         modifier = modifier
             .fillMaxSize()
             .verticalScroll(rememberScrollState())
-            .padding(horizontal = 20.dp, vertical = 16.dp)
+            .padding(start = 20.dp, end = 20.dp, top = 16.dp, bottom = 120.dp)
             .testTag("today_screen")
     ) {
         // TOP: small caps label with month and year and "Today" pill on the right

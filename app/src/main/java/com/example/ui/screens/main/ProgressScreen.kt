@@ -123,7 +123,7 @@ fun ProgressScreen(
         modifier = modifier
             .fillMaxSize()
             .verticalScroll(rememberScrollState())
-            .padding(horizontal = 20.dp, vertical = 16.dp)
+            .padding(start = 20.dp, end = 20.dp, top = 16.dp, bottom = 120.dp)
             .testTag("progress_screen")
     ) {
         // Eyebrow with full date (e.g. "SATURDAY 31 OCTOBER")
