@@ -78,7 +78,10 @@ abstract class LumoraDatabase : RoomDatabase() {
                     context.applicationContext,
                     LumoraDatabase::class.java,
                     "lumora.db"
-                ).addMigrations(MIGRATION_5_6).build()
+                )
+                    .fallbackToDestructiveMigrationFrom(true, 1, 2, 3, 4)
+                    .addMigrations(MIGRATION_5_6)
+                    .build()
                 INSTANCE = instance
                 instance
             }

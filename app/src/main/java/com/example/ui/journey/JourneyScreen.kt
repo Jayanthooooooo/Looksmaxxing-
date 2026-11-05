@@ -35,9 +35,12 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -68,10 +71,18 @@ import com.example.ui.util.SparkleBurstAnimation
 fun JourneyScreen(viewModel: JourneyViewModel, onNavigateBack: () -> Unit) {
     val context = LocalContext.current
     val nodes by viewModel.skillNodes.collectAsState()
+    val nodeProgress by viewModel.nodeProgress.collectAsState()
     val unlockedCount = nodes.count { it.status == "DONE" }
 
+    val snackbarHostState = remember { SnackbarHostState() }
     var selectedPhotoNodeId by remember { mutableStateOf<String?>(null) }
     var sparkleNodeId by remember { mutableStateOf<String?>(null) }
+
+    LaunchedEffect(Unit) {
+        viewModel.snackbarEvent.collect { message ->
+            snackbarHostState.showSnackbar(message)
+        }
+    }
 
     // Camera launcher
     val cameraLauncher = rememberLauncherForActivityResult(
@@ -79,9 +90,10 @@ fun JourneyScreen(viewModel: JourneyViewModel, onNavigateBack: () -> Unit) {
     ) { bitmap ->
         val nodeId = selectedPhotoNodeId
         if (bitmap != null && nodeId != null) {
-            viewModel.saveProofPhoto(nodeId, bitmap)
-            Haptics.light(context)
-            sparkleNodeId = nodeId
+            viewModel.saveProofPhoto(nodeId, bitmap) {
+                Haptics.light(context)
+                sparkleNodeId = nodeId
+            }
             selectedPhotoNodeId = null
         }
     }
@@ -99,15 +111,17 @@ fun JourneyScreen(viewModel: JourneyViewModel, onNavigateBack: () -> Unit) {
                     @Suppress("DEPRECATION")
                     MediaStore.Images.Media.getBitmap(context.contentResolver, uri)
                 }
-                viewModel.saveProofPhoto(nodeId, bitmap)
-                Haptics.light(context)
-                sparkleNodeId = nodeId
+                viewModel.saveProofPhoto(nodeId, bitmap) {
+                    Haptics.light(context)
+                    sparkleNodeId = nodeId
+                }
             } catch (_: Exception) {}
             selectedPhotoNodeId = null
         }
     }
 
     Scaffold(
+        snackbarHost = { SnackbarHost(snackbarHostState) },
         topBar = {
             LumoraTopBar(
                 title = "Skill Tree",
@@ -169,6 +183,7 @@ fun JourneyScreen(viewModel: JourneyViewModel, onNavigateBack: () -> Unit) {
             items(nodes, key = { it.id }) { node ->
                 SkillNodeCard(
                     node = node,
+                    progressText = nodeProgress[node.id],
                     photoVault = viewModel.photoVault,
                     showSparkle = sparkleNodeId == node.id,
                     onSparkleComplete = { sparkleNodeId = null },
@@ -282,6 +297,7 @@ fun JourneyScreen(viewModel: JourneyViewModel, onNavigateBack: () -> Unit) {
 @Composable
 fun SkillNodeCard(
     node: SkillNodeEntity,
+    progressText: String? = null,
     photoVault: com.example.data.local.PhotoVault,
     showSparkle: Boolean,
     onSparkleComplete: () -> Unit,
@@ -391,6 +407,17 @@ fun SkillNodeCard(
                     color = Color.White.copy(alpha = 0.65f),
                     modifier = Modifier.padding(top = 2.dp)
                 )
+
+                if (!isPhotoNode && !progressText.isNullOrBlank()) {
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        text = progressText,
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        color = if (isDone) LumoraColors.ChampagneGold else Color.White.copy(alpha = 0.7f),
+                        modifier = Modifier.testTag("node_progress_${node.id}")
+                    )
+                }
 
                 if (isPhotoNode && isDone && proofBitmap != null) {
                     Spacer(modifier = Modifier.height(10.dp))

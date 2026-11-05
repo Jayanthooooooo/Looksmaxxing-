@@ -5,21 +5,45 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.data.local.PhotoVault
 import com.example.data.local.dao.HabitDao
+import com.example.data.local.dao.PostureDao
 import com.example.data.local.dao.ScanDao
 import com.example.data.local.dao.SkillNodeDao
+import com.example.data.local.entity.HabitEntity
+import com.example.data.local.entity.ScanEntity
 import com.example.data.local.entity.SkillNodeEntity
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import java.time.Instant
+import java.time.LocalDate
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
+import java.time.temporal.IsoFields
 
 class JourneyViewModel(
     private val skillNodeDao: SkillNodeDao,
     private val habitDao: HabitDao,
     private val scanDao: ScanDao,
+    private val postureDao: PostureDao,
     val photoVault: PhotoVault
 ) : ViewModel() {
+
+    private val habitNodeMapping = mapOf(
+        "skincare_7" to setOf("habit_am_cleanser", "habit_pm_hydration", "habit_skin_am_routine", "habit_skin_pm_routine"),
+        "sunscreen_14" to setOf("habit_spf"),
+        "sleep_7" to setOf("habit_sleep"),
+        "hydration_7" to setOf("habit_water"),
+        "posture_streak_3" to setOf("habit_chin_tucks", "habit_screen_resets")
+    )
 
     private val defaultNodes = listOf(
         SkillNodeEntity("first_face_scan", "First Face Scan", "Perform your initial facial structure scan.", "IN_PROGRESS", "SCAN", 1),
@@ -39,47 +63,192 @@ class JourneyViewModel(
         SkillNodeEntity("scan_master_5", "Consistent Tracker", "Complete 5 total face scans over time.", "IN_PROGRESS", "SCAN", 5)
     )
 
+    private val _snackbarEvent = MutableSharedFlow<String>()
+    val snackbarEvent: SharedFlow<String> = _snackbarEvent.asSharedFlow()
+
+    private val _nodeProgress = MutableStateFlow<Map<String, String>>(emptyMap())
+    val nodeProgress: StateFlow<Map<String, String>> = _nodeProgress.asStateFlow()
+
+    init {
+        viewModelScope.launch(Dispatchers.IO) {
+            val existingHabits = habitDao.getAllHabits()
+            val existingIds = existingHabits.map { it.id }.toSet()
+            val dailyScheduleJson = "[\"MON\",\"TUE\",\"WED\",\"THU\",\"FRI\",\"SAT\",\"SUN\"]"
+
+            if ("habit_sleep" !in existingIds) {
+                habitDao.insertOrUpdateHabit(
+                    HabitEntity(
+                        id = "habit_sleep",
+                        label = "Sleep 7+ hours",
+                        pillar = "Posture/Sleep",
+                        scheduleJson = dailyScheduleJson,
+                        active = true,
+                        orderIdx = existingHabits.size
+                    )
+                )
+            }
+
+            if ("habit_water" !in existingIds) {
+                habitDao.insertOrUpdateHabit(
+                    HabitEntity(
+                        id = "habit_water",
+                        label = "Drink 2-3 L water",
+                        pillar = "Habits",
+                        scheduleJson = dailyScheduleJson,
+                        active = true,
+                        orderIdx = existingHabits.size + 1
+                    )
+                )
+            }
+        }
+    }
+
     val skillNodes: StateFlow<List<SkillNodeEntity>> = combine(
         skillNodeDao.getAllNodes(),
         habitDao.observeAllCompletedLogs(),
-        scanDao.observeAllActiveScans()
-    ) { nodes, habitLogs, scans ->
+        scanDao.observeAllActiveScans(),
+        postureDao.observeAllPostureLogs()
+    ) { nodes, habitLogs, scans, postureLogs ->
         if (nodes.isEmpty()) {
             skillNodeDao.insertNodes(defaultNodes)
             return@combine defaultNodes
         }
 
-        val scanCount = scans.size
-        val habitDoneCounts = habitLogs.groupBy { it.habitId }.mapValues { it.value.size }
+        val progressMap = mutableMapOf<String, String>()
 
         nodes.forEach { node ->
-            if (node.status != "DONE") {
-                if (node.requirementType == "SCAN" && scanCount >= node.requirementValue) {
-                    skillNodeDao.updateNodeStatus(node.id, "DONE")
-                } else if (node.requirementType == "HABIT") {
-                    val habitCount = habitDoneCounts[node.id] ?: habitDoneCounts.values.maxOrNull() ?: 0
-                    if (habitCount >= node.requirementValue) {
-                        skillNodeDao.updateNodeStatus(node.id, "DONE")
+            when (node.requirementType) {
+                "HABIT" -> {
+                    val mappedHabitIds = habitNodeMapping[node.id]
+                    val target = node.requirementValue
+                    if (mappedHabitIds != null) {
+                        val doneDates = habitLogs
+                            .filter { it.done && it.habitId in mappedHabitIds }
+                            .map { it.date }
+                            .toSet()
+                        val bestStreak = calculateBestStreak(doneDates)
+                        val current = if (node.status == "DONE") target else minOf(bestStreak, target)
+                        progressMap[node.id] = "$current / $target days"
+
+                        if (node.status != "DONE" && bestStreak >= target) {
+                            skillNodeDao.updateNodeStatus(node.id, "DONE")
+                        }
+                    } else {
+                        // If a node id has no mapping, leave it IN_PROGRESS. Never guess.
+                        val current = if (node.status == "DONE") target else 0
+                        progressMap[node.id] = "$current / $target days"
                     }
+                }
+                "SCAN" -> {
+                    val target = node.requirementValue
+                    when (node.id) {
+                        "posture_check" -> {
+                            val count = postureLogs.size
+                            val current = if (node.status == "DONE") target else minOf(count, target)
+                            progressMap[node.id] = "$current / $target scans"
+
+                            if (node.status != "DONE" && count >= 1) {
+                                skillNodeDao.updateNodeStatus(node.id, "DONE")
+                            }
+                        }
+                        "weekly_rescan" -> {
+                            val distinctWeeks = calculateDistinctIsoWeeks(scans)
+                            val current = if (node.status == "DONE") target else minOf(distinctWeeks, target)
+                            progressMap[node.id] = "$current / $target scans"
+
+                            if (node.status != "DONE" && distinctWeeks >= 3) {
+                                skillNodeDao.updateNodeStatus(node.id, "DONE")
+                            }
+                        }
+                        else -> {
+                            val count = scans.size
+                            val current = if (node.status == "DONE") target else minOf(count, target)
+                            progressMap[node.id] = "$current / $target scans"
+
+                            if (node.status != "DONE" && count >= target) {
+                                skillNodeDao.updateNodeStatus(node.id, "DONE")
+                            }
+                        }
+                    }
+                }
+                "PHOTO" -> {
+                    // Photo proof node progress is not text-based
                 }
             }
         }
 
+        _nodeProgress.value = progressMap
         nodes
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
-    fun saveProofPhoto(nodeId: String, bitmap: Bitmap) {
-        viewModelScope.launch {
+    private fun calculateBestStreak(dateStrings: Set<String>): Int {
+        if (dateStrings.isEmpty()) return 0
+        val dates = dateStrings.mapNotNull { str ->
+            try {
+                LocalDate.parse(str, DateTimeFormatter.BASIC_ISO_DATE)
+            } catch (_: Exception) {
+                null
+            }
+        }.distinct().sorted()
+
+        if (dates.isEmpty()) return 0
+        var maxStreak = 1
+        var currentStreak = 1
+        for (i in 1 until dates.size) {
+            val prev = dates[i - 1]
+            val curr = dates[i]
+            if (curr == prev.plusDays(1)) {
+                currentStreak++
+                if (currentStreak > maxStreak) {
+                    maxStreak = currentStreak
+                }
+            } else if (curr != prev) {
+                currentStreak = 1
+            }
+        }
+        return maxStreak
+    }
+
+    private fun calculateDistinctIsoWeeks(scans: List<ScanEntity>): Int {
+        if (scans.isEmpty()) return 0
+        val zone = ZoneId.systemDefault()
+        return scans.map { scan ->
+            val zdt = Instant.ofEpochMilli(scan.createdAt).atZone(zone)
+            val week = zdt.get(IsoFields.WEEK_OF_WEEK_BASED_YEAR)
+            val year = zdt.get(IsoFields.WEEK_BASED_YEAR)
+            "$year-$week"
+        }.distinct().size
+    }
+
+    fun saveProofPhoto(nodeId: String, bitmap: Bitmap, onSuccess: (() -> Unit)? = null) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val maxDim = 1280
+            val width = bitmap.width
+            val height = bitmap.height
+            val scaledBitmap = if (width > maxDim || height > maxDim) {
+                val scale = maxDim.toFloat() / maxOf(width, height)
+                val targetWidth = (width * scale).toInt().coerceAtLeast(1)
+                val targetHeight = (height * scale).toInt().coerceAtLeast(1)
+                Bitmap.createScaledBitmap(bitmap, targetWidth, targetHeight, true)
+            } else {
+                bitmap
+            }
+
             val fileId = "proof_$nodeId"
-            val file = photoVault.saveEncryptedPhoto(fileId, bitmap)
+            val file = photoVault.saveEncryptedPhoto(fileId, scaledBitmap)
             if (file != null) {
                 skillNodeDao.updateNodeProofAndStatus(nodeId, "DONE", fileId)
+                withContext(Dispatchers.Main) {
+                    onSuccess?.invoke()
+                }
+            } else {
+                _snackbarEvent.emit("Could not save photo")
             }
         }
     }
 
     fun removeProofPhoto(nodeId: String) {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             val fileId = "proof_$nodeId"
             photoVault.deletePhoto(fileId)
             skillNodeDao.updateNodeProofAndStatus(nodeId, "IN_PROGRESS", null)

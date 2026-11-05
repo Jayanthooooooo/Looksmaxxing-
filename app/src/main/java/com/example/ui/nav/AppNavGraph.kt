@@ -1139,6 +1139,7 @@ fun AppNavGraph(
                             skillNodeDao = container.database.skillNodeDao(),
                             habitDao = container.database.habitDao(),
                             scanDao = container.database.scanDao(),
+                            postureDao = container.database.postureDao(),
                             photoVault = container.photoVault
                         ) as T
                     }
